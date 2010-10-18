@@ -16,6 +16,10 @@ module Onyx
         def compile_add
             @ops << ADD
         end
+
+        def compile_mul
+            @ops << MUL
+        end
     end
 end
 

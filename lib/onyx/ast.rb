@@ -21,7 +21,8 @@ module Onyx
     end
 
     class ESend < Expr
-        Specials = {:+ => :compile_plus}
+        Specials = {:+ => :compile_add,
+                    :* => :compile_mul}
 
         def initialize(rcvr, msg, args)
             @rcvr = rcvr
@@ -42,8 +43,12 @@ module Onyx
             end
         end
 
-        def compile_plus(c)
+        def compile_add(c)
             c.compile_add
+        end
+
+        def compile_mul(c)
+            c.compile_mul
         end
     end
 end

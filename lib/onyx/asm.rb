@@ -26,6 +26,16 @@ module Onyx
 
     ADD = AddOp.instance
 
+    class MulOp < Inst
+        include Singleton
+
+        def assemble_with(asm)
+            asm.code << 0x42
+        end
+    end
+
+    MUL = MulOp.instance
+
     class LDC < Inst
         attr_reader :value
 

@@ -39,4 +39,9 @@ class TestAssembler < Test::Unit::TestCase
         m = assemble([HALT])
         assert_equal(Method.new("\xFF", []), m)
     end
+
+    def test_same_lits
+        m = assemble([LDC.new(3), LDC.new(3)])
+        assert_equal(Method.new("\x00\x00", [3]), m)
+    end
 end

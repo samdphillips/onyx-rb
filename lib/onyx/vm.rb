@@ -105,11 +105,13 @@ module Onyx
 
         def do_smi_prim
             low = @op & 0xF
+            a = pop
+            b = pop
 
             if low == 0x0 then
-                a = pop
-                b = pop
                 push(a + b)
+            elsif low == 0x2 then
+                push(a * b)
             else
                 op_error
             end
