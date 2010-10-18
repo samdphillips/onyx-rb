@@ -1,4 +1,6 @@
 
+require 'stringio'
+
 module Onyx
     class VmError < Exception
         def initialize(vm)
