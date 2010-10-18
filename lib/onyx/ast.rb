@@ -31,7 +31,7 @@ module Onyx
         end
 
         def compile_with(c)
-            @args.reverse.each do | a |
+            @args.each do | a |
                 c.compile(a)
             end
             c.compile(@rcvr)
