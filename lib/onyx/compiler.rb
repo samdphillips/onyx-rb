@@ -2,16 +2,19 @@
 module Onyx
     class Compiler
         def initialize
+            @ops = []
         end
 
         def compile(ast)
-            @ops = []
             ast.compile_with(self)
-            @ops
         end
 
         def compile_const(value)
             @ops << LDC.new(value)
+        end
+
+        def compile_add
+            @ops << ADD
         end
     end
 end

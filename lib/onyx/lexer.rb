@@ -43,6 +43,7 @@ module Onyx
             (?0 .. ?9).each {|i| @char_table[i] = :digit }
             " \t\n\r".each_byte {|i| @char_table[i] = :space }
             @char_table[?-] = :dash
+            "`~!@%&*+=\\?/<>,".each_byte {|i| @char_table[i] = :binsel }
         end
 
         def initialize(io)
@@ -79,6 +80,10 @@ module Onyx
             raise LexError.new(self)
         end
 
+        def scan_eof
+            Token.new(:eof, :eof)
+        end
+
         def scan_space
             while cur_type == :space do
                 step
@@ -112,6 +117,19 @@ module Onyx
                 s = read_binsel
                 Token.new(:binsel, ('-' + s).to_sym)
             end
+        end
+
+        def read_binsel
+            buf = ''
+            while cur_type == :binsel do
+                buf << cur_char
+                step
+            end
+            buf
+        end
+
+        def scan_binsel
+            Token.new(:binsel, read_binsel.to_sym)
         end
     end
 end

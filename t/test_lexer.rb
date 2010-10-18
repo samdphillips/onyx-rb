@@ -31,5 +31,15 @@ class TestLexer < Test::Unit::TestCase
         l = lex_string('-1')
         assert_token(l, :int, -1)
     end
+
+    def test_lex_binsel
+        l = lex_string('+')
+        assert_token(l, :binsel, :+)
+    end
+
+    def test_lex_binsel_sub
+        l = lex_string('-')
+        assert_token(l, :binsel, :-)
+    end
 end
 

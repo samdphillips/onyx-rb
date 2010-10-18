@@ -28,5 +28,10 @@ class TestVm < Test::Unit::TestCase
         assert_equal(-1, vm.tos)
     end
 
+    def test_add
+        vm = doit('3 + 4')
+        assert_equal(7, vm.tos)
+    end
+
 end
 

@@ -16,6 +16,16 @@ module Onyx
 
     HALT = HaltOp.instance
 
+    class AddOp < Inst
+        include Singleton
+
+        def assemble_with(asm)
+            asm.code << 0x40
+        end
+    end
+
+    ADD = AddOp.instance
+
     class LDC < Inst
         attr_reader :value
 

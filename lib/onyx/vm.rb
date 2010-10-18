@@ -38,6 +38,11 @@ module Onyx
             @sp = @sp + 1
         end
 
+        def pop
+            @sp = @sp - 1
+            @stack[@sp]
+        end
+
         def tos
             @stack[@sp - 1]
         end
@@ -46,6 +51,10 @@ module Onyx
             if @trace then
                 puts s
             end
+        end
+
+        def op_error
+            raise OpError.new(self)
         end
 
         def run
@@ -65,14 +74,16 @@ module Onyx
             
             if high == 0 then
                 push_const
+            elsif high == 4 then
+                do_smi_prim
             elsif high == 0xF then
                 if @op == 0xFF then
                     @is_running = false
                 else
-                    do_primitive
+                    do_prim
                 end
             else
-                raise OpError.new(self)
+                op_error
             end
         end
 
@@ -89,6 +100,20 @@ module Onyx
             else
                 push(lits[low])
             end
+            @ip = @ip + 1
+        end
+
+        def do_smi_prim
+            low = @op & 0xF
+
+            if low == 0x0 then
+                a = pop
+                b = pop
+                push(a + b)
+            else
+                op_error
+            end
+
             @ip = @ip + 1
         end
     end
