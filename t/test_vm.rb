@@ -1,0 +1,32 @@
+
+require 'onyx'
+require 'test/unit'
+
+class TestVm < Test::Unit::TestCase
+    include Onyx
+
+    def doit(s, trace=false)
+        p = Parser.new(StringIO.new(s))
+        i = Compiler.new.compile(p.parse_expr)
+        meth = Assembler.new.assemble(i << HALT)
+        vm = OVM.new(meth)
+        vm.trace = trace
+        vm.run
+    end
+
+    def test_const_int
+        vm = doit('42')
+        assert_equal(42, vm.tos)
+    end
+
+    def test_const_int_special
+        vm = doit('0')
+        assert_equal(0, vm.tos)
+        vm = doit('1')
+        assert_equal(1, vm.tos)
+        vm = doit('-1')
+        assert_equal(-1, vm.tos)
+    end
+
+end
+
