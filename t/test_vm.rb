@@ -6,12 +6,9 @@ class TestVm < Test::Unit::TestCase
     include Onyx
 
     def doit(s, trace=false)
-        p = Parser.new(StringIO.new(s))
-        i = Compiler.new.compile(p.parse_expr)
-        meth = Assembler.new.assemble(i << HALT)
-        vm = OVM.new(meth)
+        vm = OVM.new
         vm.trace = trace
-        vm.run
+        vm.doit(s)
     end
 
     def test_const_int

@@ -16,13 +16,19 @@ module Onyx
         attr_accessor :trace
         attr_reader :op
 
-        def initialize(method)
-            @method = method
+        def initialize
             @is_running = false
             @stack = Array.new(256)
             @sp = 0
             @ip = 0
             @trace = false
+        end
+
+        def doit(s)
+            p = Parser.new(StringIO.new(s))
+            i = Compiler.new.compile(p.parse_expr)
+            @method = Assembler.new.assemble(i << HALT)
+            run
         end
 
         def code
