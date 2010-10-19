@@ -45,5 +45,13 @@ class TestVm < Test::Unit::TestCase
         assert_equal(0, vm.tos)
     end
 
+    def test_factorial
+        vm = OVM.new
+        vm.add_method(:SmallInteger,
+            "factorial [ | a n | [ n = 1 ] whileFalse: [ a := a * n. n := n - 1. ]. ^a ]")
+        vm.doit('5 factorial')
+        assert_equal(120, vm.tos)
+    end
+
 end
 

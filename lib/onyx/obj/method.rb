@@ -1,6 +1,6 @@
 
 module Onyx
-    class Method
+    class OMethod
         attr_reader :code, :lits
 
         def initialize(code, lits)

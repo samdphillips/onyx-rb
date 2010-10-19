@@ -8,6 +8,17 @@ module Onyx
         end
     end
 
+    class VmNameError < VmError
+        def initialize(vm, name)
+            super(vm)
+            @name = name
+        end
+
+        def message
+            "Name not defined: #{@name}"
+        end
+    end
+
     class OpError < VmError
         def message
             "Invalid op: 0x#{@vm.op.to_s(16)}"
@@ -24,6 +35,19 @@ module Onyx
             @sp = 0
             @ip = 0
             @trace = false
+            @sysdict = {}
+            boot
+        end
+
+        def boot
+            object_class = OClass.new(:Object, nil)
+            smi_class = OClass.new(:SmallInteger, object_class)
+            add_class(object_class)
+            add_class(smi_class)
+        end
+
+        def add_class(klass)
+            @sysdict[klass.name] = klass
         end
 
         def doit(s)
@@ -31,6 +55,22 @@ module Onyx
             i = Compiler.new.compile(p.parse_expr)
             @method = Assembler.new.assemble(i << HALT)
             run
+        end
+
+        def find_class(class_name)
+            if @sysdict.include? class_name then
+                @sysdict[class_name]
+            else
+                raise VmNameError.new(self, class_name)
+            end
+        end
+
+        def add_method(class_name, text)
+            klass = find_class(class_name)
+            p = Parser.new(StringIO.new(text))
+            i = Compiler.new.compile(p.parse_method)
+            m = Assembler.new.assemble(i)
+            klass.add_method(m)
         end
 
         def code

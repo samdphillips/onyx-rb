@@ -54,10 +54,12 @@ module Onyx
             (?A .. ?Z).each {|i| @char_table[i] = :id }
             " \t\n\r".each_byte {|i| @char_table[i] = :space }
             "`~!@%&*+=|\\?/<>,".each_byte {|i| @char_table[i] = :binsel }
+            @char_table[?:] = :colon
             @char_table[?-] = :dash
             @char_table[?^] = :caret
             @char_table[?[] = :lsq
             @char_table[?]] = :rsq
+            @char_table[?.] = :dot
         end
 
         def self.char_scanners(*types)
@@ -111,7 +113,7 @@ module Onyx
             tok
         end
 
-        char_scanners :caret, :lsq, :rsq
+        char_scanners :caret, :lsq, :rsq, :dot
 
         def scan_space
             while cur_type == :space do
@@ -178,6 +180,17 @@ module Onyx
                 Token.new(:kw, (buf + ':').to_sym)
             else
                 Token.new(:id, buf.to_sym)
+            end
+        end
+
+        def scan_colon
+            step
+
+            if cur_char == ?= then
+                step
+                Token.new(:assign, ':=')
+            else
+                scan_error
             end
         end
     end

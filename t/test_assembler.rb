@@ -12,36 +12,36 @@ class TestAssembler < Test::Unit::TestCase
 
     def test_assemble_LDC_lit
         m = assemble([LDC.new(42)])
-        assert_equal(Method.new("\x00", [42]), m)
+        assert_equal(OMethod.new("\x00", [42]), m)
     end
 
     def test_assemble_LDC_special
         m = assemble([LDC.new(0)])
-        assert_equal(Method.new("\x0A", []), m)
+        assert_equal(OMethod.new("\x0A", []), m)
 
         m = assemble([LDC.new(1)])
-        assert_equal(Method.new("\x0B", []), m)
+        assert_equal(OMethod.new("\x0B", []), m)
 
         m = assemble([LDC.new(-1)])
-        assert_equal(Method.new("\x0C", []), m)
+        assert_equal(OMethod.new("\x0C", []), m)
 
         m = assemble([LDC.new(true)])
-        assert_equal(Method.new("\x0D", []), m)
+        assert_equal(OMethod.new("\x0D", []), m)
 
         m = assemble([LDC.new(false)])
-        assert_equal(Method.new("\x0E", []), m)
+        assert_equal(OMethod.new("\x0E", []), m)
 
         m = assemble([LDC.new(nil)])
-        assert_equal(Method.new("\x0F", []), m)
+        assert_equal(OMethod.new("\x0F", []), m)
     end
 
     def test_halt
         m = assemble([HALT])
-        assert_equal(Method.new("\xFF", []), m)
+        assert_equal(OMethod.new("\xFF", []), m)
     end
 
     def test_same_lits
         m = assemble([LDC.new(3), LDC.new(3)])
-        assert_equal(Method.new("\x00\x00", [3]), m)
+        assert_equal(OMethod.new("\x00\x00", [3]), m)
     end
 end

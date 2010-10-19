@@ -38,6 +38,16 @@ module Onyx
 
     ADD = AddOp.instance
 
+    class SubOp < Inst
+        include Singleton
+
+        def assemble_with(asm)
+            asm.code << 0xA1
+        end
+    end
+
+    SUB = SubOp.instance
+
     class MulOp < Inst
         include Singleton
 
@@ -47,6 +57,22 @@ module Onyx
     end
 
     MUL = MulOp.instance
+
+    class EqOp < Inst
+        include Singleton
+
+        def assemble_with(asm)
+            asm.code << 0xA4
+        end
+    end
+
+    EQ = EqOp.instance
+
+    class RetOp < Inst
+        include Singleton
+    end
+
+    RET = RetOp.instance
 
     class Jump < Inst
         attr_reader :dest
@@ -64,6 +90,7 @@ module Onyx
                 asm.pending_label(self)
                 asm.code << base_inst
             else
+                puts off
                 asm.code << (base_inst | off)
             end
         end
@@ -88,6 +115,26 @@ module Onyx
     class JMP < Jump
         def base_inst
             0x90
+        end
+    end
+
+    class LDT < Inst
+        def initialize(index)
+            @index = index
+        end
+
+        def assemble_with(asm)
+            asm.code << (0x10 | @index)
+        end
+    end
+
+    class STT < Inst
+        def initialize(index)
+            @index = index
+        end
+
+        def assemble_with(asm)
+            asm.code << (0x20 | @index)
         end
     end
 
@@ -124,6 +171,16 @@ module Onyx
         end
     end
 
+    class TEMPS < Inst
+        def initialize(size)
+            @size = size 
+        end
+
+        def assemble_with(asm)
+            asm.code << (0x60 | @size)
+        end
+    end
+
     class Assembler
         attr_accessor :code
         
@@ -133,6 +190,8 @@ module Onyx
             @labels = {}
             @pending = {}
 
+            puts ops
+
             ops.each do | op |
                 op.assemble_with(self)
             end
@@ -141,7 +200,7 @@ module Onyx
                 @code[i] = op.patch(self, i)
             end
 
-            Method.new(@code, @lits)
+            OMethod.new(@code, @lits)
         end
 
         def add_lit(value)

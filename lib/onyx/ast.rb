@@ -14,7 +14,17 @@ module Onyx
     class IVar < Var
     end
 
+    class AVar < Var
+    end
+
     class TVar < Var
+        def compile_ref_with(c)
+            c.compile_temp_ref(self)
+        end
+
+        def compile_assign_with(c, expr)
+            c.compile_temp_assign(self, expr)
+        end
     end
 
     class Expr
@@ -28,6 +38,10 @@ module Onyx
 
         def initialize(var)
             @var = var
+        end
+
+        def compile_with(c)
+            @var.compile_ref_with(c)
         end
     end
 
@@ -77,6 +91,10 @@ module Onyx
         def initialize(expr)
             @expr = expr
         end
+
+        def compile_with(c)
+            c.compile_return(self)
+        end
     end
 
     class EBlock < Expr
@@ -90,5 +108,37 @@ module Onyx
             true
         end
     end
+    
+    class EAssign < Expr
+        def initialize(var, expr)
+            @var = var
+            @expr = expr
+        end
 
+        def compile_with(c)
+            @var.compile_assign_with(c, @expr)
+        end
+    end
+
+    class EMethod < Expr
+        attr_reader :args
+
+        def initialize(name, args, body)
+            @name = name
+            @args = args
+            @body = body
+        end
+
+        def temps
+            @body.temps
+        end
+
+        def body
+            @body.stmts
+        end
+
+        def compile_with(c)
+            c.compile_method(self)
+        end
+    end
 end
