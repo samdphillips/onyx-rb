@@ -16,6 +16,15 @@ module Onyx
                 super.method_missing(sym, *args)
             end
         end
+
+        def one_of(types)
+            types.each do |t|
+                if @type == t then
+                    return true
+                end
+            end
+            return false
+        end
     end
 
     class LexError < Exception
@@ -41,9 +50,19 @@ module Onyx
         def self.init_char_table
             @char_table = Array.new(256, :error)
             (?0 .. ?9).each {|i| @char_table[i] = :digit }
+            (?a .. ?z).each {|i| @char_table[i] = :id }
+            (?A .. ?Z).each {|i| @char_table[i] = :id }
             " \t\n\r".each_byte {|i| @char_table[i] = :space }
+            "`~!@%&*+=|\\?/<>,".each_byte {|i| @char_table[i] = :binsel }
             @char_table[?-] = :dash
-            "`~!@%&*+=\\?/<>,".each_byte {|i| @char_table[i] = :binsel }
+            @char_table[?^] = :caret
+        end
+
+        def self.char_scanners(*types)
+            types.each do |t|
+                name = "scan_#{t}".to_sym
+                alias_method(name, :scan_char)
+            end
         end
 
         def initialize(io)
@@ -83,6 +102,14 @@ module Onyx
         def scan_eof
             Token.new(:eof, :eof)
         end
+
+        def scan_char
+            tok = Token.new(cur_type, '' << cur_char)
+            step
+            tok
+        end
+
+        char_scanners :caret
 
         def scan_space
             while cur_type == :space do
@@ -130,6 +157,26 @@ module Onyx
 
         def scan_binsel
             Token.new(:binsel, read_binsel.to_sym)
+        end
+
+        def read_id
+            buf = ''
+            while [:id, :digit].include? cur_type do
+                buf << cur_char
+                step
+            end
+            buf
+        end
+
+        def scan_id
+            buf = read_id
+
+            if cur_char == ?: then
+                step
+                Token.new(:kw, (buf + ':').to_sym)
+            else
+                Token.new(:id, buf.to_sym)
+            end
         end
     end
 end

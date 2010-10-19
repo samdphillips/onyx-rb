@@ -41,5 +41,20 @@ class TestLexer < Test::Unit::TestCase
         l = lex_string('-')
         assert_token(l, :binsel, :-)
     end
+
+    def test_lex_id
+        l = lex_string('abc123')
+        assert_token(l, :id, :abc123)
+    end
+
+    def test_lex_kw
+        l = lex_string('at:')
+        assert_token(l, :kw, :'at:')
+    end
+
+    def test_lex_caret
+        l = lex_string('^')
+        assert_token(l, :caret, '^')
+    end
 end
 

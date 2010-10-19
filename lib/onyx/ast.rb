@@ -1,6 +1,31 @@
 
 module Onyx
+    class Var
+        attr_reader :name
+
+        def initialize(name)
+            @name = name
+        end
+    end
+
+    class GVar < Var
+    end
+
+    class IVar < Var
+    end
+
+    class TVar < Var
+    end
+
     class Expr
+    end
+
+    class ERef < Expr
+        attr_reader :var
+
+        def initialize(var)
+            @var = var
+        end
     end
 
     class EConst < Expr
@@ -31,6 +56,23 @@ module Onyx
 
         def compile_with(c)
             c.compile_send(self)
+        end
+    end
+
+    class EBody < Expr
+        attr_reader :temps, :stmts
+
+        def initialize(temps, stmts)
+            @temps = temps
+            @stmts = stmts
+        end
+    end
+
+    class EReturn < Expr
+        attr_reader :expr
+
+        def initialize(expr)
+            @expr = expr
         end
     end
 end
