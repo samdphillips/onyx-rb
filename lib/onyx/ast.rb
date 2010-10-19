@@ -18,6 +18,9 @@ module Onyx
     end
 
     class Expr
+        def block?
+            false
+        end
     end
 
     class ERef < Expr
@@ -75,4 +78,17 @@ module Onyx
             @expr = expr
         end
     end
+
+    class EBlock < Expr
+        attr_reader :body
+
+        def initialize(body)
+            @body = body
+        end
+
+        def block?
+            true
+        end
+    end
+
 end

@@ -54,4 +54,22 @@ class TestParser < Test::Unit::TestCase
         assert_same(e.rcvr.var, t.temps[0])
         assert_same(e.args[0].var, t.temps[1])
     end
+
+    def test_parse_true
+        p = parser_string('true')
+        t = p.parse_expr
+
+        assert_instance_of(EConst, t)
+        assert_equal(true, t.value)
+    end
+
+    def test_parse_keyword
+        p = parser_string('x at: 10')
+        t = p.parse_expr
+
+        assert_instance_of(ESend, t)
+        assert_equal(:'at:', t.msg)
+        assert_instance_of(EConst, t.args[0])
+        assert_equal(10, t.args[0].value)
+    end
 end

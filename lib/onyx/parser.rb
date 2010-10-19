@@ -122,8 +122,8 @@ module Onyx
         def parse_message
             r = parse_primary
             r = parse_unary(r)
-            parse_binary(r)
-            #parse_keyword(r)
+            r = parse_binary(r)
+            parse_keyword(r)
         end
 
         def parse_primary
@@ -134,10 +134,27 @@ module Onyx
             elsif cur_tok.id? then
                 name = cur_tok.value
                 step
-                ERef.new(lookup_var(name))
+                if [:true, :false, :nil].include? name then
+                    EConst.new(const_value[name])
+                else
+                    ERef.new(lookup_var(name))
+                end
+            elsif cur_tok.lsq? then
+                parse_block
             else
                 parse_error
             end
+        end
+
+        def const_value
+            { :true => true, :false => false, :nil => nil }
+        end
+
+        def parse_block
+            step
+            body = parse_executable_code
+            expect(:rsq)
+            EBlock.new(body)
         end
 
         def parse_unary(r)
@@ -157,6 +174,25 @@ module Onyx
                 arg = parse_unary(arg)
                 r = ESend.new(r, op, [arg])
             end
+            r
+        end
+
+        def parse_keyword(r)
+            sel  = []
+            args = []
+            while cur_tok.kw? do
+                sel << cur_tok.value.to_s
+                step
+
+                arg = parse_primary
+                arg = parse_unary(arg)
+                args <<  parse_binary(arg)
+            end
+
+            if sel != [] then
+                r = ESend.new(r, sel.join.to_sym, args)
+            end
+
             r
         end
     end

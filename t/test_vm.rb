@@ -35,5 +35,15 @@ class TestVm < Test::Unit::TestCase
         assert_equal(14, vm.tos)
     end
 
+    def test_ifTrue_ifFalse_true
+        vm = doit('true ifTrue: [ 42 ] ifFalse: [ 0 ]')
+        assert_equal(42, vm.tos)
+    end
+
+    def test_ifTrue_ifFalse_false
+        vm = doit('false ifTrue: [ 42 ] ifFalse: [ 0 ]')
+        assert_equal(0, vm.tos)
+    end
+
 end
 

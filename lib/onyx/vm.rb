@@ -80,10 +80,14 @@ module Onyx
 
             high = @op >> 4
             
-            if high == 0 then
+            if high == 0x0 then
                 push_const
-            elsif high == 4 then
+            elsif high == 0x4 then
                 do_smi_prim
+            elsif high == 0x6 then
+                jump_false
+            elsif high == 0x7 then
+                jump
             elsif high == 0xF then
                 if @op == 0xFF then
                     @is_running = false
@@ -97,16 +101,29 @@ module Onyx
 
         def push_const
             low = @op & 0xF
-            trace_print("push_const #{low}")
 
             if low == 0xA then
+                trace_print("push_const 0")
                 push(0)
             elsif low == 0xB then
+                trace_print("push_const 1")
                 push(1)
             elsif low == 0xC then
+                trace_print("push_const -1")
                 push(-1)
+            elsif low == 0xD then
+                trace_print("push_const true")
+                push(true)
+            elsif low == 0xE then
+                trace_print("push_const false")
+                push(false)
+            elsif low == 0xF then
+                trace_print("push_const nil")
+                push(nil)
             else
-                push(lits[low])
+                v = lits[low]
+                trace_print("push_lit #{v}")
+                push(v)
             end
             @ip = @ip + 1
         end
@@ -125,6 +142,22 @@ module Onyx
             end
 
             @ip = @ip + 1
+        end
+
+        def jump_false
+            low = @op & 0xF
+            a = pop
+
+            # FIXME: negative jumps
+            if a == false then
+                @ip = @ip + low
+            else
+                @ip = @ip + 1
+            end
+        end
+
+        def jump
+            @ip = @ip + (@op & 0xF)
         end
     end
 end

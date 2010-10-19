@@ -56,6 +56,8 @@ module Onyx
             "`~!@%&*+=|\\?/<>,".each_byte {|i| @char_table[i] = :binsel }
             @char_table[?-] = :dash
             @char_table[?^] = :caret
+            @char_table[?[] = :lsq
+            @char_table[?]] = :rsq
         end
 
         def self.char_scanners(*types)
@@ -109,7 +111,7 @@ module Onyx
             tok
         end
 
-        char_scanners :caret
+        char_scanners :caret, :lsq, :rsq
 
         def scan_space
             while cur_type == :space do
