@@ -82,12 +82,12 @@ module Onyx
             
             if high == 0x0 then
                 push_const
-            elsif high == 0x4 then
-                do_smi_prim
-            elsif high == 0x6 then
+            elsif high == 0x8 then
                 jump_false
-            elsif high == 0x7 then
+            elsif high == 0x9 then
                 jump
+            elsif high == 0xA then
+                do_smi_prim
             elsif high == 0xF then
                 if @op == 0xFF then
                     @is_running = false

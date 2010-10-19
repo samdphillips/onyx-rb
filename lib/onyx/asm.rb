@@ -32,7 +32,7 @@ module Onyx
         include Singleton
 
         def assemble_with(asm)
-            asm.code << 0x40
+            asm.code << 0xA0
         end
     end
 
@@ -42,7 +42,7 @@ module Onyx
         include Singleton
 
         def assemble_with(asm)
-            asm.code << 0x42
+            asm.code << 0xA2
         end
     end
 
@@ -81,13 +81,13 @@ module Onyx
 
     class JMPF < Jump
         def base_inst
-            0x60
+            0x80
         end
     end
 
     class JMP < Jump
         def base_inst
-            0x70
+            0x90
         end
     end
 
