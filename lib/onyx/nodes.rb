@@ -36,6 +36,26 @@ module Onyx
         end
     end
 
+    class SeqNode < ExprNode
+        attr_reader :exprs
+
+        def initialize(exprs)
+            @exprs = exprs
+        end
+
+        def expand
+            @exprs.each {|e| e.expand}
+        end
+
+        def gen_value_code(cg)
+            (0...@exprs.size - 1).each do |i|
+                @exprs[i].gen_effect_code(cg)
+            end
+
+            @exprs.last.gen_value_code(cg)
+        end
+    end
+
     class RefNode < ExprNode
         attr_reader :var
 

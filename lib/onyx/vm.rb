@@ -54,9 +54,20 @@ module Onyx
         end
 
         def doit(s)
+            trace_print
+            trace_print s
             p = Parser.new(StringIO.new(s))
             cg = p.parse_expr.compile
             @method = OMethod.new(cg.bytes << 0xFF, cg.literals)
+            if @trace then
+                puts
+                puts "bytecode:"
+                i = 0
+                cg.bytes.each_byte do |b|
+                    puts "  #{i} 0x#{b.to_s(16)}"
+                    i = i + 1
+                end
+            end
             run
         end
 
@@ -98,7 +109,7 @@ module Onyx
             @stack[@sp - 1]
         end
 
-        def trace_print(s)
+        def trace_print(s="")
             if @trace then
                 puts s
             end
@@ -121,6 +132,7 @@ module Onyx
         def step
             @op = code[@ip]
 
+            trace_print "op: 0x#{@op.to_s(16)}"
             high = @op >> 4
             
             if high == 0x0 then
@@ -185,19 +197,31 @@ module Onyx
         end
 
         def jump_false
-            low = @op & 0xF
+            @ip = @ip + 1
+            off = (@op & 0xF << 8) | code[@ip]
+            @ip = @ip + 1
             a = pop
 
-            # FIXME: negative jumps
             if a == false then
-                @ip = @ip + low
+                if (off & 0x800) != 0 then
+                    off = -(4095 - off + 1)
+                end
+                @ip = @ip + off
+                trace_print "jumping false to #{@ip}"
             else
-                @ip = @ip + 1
+                trace_print "not jumping false to #{@ip}"
             end
         end
 
         def jump
-            @ip = @ip + (@op & 0xF)
+            @ip = @ip + 1
+            off = (@op & 0xF << 8) | code[@ip]
+            @ip = @ip + 1
+            if (off & 0x800) != 0 then
+                off = -(4095 - off + 1)
+            end
+            @ip = @ip + off
+            trace_print "jumping to #{@ip}"
         end
     end
 end

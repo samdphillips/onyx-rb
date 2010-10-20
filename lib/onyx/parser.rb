@@ -118,7 +118,7 @@ module Onyx
             temps.each {|v| @scope.add_var(v)}
             stmts = parse_statements
             pop_scope
-            [temps, stmts]
+            [temps, SeqNode.new(stmts)]
         end
 
         def parse_temps
@@ -230,11 +230,12 @@ module Onyx
         def parse_block
             step
             args = []
-            while cur_tok.blockarg? do
-                args << cur_tok.value
-                step
-            end
-            if args != [] then
+            if cur_tok.blockarg? then
+                while cur_tok.blockarg? do
+                    args << AVar.new(cur_tok.value)
+                    step
+                end
+
                 if cur_tok.value == :'|' then
                     step
                 elsif cur_tok.value == :'||' then
@@ -244,7 +245,11 @@ module Onyx
                     parse_error('Expected "|"')
                 end
             end
+
+            push_scope
+            args.each {|v| @scope.add_var(v)}
             temps,stmts = parse_executable_code
+            pop_scope
             expect(:rsq)
             BlockNode.new(args, temps, stmts)
         end

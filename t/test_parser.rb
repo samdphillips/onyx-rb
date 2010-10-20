@@ -46,8 +46,8 @@ class TestParser < Test::Unit::TestCase
 
         assert_equal(:a, temps[0].name)
         assert_equal(:b, temps[1].name)
-        assert_equal(1, stmts.size)
-        r = stmts[0]
+        assert_equal(1, stmts.exprs.size)
+        r = stmts.exprs[0]
         assert_instance_of(ReturnNode, r)
         e = r.expr
         assert_instance_of(MessageNode, e)
@@ -80,6 +80,6 @@ class TestParser < Test::Unit::TestCase
         assert_instance_of(BlockNode, t)
         assert_equal(2, t.args.size)
         assert_equal(1, t.temps.size)
-        assert_equal(1, t.stmts.size)
+        assert_equal(1, t.stmts.exprs.size)
     end
 end
