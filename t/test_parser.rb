@@ -14,7 +14,7 @@ class TestParser < Test::Unit::TestCase
         p = parser_string('42')
         t = p.parse_expr
 
-        assert_instance_of(EConst, t)
+        assert_instance_of(ConstNode, t)
         assert_equal(42, t.value)
     end
 
@@ -22,7 +22,7 @@ class TestParser < Test::Unit::TestCase
         p = parser_string('Object')
         t = p.parse_expr
 
-        assert_instance_of(ERef, t)
+        assert_instance_of(RefNode, t)
         v = t.var
         assert_instance_of(GVar, v)
         assert_equal(:Object, v.name)
@@ -36,30 +36,30 @@ class TestParser < Test::Unit::TestCase
         p.scope.add_var(v)
 
         t = p.parse_expr
-        assert_instance_of(ERef, t)
+        assert_instance_of(RefNode, t)
         assert_same(v, t.var)
     end
 
     def test_parse_executable_code
         p = parser_string('| a b | ^ a + b')
-        t = p.parse_executable_code
+        temps,stmts = p.parse_executable_code
 
-        assert_equal(:a, t.temps[0].name)
-        assert_equal(:b, t.temps[1].name)
-        assert_equal(1, t.stmts.size)
-        r = t.stmts[0]
-        assert_instance_of(EReturn, r)
+        assert_equal(:a, temps[0].name)
+        assert_equal(:b, temps[1].name)
+        assert_equal(1, stmts.size)
+        r = stmts[0]
+        assert_instance_of(ReturnNode, r)
         e = r.expr
-        assert_instance_of(ESend, e)
-        assert_same(e.rcvr.var, t.temps[0])
-        assert_same(e.args[0].var, t.temps[1])
+        assert_instance_of(MessageNode, e)
+        assert_same(e.rcvr.var, temps[0])
+        assert_same(e.args[0].var, temps[1])
     end
 
     def test_parse_true
         p = parser_string('true')
         t = p.parse_expr
 
-        assert_instance_of(EConst, t)
+        assert_instance_of(ConstNode, t)
         assert_equal(true, t.value)
     end
 
@@ -67,9 +67,9 @@ class TestParser < Test::Unit::TestCase
         p = parser_string('x at: 10')
         t = p.parse_expr
 
-        assert_instance_of(ESend, t)
+        assert_instance_of(MessageNode, t)
         assert_equal(:'at:', t.msg)
-        assert_instance_of(EConst, t.args[0])
+        assert_instance_of(ConstNode, t.args[0])
         assert_equal(10, t.args[0].value)
     end
 end

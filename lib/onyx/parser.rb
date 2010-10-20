@@ -118,7 +118,7 @@ module Onyx
             temps.each {|v| @scope.add_var(v)}
             stmts = parse_statements
             pop_scope
-            EBody.new(temps, stmts)
+            [temps, stmts]
         end
 
         def parse_temps
@@ -169,7 +169,7 @@ module Onyx
 
         def parse_return
             expect(:caret)
-            EReturn.new(parse_expr)
+            ReturnNode.new(parse_expr)
         end
 
         def parse_expr
@@ -207,14 +207,14 @@ module Onyx
             if cur_tok.int? then
                 v = cur_tok.value
                 step
-                EConst.new(v)
+                ConstNode.new(v)
             elsif cur_tok.id? then
                 name = cur_tok.value
                 step
                 if [:true, :false, :nil].include? name then
-                    EConst.new(const_value[name])
+                    ConstNode.new(const_value[name])
                 else
-                    ERef.new(lookup_var(name))
+                    RefNode.new(lookup_var(name))
                 end
             elsif cur_tok.lsq? then
                 parse_block
@@ -236,7 +236,7 @@ module Onyx
 
         def parse_unary(r)
             while cur_tok.id? do
-                r = ESend.new(r, cur_tok.value, [])
+                r = MessageNode.new(r, cur_tok.value, [])
                 step
             end
             r
@@ -249,7 +249,7 @@ module Onyx
 
                 arg = parse_primary
                 arg = parse_unary(arg)
-                r = ESend.new(r, op, [arg])
+                r = MessageNode.new(r, op, [arg])
             end
             r
         end
@@ -267,7 +267,7 @@ module Onyx
             end
 
             if sel != [] then
-                r = ESend.new(r, sel.join.to_sym, args)
+                r = MessageNode.new(r, sel.join.to_sym, args)
             end
 
             r
