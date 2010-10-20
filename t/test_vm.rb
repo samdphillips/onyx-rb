@@ -34,7 +34,7 @@ class TestVm < Test::Unit::TestCase
         assert_equal(7, vm.tos)
     end
 
-    def xtest_add_mul
+    def test_add_mul
         vm = doit('3 + 4 * 2')
         assert_equal(14, vm.tos)
     end

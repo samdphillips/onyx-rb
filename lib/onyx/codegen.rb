@@ -89,6 +89,11 @@ module Onyx
             put_bytes(0xA0)
             stack_pop
         end
+
+        def prim_mul
+            put_bytes(0xA2)
+            stack_pop
+        end
     end
 end
 
