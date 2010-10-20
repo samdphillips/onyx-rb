@@ -20,7 +20,7 @@ module Onyx
             step
         end
 
-        def push(tok)
+        def push_token(tok)
             @stack << tok
         end
 
@@ -75,7 +75,7 @@ module Onyx
             body = parse_executable_code
             pop_scope
             expect(:rsq)
-            EMethod.new(name, args, body)
+            MethodNode.new(name, args, body)
         end
 
         def parse_method_header
@@ -189,9 +189,9 @@ module Onyx
             if cur_tok.assign? then
                 step
                 expr = parse_expr
-                EAssign.new(lookup_var(tok.value), expr)
+                AssignNode.new(lookup_var(tok.value), expr)
             else
-                push(tok)
+                push_token(tok)
                 parse_message
             end
         end
@@ -229,9 +229,24 @@ module Onyx
 
         def parse_block
             step
-            body = parse_executable_code
+            args = []
+            while cur_tok.blockarg? do
+                args << cur_tok.value
+                step
+            end
+            if args != [] then
+                if cur_tok.value == :'|' then
+                    step
+                elsif cur_tok.value == :'||' then
+                    step
+                    push_token(Token.new(:binsel, :'|'))
+                else
+                    parse_error('Expected "|"')
+                end
+            end
+            temps,stmts = parse_executable_code
             expect(:rsq)
-            EBlock.new(body)
+            BlockNode.new(args, temps, stmts)
         end
 
         def parse_unary(r)

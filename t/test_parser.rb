@@ -72,4 +72,14 @@ class TestParser < Test::Unit::TestCase
         assert_instance_of(ConstNode, t.args[0])
         assert_equal(10, t.args[0].value)
     end
+
+    def test_parse_block
+        p = parser_string('[:a :b || c | c := a + b ]')
+        t = p.parse_block
+
+        assert_instance_of(BlockNode, t)
+        assert_equal(2, t.args.size)
+        assert_equal(1, t.temps.size)
+        assert_equal(1, t.stmts.size)
+    end
 end

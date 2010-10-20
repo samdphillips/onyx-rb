@@ -189,6 +189,8 @@ module Onyx
             if cur_char == ?= then
                 step
                 Token.new(:assign, ':=')
+            elsif cur_type == :id then
+                Token.new(:blockarg, read_id.to_sym)
             else
                 scan_error
             end

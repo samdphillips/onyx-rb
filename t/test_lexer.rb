@@ -56,5 +56,10 @@ class TestLexer < Test::Unit::TestCase
         l = lex_string('^')
         assert_token(l, :caret, '^')
     end
+
+    def test_lex_blockarg
+        l = lex_string(':a')
+        assert_token(l, :blockarg, :a)
+    end
 end
 
