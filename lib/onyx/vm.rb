@@ -31,10 +31,13 @@ module Onyx
 
         def initialize
             @is_running = false
-            @stack = Array.new(256)
-            @sp = 0
-            @ip = 0
-            @trace = false
+            @stack   = Array.new(256)
+            @sp      = 0
+            @ip      = 0
+            @method  = nil
+            @rcvr    = nil
+            @class   = nil
+            @trace   = false
             @sysdict = {}
             boot
         end
@@ -52,8 +55,8 @@ module Onyx
 
         def doit(s)
             p = Parser.new(StringIO.new(s))
-            i = Compiler.new.compile(p.parse_expr)
-            @method = Assembler.new.assemble(i << HALT)
+            cg = p.parse_expr.compile
+            @method = OMethod.new(cg.bytes << 0xFF, cg.literals)
             run
         end
 
@@ -142,15 +145,12 @@ module Onyx
         def push_const
             low = @op & 0xF
 
-            if low == 0xA then
+            if low == 0xB then
                 trace_print("push_const 0")
                 push(0)
-            elsif low == 0xB then
+            elsif low == 0xC then
                 trace_print("push_const 1")
                 push(1)
-            elsif low == 0xC then
-                trace_print("push_const -1")
-                push(-1)
             elsif low == 0xD then
                 trace_print("push_const true")
                 push(true)
