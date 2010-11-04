@@ -73,6 +73,21 @@ class TestParser < Test::Unit::TestCase
         assert_equal(10, t.args[0].value)
     end
 
+    def test_parse_prim
+        p = parser_string('Object _new')
+        t = p.parse_expr
+
+        assert_instance_of(PrimMessageNode, t)
+        assert_equal(:_new, t.msg)
+
+        p = parser_string('Array _new: 10')
+        t = p.parse_expr
+
+        assert_instance_of(PrimMessageNode, t)
+        assert_equal(:'_new:', t.msg)
+
+    end
+
     def test_parse_block
         p = parser_string('[:a :b || c | c := a + b ]')
         t = p.parse_block

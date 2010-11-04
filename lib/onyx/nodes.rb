@@ -60,6 +60,9 @@ module Onyx
         end
     end
 
+    class PrimMessageNode < MessageNode
+    end
+
     class ReturnNode < ExprNode
         attr_reader :expr
 

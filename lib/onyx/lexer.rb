@@ -54,6 +54,7 @@ module Onyx
             (?A .. ?Z).each {|i| @char_table[i] = :id }
             " \t\n\r".each_byte {|i| @char_table[i] = :space }
             "`~!@%&*+=|\\?/<>,".each_byte {|i| @char_table[i] = :binsel }
+            @char_table[?_] = :id
             @char_table[?:] = :colon
             @char_table[?-] = :dash
             @char_table[?^] = :caret

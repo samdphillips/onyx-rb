@@ -256,7 +256,11 @@ module Onyx
 
         def parse_unary(r)
             while cur_tok.id? do
-                r = MessageNode.new(r, cur_tok.value, [])
+                klass = MessageNode
+                if cur_tok.value.to_s[0] == ?_ then
+                    klass = PrimMessageNode
+                end
+                r = klass.new(r, cur_tok.value, [])
                 step
             end
             r
@@ -287,7 +291,12 @@ module Onyx
             end
 
             if sel != [] then
-                r = MessageNode.new(r, sel.join.to_sym, args)
+                sel = sel.join
+                klass = MessageNode
+                if sel[0] == ?_ then
+                    klass = PrimMessageNode
+                end
+                r = klass.new(r, sel.to_sym, args)
             end
 
             r
