@@ -1,7 +1,7 @@
 
 module Onyx
 
-    class BranchNode < ExprNode
+    class TFBranchNode < ExprNode
         def initialize(test, true_branch, false_branch)
             test.expand
             true_branch.expand
@@ -25,7 +25,7 @@ module Onyx
         end
     end
 
-    class IfTrueIfFalseNode < BranchNode
+    class IfTrueIfFalseNode < TFBranchNode
         def self.expand(message)
             true_branch  = message.args[0]
             false_branch = message.args[1]
@@ -38,6 +38,39 @@ module Onyx
         end
     end
 
+    class IfFalseIfTrueNode < TFBranchNode
+        def self.expand(message)
+            true_branch  = message.args[1]
+            false_branch = message.args[0]
+
+            if true_branch.block? and false_branch.block? then
+                new(message.rcvr, true_branch.stmts, false_branch.stmts)
+            else
+                nil
+            end
+        end
+    end
+
+    class WhileFalseNode
+        def self.expand(message)
+            test = message.rcvr
+            body = message.args[0]
+
+            if test.block? and body.block? then
+                new(test.stmts, body.stmts)
+            else
+                nil
+            end
+        end
+
+        def initialize(test, body)
+            @test = test
+            @body = body
+        end
+    end
+
     MessageNode.register_special(:'ifTrue:ifFalse:', IfTrueIfFalseNode)
+    MessageNode.register_special(:'ifFalse:ifTrue:', IfFalseIfTrueNode)
+    MessageNode.register_special(:'whileFalse:', WhileFalseNode)
 end
 

@@ -80,10 +80,12 @@ module Onyx
         end
 
         def add_method(class_name, text)
+            trace_print
+            trace_print "#{class_name} >> #{text}"
             klass = find_class(class_name)
             p = Parser.new(StringIO.new(text))
-            i = Compiler.new.compile(p.parse_method)
-            m = Assembler.new.assemble(i)
+            cg = p.parse_method.compile
+            m = OMethod.new(cg.bytes, cg.literals)
             klass.add_method(m)
         end
 

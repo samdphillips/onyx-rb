@@ -72,10 +72,10 @@ module Onyx
             expect(:lsq)
             push_scope
             args.each {|v| @scope.add_var(v)}
-            body = parse_executable_code
+            temps, stmts = parse_executable_code
             pop_scope
             expect(:rsq)
-            MethodNode.new(name, args, body)
+            MethodNode.new(name, args, temps, stmts)
         end
 
         def parse_method_header

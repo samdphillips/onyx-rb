@@ -34,6 +34,11 @@ module Onyx
             gen_value_code(cg)
             cg
         end
+
+        def gen_effect_code(cg)
+            gen_value_code(cg)
+            cg.pop
+        end
     end
 
     class SeqNode < ExprNode
@@ -61,6 +66,9 @@ module Onyx
 
         def initialize(var)
             @var = var
+        end
+
+        def expand
         end
     end
 
@@ -122,6 +130,10 @@ module Onyx
         def initialize(expr)
             @expr = expr
         end
+
+        def expand
+            @expr.expand
+        end
     end
 
     class BlockNode < ExprNode
@@ -156,6 +168,13 @@ module Onyx
             @args = args
             @temps = temps
             @stmts = stmts
+        end
+
+        def compile
+            @stmts.expand
+            cg = CodeGen.new
+            @stmts.gen_value_code(cg)
+            cg
         end
     end
 end
