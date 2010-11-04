@@ -67,6 +67,81 @@ module Onyx
             @scope = @scope.parent
         end
 
+        def parse_class
+            supername = cur_tok.value
+            step
+            expect(:kw, :'subclass:')
+            name = cur_tok.value
+            step
+            expect(:lsq)
+            vars = parse_vars(IVar)
+            class_node = ClassNode.new(name, supername, vars)
+
+            while !cur_tok.rsq? do
+                parse_class_elem(class_node)
+            end
+
+            expect(:rsq)
+            class_node
+        end
+
+        def parse_class_elem(class_node)
+            if cur_tok.id? then
+                tok = cur_tok
+                step
+
+                if cur_tok.lsq? then
+                    push_token(tok) 
+                    class_node.add_method(parse_method)
+                elsif cur_tok.kw? and cur_tok.value == :'uses:' then
+                    if tok.value != class_node.name then
+                        parse_error("Trait clause class name doesn't match")
+                    end
+                    step
+                    class_node.add_traits(parse_trait_clause)
+                elsif cur_tok.id? and cur_tok.value == :class then
+                    if tok.value != class_node.name then
+                        parse_error("Meta class name doesn't match")
+                    end
+                    step
+                    class_node.add_meta(parse_meta)
+                else
+                    parse_error('Expected "[" or "uses:" or "class"')
+                end
+            elsif cur_tok.binsel? or cur_tok.kw? then
+                class_node.add_method(parse_method)
+            else
+                parse_error('Expected id, binsel, or kw.')
+            end
+        end
+
+        def parse_meta
+            expect(:lsq)
+            vars = parse_vars(IVar)
+            meta_node = MetaNode.new(vars)
+
+            while !cur_tok.rsq? do
+                parse_meta_elem(meta_node)
+            end
+
+            expect(:rsq)
+            meta_node
+        end
+
+        def parse_meta_elem(meta_node)
+            if cur_tok.id? or cur_tok.binsel? or cur_tok.kw? then
+                meta_node.add_method(parse_method)
+            else
+                parse_error('Expected id, binsel, or kw.')
+            end
+        end
+
+        def parse_trait_clause
+            t = parse_expr
+            expect(:dot)
+            t
+        end
+
         def parse_method
             name, args = parse_method_header
             expect(:lsq)
@@ -113,7 +188,7 @@ module Onyx
         end
 
         def parse_executable_code
-            temps = parse_temps
+            temps = parse_vars(TVar)
             push_scope
             temps.each {|v| @scope.add_var(v)}
             stmts = parse_statements
@@ -121,20 +196,22 @@ module Onyx
             [temps, SeqNode.new(stmts)]
         end
 
-        def parse_temps
-            temps = []
+        def parse_vars(var_class)
+            vars = []
 
             if cur_tok.binsel? and cur_tok.value == :'|' then
                 step
 
                 while cur_tok.id? do
-                    temps << TVar.new(cur_tok.value)
+                    vars << var_class.new(cur_tok.value)
                     step
                 end
 
                 expect(:binsel, :'|')
+            elsif cur_tok.binsel? and cur_tok.value == :'||' then
+                step
             end
-            temps
+            vars
         end
 
         def parse_statements

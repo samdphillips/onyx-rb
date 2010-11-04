@@ -1,0 +1,15 @@
+
+"Parsing test class - your code shouldn't look like this"
+
+nil subclass: Object [
+    | some vars |
+
+    Object uses: nil.
+
+    Object class [
+        gar [ ^ 42 ]
+    ]
+
+    gar [ ^ 3 + 4 ]
+]
+

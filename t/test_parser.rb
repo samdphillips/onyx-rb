@@ -10,6 +10,10 @@ class TestParser < Test::Unit::TestCase
         Parser.new(StringIO.new(s))
     end
 
+    def parser_for_file(fn)
+        Parser.new(File.open('t/' + fn))
+    end
+
     def test_parse_int
         p = parser_string('42')
         t = p.parse_expr
@@ -112,4 +116,16 @@ class TestParser < Test::Unit::TestCase
         assert_equal(1, t.temps.size)
         assert_equal(1, t.stmts.exprs.size)
     end
+
+    def test_parse_class
+        p = parser_for_file('test_class.ost')
+        t = p.parse_class
+
+        assert_instance_of(ClassNode, t)
+        assert_equal(t.name, :Object)
+        assert_instance_of(ConstNode, t.trait_expr)
+        puts t.inspect
+        assert(false, "more")
+    end
+
 end

@@ -117,4 +117,42 @@ module Onyx
             @stmts = stmts
         end
     end
+
+    class ClassNode < ParseNode
+        attr_reader :name, :supername, :ivars, :trait_expr, :meta, :methods
+
+        def initialize(name, supername, ivars)
+            @name       = name
+            @supername  = supername
+            @ivars      = ivars
+            @trait_expr = nil
+            @meta       = []
+            @methods    = []
+        end
+
+        def add_traits(trait_expr)
+            @trait_expr = trait_expr
+        end
+
+        def add_meta(meta_node)
+            @meta << meta_node
+        end
+
+        def add_method(method_node)
+            @methods << method_node
+        end
+    end
+
+    class MetaNode < ParseNode
+        attr_reader :ivars, :methods
+
+        def initialize(ivars)
+            @ivars   = ivars
+            @methods = []
+        end
+
+        def add_method(method_node)
+            @methods << method_node
+        end
+    end
 end
