@@ -13,8 +13,8 @@ class TestLexer < Test::Unit::TestCase
     def assert_token(lex, type, value)
         tok = lex.next
         assert_instance_of(Token, tok, "Not a token")
-        assert_equal(type, tok.type, "Incorrect type")
-        assert_equal(value, tok.value, "Incorrect value")
+        assert_equal(type, tok.type, "Incorrect type: #{tok.inspect}")
+        assert_equal(value, tok.value, "Incorrect value: #{tok.inspect}")
     end
 
     def test_lex_int
@@ -24,6 +24,11 @@ class TestLexer < Test::Unit::TestCase
 
     def test_lex_space
         l = lex_string('    1234')
+        assert_token(l, :int, 1234)
+    end
+
+    def test_lex_comment
+        l = lex_string('"comment" 1234')
         assert_token(l, :int, 1234)
     end
 

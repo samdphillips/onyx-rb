@@ -62,6 +62,7 @@ module Onyx
             @char_table[?]] = :rsq
             @char_table[?.] = :dot
             @char_table[?;] = :semi
+            @char_table[?"] = :comment
         end
 
         def self.char_scanners(*types)
@@ -121,6 +122,15 @@ module Onyx
             while cur_type == :space do
                 step
             end
+            nil
+        end
+
+        def scan_comment
+            step
+            while cur_char != ?" do
+                step
+            end
+            step
             nil
         end
 
