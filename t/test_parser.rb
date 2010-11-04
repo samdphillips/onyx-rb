@@ -125,7 +125,6 @@ class TestParser < Test::Unit::TestCase
         assert_instance_of(ConstNode, t.trait_expr)
 
         assert_instance_of(IVar, t.methods[1].stmts.exprs[0].expr.var)
-
         assert_instance_of(IVar, t.meta[0].methods[0].stmts.exprs[0].expr.var)
     end
 
@@ -136,5 +135,12 @@ class TestParser < Test::Unit::TestCase
         assert_instance_of(TraitNode, t)
         assert_instance_of(IVar, t.methods[0].stmts.exprs[0].var)
         assert_instance_of(IVar, t.methods[1].stmts.exprs[0].rcvr.var)
+    end
+
+    def test_parse_extension
+        p = parser_for_file('test_extension.ost')
+        t = p.parse_extension
+
+        assert_instance_of(ClassExtNode, t)
     end
 end

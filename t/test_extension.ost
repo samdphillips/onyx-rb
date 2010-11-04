@@ -1,0 +1,26 @@
+
+"Test Class Extension Parsing"
+
+Object extend [
+    | oid |
+
+    Object class [
+        | oidCount |
+
+        incrOid [ oidCount := oidCount + 1 ]
+
+        new [
+            ^ super new oid: self incrOid
+        ]
+    ]
+
+    oid [
+        oid ifNil: [ self oid: self class incrOid ].
+        ^ oid
+    ]
+
+    oid: anInteger [ 
+        oid := anInteger
+    ]
+]
+

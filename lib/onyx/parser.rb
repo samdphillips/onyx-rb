@@ -200,6 +200,47 @@ module Onyx
             t
         end
 
+        def parse_extension
+            name = cur_tok.value
+            step
+            expect(:id, :extend)
+            expect(:lsq)
+
+            vars = parse_vars(IVar)
+            class_ext_node = ClassExtNode.new(name, vars)
+
+            while !cur_tok.rsq? do
+                parse_class_ext_elem(class_ext_node)
+            end
+
+            expect(:rsq)
+            class_ext_node
+        end
+
+        def parse_class_ext_elem(class_ext_node)
+            if cur_tok.id? then
+                tok = cur_tok
+                step
+
+                if cur_tok.lsq? then
+                    push_token(tok) 
+                    class_ext_node.add_method(parse_method)
+                elsif cur_tok.id? and cur_tok.value == :class then
+                    if tok.value != class_ext_node.name then
+                        parse_error("Class name doesn't match")
+                    end
+                    step
+                    class_ext_node.add_meta(parse_meta)
+                else
+                    parse_error('Expected "[" or "class"')
+                end
+            elsif cur_tok.binsel? or cur_tok.kw? then
+                class_ext_node.add_method(parse_method)
+            else
+                parse_error('Expected id, binsel, or kw.')
+            end
+        end
+
         def parse_method
             name, args = parse_method_header
             expect(:lsq)
