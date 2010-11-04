@@ -200,7 +200,31 @@ module Onyx
             r = parse_primary
             r = parse_unary(r)
             r = parse_binary(r)
-            parse_keyword(r)
+            r = parse_keyword(r)
+
+            if cur_tok.semi? then
+                m = [r.message]
+                r = r.rcvr
+                while cur_tok.semi? do
+                    step
+                    m << parse_cascade_message
+                end
+                r = CascadeNode.new(r, m)
+            end
+
+            r
+        end
+
+        def parse_cascade_message
+            if cur_tok.id? then
+                parse_umsg
+            elsif cur_tok.binsel? then
+                parse_bmsg
+            elsif cur_tok.kw? then
+                parse_kmsg
+            else
+                parse_error("Expected id, binsel, kw.  Got #{cur_tok}")
+            end
         end
 
         def parse_primary
@@ -254,33 +278,33 @@ module Onyx
             BlockNode.new(args, temps, stmts)
         end
 
-        def parse_unary(r)
-            while cur_tok.id? do
-                klass = MessageNode
-                if cur_tok.value.to_s[0] == ?_ then
-                    klass = PrimMessageNode
-                end
-                r = klass.new(r, cur_tok.value, [])
-                step
+        def new_message(selector, args=[])
+            mklass = MessageNode
+            if selector.to_s[0] == ?_ then
+                mklass = PrimMessageNode
             end
-            r
+            mklass.new(selector, args)
         end
 
-        def parse_binary(r)
-            while cur_tok.binsel? do
-                op = cur_tok.value
-                step
-
-                arg = parse_primary
-                arg = parse_unary(arg)
-                r = MessageNode.new(r, op, [arg])
-            end
-            r
+        def parse_umsg
+            sel = cur_tok.value
+            step
+            new_message(sel)
         end
 
-        def parse_keyword(r)
+        def parse_bmsg
+            op = cur_tok.value
+            step
+
+            arg = parse_primary
+            arg = parse_unary(arg)
+            new_message(op, [arg])
+        end
+
+        def parse_kmsg
             sel  = []
             args = []
+
             while cur_tok.kw? do
                 sel << cur_tok.value.to_s
                 step
@@ -290,13 +314,27 @@ module Onyx
                 args <<  parse_binary(arg)
             end
 
-            if sel != [] then
-                sel = sel.join
-                klass = MessageNode
-                if sel[0] == ?_ then
-                    klass = PrimMessageNode
-                end
-                r = klass.new(r, sel.to_sym, args)
+            sel = sel.join.to_sym
+            new_message(sel, args)
+        end
+
+        def parse_unary(r)
+            while cur_tok.id? do
+                r = SendNode.new(r, parse_umsg)
+            end
+            r
+        end
+
+        def parse_binary(r)
+            while cur_tok.binsel? do
+                r = SendNode.new(r, parse_bmsg)
+            end
+            r
+        end
+
+        def parse_keyword(r)
+            if cur_tok.kw? then
+                r = SendNode.new(r, parse_kmsg)
             end
 
             r

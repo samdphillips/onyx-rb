@@ -50,12 +50,29 @@ module Onyx
         end
     end
 
-    class MessageNode < ExprNode
-        attr_reader :rcvr, :msg, :args
+    class CascadeNode < ExprNode
+        attr_reader :rcvr, :messages
 
-        def initialize(rcvr, msg, args)
+        def initialize(rcvr, messages)
             @rcvr     = rcvr
-            @msg      = msg
+            @messages = messages
+        end
+    end
+
+    class SendNode < ExprNode
+        attr_reader :rcvr, :message
+
+        def initialize(rcvr, message)
+            @rcvr    = rcvr
+            @message = message
+        end
+    end
+
+    class MessageNode < ParseNode
+        attr_reader :selector, :args
+
+        def initialize(selector, args)
+            @selector = selector
             @args     = args
         end
     end

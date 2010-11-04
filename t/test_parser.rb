@@ -50,9 +50,12 @@ class TestParser < Test::Unit::TestCase
         r = stmts.exprs[0]
         assert_instance_of(ReturnNode, r)
         e = r.expr
-        assert_instance_of(MessageNode, e)
+        assert_instance_of(SendNode, e)
         assert_same(e.rcvr.var, temps[0])
-        assert_same(e.args[0].var, temps[1])
+        m = e.message
+        assert_instance_of(MessageNode, m)
+        assert_equal(m.selector, :+)
+        assert_same(m.args[0].var, temps[1])
     end
 
     def test_parse_true
@@ -67,25 +70,37 @@ class TestParser < Test::Unit::TestCase
         p = parser_string('x at: 10')
         t = p.parse_expr
 
-        assert_instance_of(MessageNode, t)
-        assert_equal(:'at:', t.msg)
-        assert_instance_of(ConstNode, t.args[0])
-        assert_equal(10, t.args[0].value)
+        assert_instance_of(SendNode, t)
+        m = t.message
+        assert_instance_of(MessageNode, m)
+        assert_equal(:'at:', m.selector)
+        assert_instance_of(ConstNode, m.args[0])
+        assert_equal(10, m.args[0].value)
     end
 
     def test_parse_prim
         p = parser_string('Object _new')
         t = p.parse_expr
 
-        assert_instance_of(PrimMessageNode, t)
-        assert_equal(:_new, t.msg)
+        assert_instance_of(SendNode, t)
+        assert_instance_of(PrimMessageNode, t.message)
+        assert_equal(t.message.selector, :_new)
 
         p = parser_string('Array _new: 10')
         t = p.parse_expr
 
-        assert_instance_of(PrimMessageNode, t)
-        assert_equal(:'_new:', t.msg)
+        assert_instance_of(SendNode, t)
+        assert_instance_of(PrimMessageNode, t.message)
+        assert_equal(t.message.selector, :'_new:')
 
+    end
+
+    def test_parse_cascade
+        p = parser_string('Transcript nextPut: foo; nextPut: bar; nl')
+        t = p.parse_expr
+
+        assert_instance_of(CascadeNode, t)
+        assert_equal(t.messages.size, 3)
     end
 
     def test_parse_block
