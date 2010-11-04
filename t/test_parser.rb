@@ -124,8 +124,6 @@ class TestParser < Test::Unit::TestCase
         assert_instance_of(ClassNode, t)
         assert_equal(t.name, :Object)
         assert_instance_of(ConstNode, t.trait_expr)
-        puts t.inspect
-        assert(false, "more")
     end
 
 end
