@@ -35,9 +35,8 @@ class TestParser < Test::Unit::TestCase
 
     def test_parse_ivar_id
         p = parser_string('x')
-        p.push_scope
         v = IVar.new(:x)
-        p.scope.add_var(v)
+        p.push_scope([v])
 
         t = p.parse_expr
         assert_instance_of(RefNode, t)
@@ -124,6 +123,18 @@ class TestParser < Test::Unit::TestCase
         assert_instance_of(ClassNode, t)
         assert_equal(t.name, :Object)
         assert_instance_of(ConstNode, t.trait_expr)
+
+        assert_instance_of(IVar, t.methods[1].stmts.exprs[0].expr.var)
+
+        assert_instance_of(IVar, t.meta[0].methods[0].stmts.exprs[0].expr.var)
     end
 
+    def test_parse_trait
+        p = parser_for_file('test_trait.ost')
+        t = p.parse_trait
+
+        assert_instance_of(TraitNode, t)
+        assert_instance_of(IVar, t.methods[0].stmts.exprs[0].var)
+        assert_instance_of(IVar, t.methods[1].stmts.exprs[0].rcvr.var)
+    end
 end

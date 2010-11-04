@@ -1,0 +1,14 @@
+
+"Parsing test trait"
+
+Trait named: Hello [
+    | greeting |
+
+    greeting: aString [
+        greeting := aString
+    ]
+
+    hello [
+        greeting printNl
+    ]
+]

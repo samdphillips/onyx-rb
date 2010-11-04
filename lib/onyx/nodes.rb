@@ -118,12 +118,11 @@ module Onyx
         end
     end
 
-    class ClassNode < ParseNode
-        attr_reader :name, :supername, :ivars, :trait_expr, :meta, :methods
+    class DeclNode < ParseNode
+        attr_reader :name, :ivars, :trait_expr, :meta, :methods
 
-        def initialize(name, supername, ivars)
+        def initialize(name, ivars)
             @name       = name
-            @supername  = supername
             @ivars      = ivars
             @trait_expr = nil
             @meta       = []
@@ -141,6 +140,18 @@ module Onyx
         def add_method(method_node)
             @methods << method_node
         end
+    end
+
+    class ClassNode < DeclNode
+        attr_reader :supername
+
+        def initialize(name, supername, ivars)
+            super(name, ivars)
+            @supername = supername
+        end
+    end
+
+    class TraitNode < DeclNode
     end
 
     class MetaNode < ParseNode

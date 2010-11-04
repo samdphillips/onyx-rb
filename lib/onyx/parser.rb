@@ -59,12 +59,64 @@ module Onyx
             @scope.lookup_var(name)
         end
 
-        def push_scope
+        def push_scope(vars)
             @scope = Env.new(@scope)
+            vars.each {|v| @scope.add_var(v)}
         end
 
         def pop_scope
             @scope = @scope.parent
+        end
+
+        def parse_trait
+            expect(:id, :Trait)
+            expect(:kw, :'named:')
+            name = cur_tok.value
+            step
+            expect(:lsq)
+            vars = parse_vars(IVar)
+            trait_node = TraitNode.new(name, vars)
+
+            while !cur_tok.rsq? do
+                parse_trait_elem(trait_node)
+            end
+
+            expect(:rsq)
+            trait_node
+        end
+
+        def parse_trait_elem(trait_node)
+            if cur_tok.id? then
+                tok = cur_tok
+                step
+
+                if cur_tok.lsq? then
+                    push_token(tok) 
+                    push_scope(trait_node.ivars)
+                    trait_node.add_method(parse_method)
+                    pop_scope
+                elsif cur_tok.kw? and cur_tok.value == :'uses:' then
+                    if tok.value != trait_node.name then
+                        parse_error("Trait clause name doesn't match")
+                    end
+                    step
+                    trait_node.add_traits(parse_trait_clause)
+                elsif cur_tok.id? and cur_tok.value == :class then
+                    if tok.value != trait_node.name then
+                        parse_error("Meta trait name doesn't match")
+                    end
+                    step
+                    trait_node.add_meta(parse_meta)
+                else
+                    parse_error('Expected "[" or "uses:" or "class"')
+                end
+            elsif cur_tok.binsel? or cur_tok.kw? then
+                push_scope(trait_node.ivars)
+                trait_node.add_method(parse_method)
+                pop_scope
+            else
+                parse_error('Expected id, binsel, or kw.')
+            end
         end
 
         def parse_class
@@ -92,7 +144,9 @@ module Onyx
 
                 if cur_tok.lsq? then
                     push_token(tok) 
+                    push_scope(class_node.ivars)
                     class_node.add_method(parse_method)
+                    pop_scope
                 elsif cur_tok.kw? and cur_tok.value == :'uses:' then
                     if tok.value != class_node.name then
                         parse_error("Trait clause class name doesn't match")
@@ -109,7 +163,9 @@ module Onyx
                     parse_error('Expected "[" or "uses:" or "class"')
                 end
             elsif cur_tok.binsel? or cur_tok.kw? then
+                push_scope(class_node.ivars)
                 class_node.add_method(parse_method)
+                pop_scope
             else
                 parse_error('Expected id, binsel, or kw.')
             end
@@ -130,7 +186,9 @@ module Onyx
 
         def parse_meta_elem(meta_node)
             if cur_tok.id? or cur_tok.binsel? or cur_tok.kw? then
+                push_scope(meta_node.ivars)
                 meta_node.add_method(parse_method)
+                pop_scope
             else
                 parse_error('Expected id, binsel, or kw.')
             end
@@ -145,8 +203,7 @@ module Onyx
         def parse_method
             name, args = parse_method_header
             expect(:lsq)
-            push_scope
-            args.each {|v| @scope.add_var(v)}
+            push_scope(args)
             temps, stmts = parse_executable_code
             pop_scope
             expect(:rsq)
@@ -189,8 +246,7 @@ module Onyx
 
         def parse_executable_code
             temps = parse_vars(TVar)
-            push_scope
-            temps.each {|v| @scope.add_var(v)}
+            push_scope(temps)
             stmts = parse_statements
             pop_scope
             [temps, SeqNode.new(stmts)]
@@ -347,8 +403,7 @@ module Onyx
                 end
             end
 
-            push_scope
-            args.each {|v| @scope.add_var(v)}
+            push_scope(args)
             temps,stmts = parse_executable_code
             pop_scope
             expect(:rsq)

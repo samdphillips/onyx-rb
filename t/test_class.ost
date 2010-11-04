@@ -7,9 +7,12 @@ nil subclass: Object [
     Object uses: nil.
 
     Object class [
-        gar [ ^ 42 ]
+        | blab |
+        gar [ ^ blab ]
     ]
 
     gar [ ^ 3 + 4 ]
+
+    foo [ ^ some ]
 ]
 
