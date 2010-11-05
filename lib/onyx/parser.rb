@@ -148,11 +148,11 @@ module Onyx
         end
 
         def parse_method
-            name, args = parse_method_header
+            method = parse_method_header
             expect(:lsq)
-            temps, stmts = parse_executable_code
+            parse_executable_code(method)
             expect(:rsq)
-            MethodNode.new(name, args, temps, stmts)
+            method
         end
 
         def parse_method_header
@@ -186,13 +186,12 @@ module Onyx
                 parse_error("Expected id, binsel, or keyword")
             end
 
-            return [name, args]
+            MethodNode.new(name, args)
         end
 
-        def parse_executable_code
-            temps = parse_vars
-            stmts = parse_statements
-            [temps, SeqNode.new(stmts)]
+        def parse_executable_code(node)
+            node.add_temps(parse_vars)
+            parse_statements(node)
         end
 
         def parse_vars
@@ -213,12 +212,10 @@ module Onyx
             vars
         end
 
-        def parse_statements
-            stmts = []
-
+        def parse_statements(node)
             while true do
                 if cur_tok.one_of [:caret, :int, :id, :lsq] then
-                    stmts << parse_statement
+                    node.stmts << parse_statement
                 else
                     break
                 end
@@ -229,7 +226,6 @@ module Onyx
                     break
                 end
             end
-            stmts
         end
 
         def parse_statement
@@ -346,9 +342,10 @@ module Onyx
                 end
             end
 
-            temps,stmts = parse_executable_code
+            block = BlockNode.new(args)
+            parse_executable_code(block)
             expect(:rsq)
-            BlockNode.new(args, temps, stmts)
+            block
         end
 
         def new_message(selector, args=[])

@@ -7,14 +7,6 @@ module Onyx
     class ExprNode < ParseNode
     end
 
-    class SeqNode < ExprNode
-        attr_reader :exprs
-
-        def initialize(exprs)
-            @exprs = exprs
-        end
-    end
-
     class RefNode < ExprNode
         attr_reader :var
 
@@ -72,10 +64,14 @@ module Onyx
     class BlockNode < ExprNode
         attr_reader :args, :temps, :stmts
 
-        def initialize(args, temps, stmts)
+        def initialize(args=[], temps=[], stmts=[])
             @args = args
             @temps = temps
             @stmts = stmts
+        end
+
+        def add_temps(temps)
+            @temps = temps
         end
     end
     
@@ -91,11 +87,15 @@ module Onyx
     class MethodNode < ParseNode
         attr_reader :name, :args, :temps, :stmts
 
-        def initialize(name, args, temps, stmts)
+        def initialize(name, args, temps=[], stmts=[])
             @name = name
             @args = args
             @temps = temps
             @stmts = stmts
+        end
+
+        def add_temps(temps)
+            @temps = temps
         end
     end
 
