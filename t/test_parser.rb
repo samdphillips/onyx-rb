@@ -28,27 +28,22 @@ class TestParser < Test::Unit::TestCase
 
         assert_instance_of(RefNode, t)
         v = t.var
-        assert_instance_of(GVar, v)
-        assert_equal(:Object, v.name)
-        assert(p.globals.include?(v), "Var not in globals")
+        assert_instance_of(Symbol, v)
+        assert_equal(:Object, v)
     end
 
-    def test_parse_ivar_id
+    def test_parse_var_ref
         p = parser_string('x')
-        v = IVar.new(:x)
-        p.push_scope([v])
-
         t = p.parse_expr
         assert_instance_of(RefNode, t)
-        assert_same(v, t.var)
     end
 
     def test_parse_executable_code
         p = parser_string('| a b | ^ a + b')
         temps,stmts = p.parse_executable_code
 
-        assert_equal(:a, temps[0].name)
-        assert_equal(:b, temps[1].name)
+        assert_equal(:a, temps[0])
+        assert_equal(:b, temps[1])
         assert_equal(1, stmts.exprs.size)
         r = stmts.exprs[0]
         assert_instance_of(ReturnNode, r)
@@ -124,8 +119,8 @@ class TestParser < Test::Unit::TestCase
         assert_equal(t.name, :Object)
         assert_instance_of(ConstNode, t.trait_expr)
 
-        assert_instance_of(IVar, t.methods[1].stmts.exprs[0].expr.var)
-        assert_instance_of(IVar, t.meta[0].methods[0].stmts.exprs[0].expr.var)
+        assert_instance_of(Symbol, t.methods[1].stmts.exprs[0].expr.var)
+        assert_instance_of(Symbol, t.meta[0].methods[0].stmts.exprs[0].expr.var)
     end
 
     def test_parse_trait
@@ -133,8 +128,8 @@ class TestParser < Test::Unit::TestCase
         t = p.parse_trait
 
         assert_instance_of(TraitNode, t)
-        assert_instance_of(IVar, t.methods[0].stmts.exprs[0].var)
-        assert_instance_of(IVar, t.methods[1].stmts.exprs[0].rcvr.var)
+        assert_instance_of(Symbol, t.methods[0].stmts.exprs[0].var)
+        assert_instance_of(Symbol, t.methods[1].stmts.exprs[0].rcvr.var)
     end
 
     def test_parse_extension

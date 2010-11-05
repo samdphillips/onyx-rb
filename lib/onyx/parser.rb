@@ -14,8 +14,6 @@ module Onyx
 
         def initialize(io)
             @lex = Lexer.new(io)
-            @globals = GScope.new
-            @scope = @globals
             @stack = []
             step
         end
@@ -55,26 +53,13 @@ module Onyx
             step
         end
 
-        def lookup_var(name)
-            @scope.lookup_var(name)
-        end
-
-        def push_scope(vars)
-            @scope = Env.new(@scope)
-            vars.each {|v| @scope.add_var(v)}
-        end
-
-        def pop_scope
-            @scope = @scope.parent
-        end
-
         def parse_trait
             expect(:id, :Trait)
             expect(:kw, :'named:')
             name = cur_tok.value
             step
             expect(:lsq)
-            vars = parse_vars(IVar)
+            vars = parse_vars
             trait_node = TraitNode.new(name, vars)
 
             while !cur_tok.rsq? do
@@ -92,9 +77,7 @@ module Onyx
 
                 if cur_tok.lsq? then
                     push_token(tok) 
-                    push_scope(trait_node.ivars)
                     trait_node.add_method(parse_method)
-                    pop_scope
                 elsif cur_tok.kw? and cur_tok.value == :'uses:' then
                     if tok.value != trait_node.name then
                         parse_error("Trait clause name doesn't match")
@@ -111,9 +94,7 @@ module Onyx
                     parse_error('Expected "[" or "uses:" or "class"')
                 end
             elsif cur_tok.binsel? or cur_tok.kw? then
-                push_scope(trait_node.ivars)
                 trait_node.add_method(parse_method)
-                pop_scope
             else
                 parse_error('Expected id, binsel, or kw.')
             end
@@ -126,7 +107,7 @@ module Onyx
             name = cur_tok.value
             step
             expect(:lsq)
-            vars = parse_vars(IVar)
+            vars = parse_vars
             class_node = ClassNode.new(name, supername, vars)
 
             while !cur_tok.rsq? do
@@ -144,9 +125,7 @@ module Onyx
 
                 if cur_tok.lsq? then
                     push_token(tok) 
-                    push_scope(class_node.ivars)
                     class_node.add_method(parse_method)
-                    pop_scope
                 elsif cur_tok.kw? and cur_tok.value == :'uses:' then
                     if tok.value != class_node.name then
                         parse_error("Trait clause class name doesn't match")
@@ -173,7 +152,7 @@ module Onyx
 
         def parse_meta
             expect(:lsq)
-            vars = parse_vars(IVar)
+            vars = parse_vars
             meta_node = MetaNode.new(vars)
 
             while !cur_tok.rsq? do
@@ -186,9 +165,7 @@ module Onyx
 
         def parse_meta_elem(meta_node)
             if cur_tok.id? or cur_tok.binsel? or cur_tok.kw? then
-                push_scope(meta_node.ivars)
                 meta_node.add_method(parse_method)
-                pop_scope
             else
                 parse_error('Expected id, binsel, or kw.')
             end
@@ -206,7 +183,7 @@ module Onyx
             expect(:id, :extend)
             expect(:lsq)
 
-            vars = parse_vars(IVar)
+            vars = parse_vars
             class_ext_node = ClassExtNode.new(name, vars)
 
             while !cur_tok.rsq? do
@@ -244,9 +221,7 @@ module Onyx
         def parse_method
             name, args = parse_method_header
             expect(:lsq)
-            push_scope(args)
             temps, stmts = parse_executable_code
-            pop_scope
             expect(:rsq)
             MethodNode.new(name, args, temps, stmts)
         end
@@ -274,7 +249,7 @@ module Onyx
                     if !cur_tok.id? then
                         parse_error("Expected id")
                     end
-                    args << AVar.new(cur_tok.value)
+                    args << cur_tok.value
                     step
                 end
                 name = name.join.to_sym
@@ -286,21 +261,19 @@ module Onyx
         end
 
         def parse_executable_code
-            temps = parse_vars(TVar)
-            push_scope(temps)
+            temps = parse_vars
             stmts = parse_statements
-            pop_scope
             [temps, SeqNode.new(stmts)]
         end
 
-        def parse_vars(var_class)
+        def parse_vars
             vars = []
 
             if cur_tok.binsel? and cur_tok.value == :'|' then
                 step
 
                 while cur_tok.id? do
-                    vars << var_class.new(cur_tok.value)
+                    vars << cur_tok.value
                     step
                 end
 
@@ -363,7 +336,7 @@ module Onyx
             if cur_tok.assign? then
                 step
                 expr = parse_expr
-                AssignNode.new(lookup_var(tok.value), expr)
+                AssignNode.new(tok.value, expr)
             else
                 push_token(tok)
                 parse_message
@@ -412,7 +385,7 @@ module Onyx
                 if [:true, :false, :nil].include? name then
                     ConstNode.new(const_value[name])
                 else
-                    RefNode.new(lookup_var(name))
+                    RefNode.new(name)
                 end
             elsif cur_tok.lsq? then
                 parse_block
@@ -430,7 +403,7 @@ module Onyx
             args = []
             if cur_tok.blockarg? then
                 while cur_tok.blockarg? do
-                    args << AVar.new(cur_tok.value)
+                    args << cur_tok.value
                     step
                 end
 
@@ -444,9 +417,7 @@ module Onyx
                 end
             end
 
-            push_scope(args)
             temps,stmts = parse_executable_code
-            pop_scope
             expect(:rsq)
             BlockNode.new(args, temps, stmts)
         end

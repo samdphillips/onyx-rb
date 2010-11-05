@@ -1,24 +1,5 @@
 
 module Onyx
-    class Var
-        attr_reader :name
-
-        def initialize(name)
-            @name = name
-        end
-    end
-
-    class GVar < Var
-    end
-
-    class IVar < Var
-    end
-
-    class AVar < Var
-    end
-
-    class TVar < Var
-    end
 
     class ParseNode
     end
