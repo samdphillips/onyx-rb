@@ -58,16 +58,63 @@ module Onyx
             expect(:kw, :'named:')
             name = cur_tok.value
             step
+            parse_decl_body(TraitNode, name)
+        end
+
+        def parse_class
+            supername = cur_tok.value
+            step
+            expect(:kw, :'subclass:')
+            name = cur_tok.value
+            step
+            parse_decl_body(ClassNode, name, supername)
+        end
+
+        def parse_extension
+            name = cur_tok.value
+            step
+            expect(:id, :extend)
+            parse_decl_body(ClassExtNode, name)
+        end
+
+        def parse_meta
             expect(:lsq)
             vars = parse_vars
-            trait_node = TraitNode.new(name, vars)
+            meta_node = MetaNode.new(vars)
 
             while !cur_tok.rsq? do
-                parse_decl_elem(trait_node)
+                parse_meta_elem(meta_node)
             end
 
             expect(:rsq)
-            trait_node
+            meta_node
+        end
+
+        def parse_meta_elem(meta_node)
+            if cur_tok.id? or cur_tok.binsel? or cur_tok.kw? then
+                meta_node.add_method(parse_method)
+            else
+                parse_error('Expected id, binsel, or kw.')
+            end
+        end
+
+        def parse_trait_clause
+            t = parse_expr
+            expect(:dot)
+            t
+        end
+
+        def parse_decl_body(node_class, *inits)
+            expect(:lsq)
+            inits <<  parse_vars
+            decl_node = node_class.new(*inits)
+
+            while !cur_tok.rsq? do
+                parse_decl_elem(decl_node)
+            end
+
+            expect(:rsq)
+            decl_node
         end
 
         def parse_decl_elem(decl_node)
@@ -98,68 +145,6 @@ module Onyx
             else
                 parse_error('Expected id, binsel, or kw.')
             end
-        end
-
-        def parse_class
-            supername = cur_tok.value
-            step
-            expect(:kw, :'subclass:')
-            name = cur_tok.value
-            step
-            expect(:lsq)
-            vars = parse_vars
-            class_node = ClassNode.new(name, supername, vars)
-
-            while !cur_tok.rsq? do
-                parse_decl_elem(class_node)
-            end
-
-            expect(:rsq)
-            class_node
-        end
-
-        def parse_meta
-            expect(:lsq)
-            vars = parse_vars
-            meta_node = MetaNode.new(vars)
-
-            while !cur_tok.rsq? do
-                parse_meta_elem(meta_node)
-            end
-
-            expect(:rsq)
-            meta_node
-        end
-
-        def parse_meta_elem(meta_node)
-            if cur_tok.id? or cur_tok.binsel? or cur_tok.kw? then
-                meta_node.add_method(parse_method)
-            else
-                parse_error('Expected id, binsel, or kw.')
-            end
-        end
-
-        def parse_trait_clause
-            t = parse_expr
-            expect(:dot)
-            t
-        end
-
-        def parse_extension
-            name = cur_tok.value
-            step
-            expect(:id, :extend)
-            expect(:lsq)
-
-            vars = parse_vars
-            class_ext_node = ClassExtNode.new(name, vars)
-
-            while !cur_tok.rsq? do
-                parse_decl_elem(class_ext_node)
-            end
-
-            expect(:rsq)
-            class_ext_node
         end
 
         def parse_method
