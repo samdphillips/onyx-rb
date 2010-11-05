@@ -1,0 +1,69 @@
+
+"Parsing test class - your code shouldn't look like this"
+
+import: 'mymodule'
+
+import: 'thismodule'.
+
+nil subclass: Object [
+    | some vars |
+
+    Object uses: nil.
+
+    Object class [
+        | blab |
+        gar [ ^ blab ]
+    ]
+
+    gar [ ^ 3 + 4 ]
+
+    foo [ ^ some ]
+]
+
+
+"Parsing test trait"
+
+Trait named: Hello [
+    | greeting |
+
+    greeting: aString [
+        greeting := aString
+    ]
+
+    hello [
+        greeting printNl
+    ]
+]
+
+Object extend [
+    | oid |
+
+    Object uses: Hello.
+
+    Object class [
+        | oidCount |
+
+        incrOid [ oidCount := oidCount + 1 ]
+
+        new [
+            ^ super new oid: self incrOid
+        ]
+    ]
+
+    oid [
+        oid ifNil: [ self oid: self class incrOid ].
+        ^ oid
+    ]
+
+    oid: anInteger [ 
+        oid := anInteger
+    ]
+]
+
+
+foo := Object new.
+
+foo greeting: 'hi'.
+
+foo hello
+

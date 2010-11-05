@@ -7,6 +7,14 @@ module Onyx
     class ExprNode < ParseNode
     end
 
+    class ModuleNode < ParseNode
+        attr_reader :exprs
+
+        def initialize(exprs)
+            @exprs = exprs
+        end
+    end
+
     class ImportNode < ParseNode
         attr_reader :name
 

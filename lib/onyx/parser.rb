@@ -53,6 +53,39 @@ module Onyx
             step
         end
 
+        def parse_module
+            e = []
+
+            while !cur_tok.eof? do
+                e << parse_module_elem
+            end
+
+            ModuleNode.new(e)
+        end
+
+        def parse_module_elem
+            if cur_tok.kw? and cur_tok.value == :'import:' then
+                parse_import
+            elsif cur_tok.id? and cur_tok.value == :Trait then
+                parse_trait
+            elsif cur_tok.id? then
+                id = cur_tok
+                step
+                if cur_tok.kw? and cur_tok.value == :'subclass:' then
+                    push_token(id)
+                    parse_class
+                elsif cur_tok.id? and cur_tok.value == :extend then
+                    push_token(id)
+                    parse_extension
+                else
+                    push_token(id)
+                    parse_module_expr
+                end
+            else
+                parse_module_expr
+            end
+        end
+
         def parse_import
             expect(:kw, :'import:')
 
@@ -229,7 +262,7 @@ module Onyx
 
         def parse_statements(node)
             while true do
-                if cur_tok.one_of [:caret, :int, :id, :lsq] then
+                if cur_tok.one_of [:caret, :int, :string, :id, :lsq] then
                     node.stmts << parse_statement
                 else
                     break
@@ -247,7 +280,7 @@ module Onyx
             if cur_tok.caret? then
                 parse_return
             # FIXME: we sure check this a lot
-            elsif cur_tok.one_of [:int, :id, :lsq] then
+            elsif cur_tok.one_of [:string, :int, :id, :lsq] then
                 parse_expr
             else
                 parse_error
@@ -259,8 +292,16 @@ module Onyx
             ReturnNode.new(parse_expr)
         end
 
+        def parse_module_expr
+            e = parse_expr
+            unless cur_tok.eof? then
+                expect(:dot)
+            end
+            e
+        end
+
         def parse_expr
-            if cur_tok.one_of [:int, :lsq] then
+            if cur_tok.one_of [:string, :int, :lsq] then
                 parse_message
             elsif cur_tok.id? then
                 parse_maybe_assign
@@ -315,7 +356,7 @@ module Onyx
         end
 
         def parse_primary
-            if cur_tok.int? then
+            if cur_tok.one_of [:string, :int] then
                 v = cur_tok.value
                 step
                 ConstNode.new(v)

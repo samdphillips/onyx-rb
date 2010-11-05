@@ -11,7 +11,7 @@ class TestParser < Test::Unit::TestCase
     end
 
     def parser_for_file(fn)
-        Parser.new(File.open('t/' + fn))
+        Parser.new(File.open('t/parser_tests/' + fn))
     end
 
     def test_parse_int
@@ -152,6 +152,22 @@ class TestParser < Test::Unit::TestCase
         t = p.parse_import
         assert_instance_of(ImportNode, t)
         assert_equal(t.name, :system)
+    end
+
+    def test_parse_module
+        p = parser_for_file('test_module.ost')
+        t = p.parse_module
+
+        assert_instance_of(ModuleNode, t)
+        assert_equal(8, t.exprs.size)
+        assert_instance_of(ImportNode,   t.exprs[0])
+        assert_instance_of(ImportNode,   t.exprs[1])
+        assert_instance_of(ClassNode,    t.exprs[2])
+        assert_instance_of(TraitNode,    t.exprs[3])
+        assert_instance_of(ClassExtNode, t.exprs[4])
+        assert_instance_of(AssignNode,   t.exprs[5])
+        assert_instance_of(SendNode,     t.exprs[6])
+        assert_instance_of(SendNode,     t.exprs[7])
     end
 
 end
