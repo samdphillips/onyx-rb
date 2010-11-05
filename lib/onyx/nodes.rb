@@ -135,23 +135,7 @@ module Onyx
     class TraitNode < DeclNode
     end
 
-    class ClassExtNode < ParseNode
-        attr_reader :name, :ivars, :meta, :methods
-
-        def initialize(name, ivars)
-            @name    = name
-            @ivars   = ivars
-            @meta    = []
-            @methods = []
-        end
-
-        def add_meta(meta_node)
-            @meta << meta_node
-        end
-
-        def add_method(method_node)
-            @methods << method_node
-        end
+    class ClassExtNode < DeclNode
     end
 
     class MetaNode < ParseNode
