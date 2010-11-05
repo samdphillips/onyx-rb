@@ -77,5 +77,10 @@ class TestLexer < Test::Unit::TestCase
         l = lex_string(';')
         assert_token(l, :semi, ';')
     end
+
+    def test_lex_string
+        l = lex_string("'test string'")
+        assert_token(l, :string, "test string")
+    end
 end
 

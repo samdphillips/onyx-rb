@@ -146,4 +146,12 @@ class TestParser < Test::Unit::TestCase
 
         assert_instance_of(ClassExtNode, t)
     end
+
+    def test_parse_import
+        p = parser_string("import: 'system'")
+        t = p.parse_import
+        assert_instance_of(ImportNode, t)
+        assert_equal(t.name, :system)
+    end
+
 end

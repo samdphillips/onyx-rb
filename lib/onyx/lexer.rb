@@ -63,6 +63,7 @@ module Onyx
             @char_table[?.] = :dot
             @char_table[?;] = :semi
             @char_table[?"] = :comment
+            @char_table[?'] = :string
         end
 
         def self.char_scanners(*types)
@@ -128,6 +129,9 @@ module Onyx
         def scan_comment
             step
             while cur_char != ?" do
+                if cur_char.nil? then
+                    eof_error
+                end
                 step
             end
             step
@@ -206,6 +210,26 @@ module Onyx
             else
                 scan_error
             end
+        end
+
+        def read_string
+            s = ""
+            step
+
+            while cur_char != ?' do
+                if cur_char.nil? then
+                    eof_error
+                end
+                s << cur_char
+                step
+            end
+
+            step
+            s
+        end
+
+        def scan_string
+            Token.new(:string, read_string)
         end
     end
 end

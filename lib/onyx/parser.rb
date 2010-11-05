@@ -53,6 +53,21 @@ module Onyx
             step
         end
 
+        def parse_import
+            expect(:kw, :'import:')
+
+            if cur_tok.string? then
+                v = cur_tok.value.to_sym
+                step
+                if cur_tok.dot? then
+                    step
+                end
+                ImportNode.new(v)
+            else
+                parse_error('Expected string')
+            end
+        end
+
         def parse_trait
             expect(:id, :Trait)
             expect(:kw, :'named:')
