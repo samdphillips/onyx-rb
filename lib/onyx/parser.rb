@@ -63,38 +63,38 @@ module Onyx
             trait_node = TraitNode.new(name, vars)
 
             while !cur_tok.rsq? do
-                parse_trait_elem(trait_node)
+                parse_decl_elem(trait_node)
             end
 
             expect(:rsq)
             trait_node
         end
 
-        def parse_trait_elem(trait_node)
+        def parse_decl_elem(decl_node)
             if cur_tok.id? then
                 tok = cur_tok
                 step
 
                 if cur_tok.lsq? then
                     push_token(tok) 
-                    trait_node.add_method(parse_method)
+                    decl_node.add_method(parse_method)
                 elsif cur_tok.kw? and cur_tok.value == :'uses:' then
-                    if tok.value != trait_node.name then
+                    if tok.value != decl_node.name then
                         parse_error("Trait clause name doesn't match")
                     end
                     step
-                    trait_node.add_traits(parse_trait_clause)
+                    decl_node.add_traits(parse_trait_clause)
                 elsif cur_tok.id? and cur_tok.value == :class then
-                    if tok.value != trait_node.name then
+                    if tok.value != decl_node.name then
                         parse_error("Meta trait name doesn't match")
                     end
                     step
-                    trait_node.add_meta(parse_meta)
+                    decl_node.add_meta(parse_meta)
                 else
                     parse_error('Expected "[" or "uses:" or "class"')
                 end
             elsif cur_tok.binsel? or cur_tok.kw? then
-                trait_node.add_method(parse_method)
+                decl_node.add_method(parse_method)
             else
                 parse_error('Expected id, binsel, or kw.')
             end
@@ -111,43 +111,11 @@ module Onyx
             class_node = ClassNode.new(name, supername, vars)
 
             while !cur_tok.rsq? do
-                parse_class_elem(class_node)
+                parse_decl_elem(class_node)
             end
 
             expect(:rsq)
             class_node
-        end
-
-        def parse_class_elem(class_node)
-            if cur_tok.id? then
-                tok = cur_tok
-                step
-
-                if cur_tok.lsq? then
-                    push_token(tok) 
-                    class_node.add_method(parse_method)
-                elsif cur_tok.kw? and cur_tok.value == :'uses:' then
-                    if tok.value != class_node.name then
-                        parse_error("Trait clause class name doesn't match")
-                    end
-                    step
-                    class_node.add_traits(parse_trait_clause)
-                elsif cur_tok.id? and cur_tok.value == :class then
-                    if tok.value != class_node.name then
-                        parse_error("Meta class name doesn't match")
-                    end
-                    step
-                    class_node.add_meta(parse_meta)
-                else
-                    parse_error('Expected "[" or "uses:" or "class"')
-                end
-            elsif cur_tok.binsel? or cur_tok.kw? then
-                push_scope(class_node.ivars)
-                class_node.add_method(parse_method)
-                pop_scope
-            else
-                parse_error('Expected id, binsel, or kw.')
-            end
         end
 
         def parse_meta
@@ -187,35 +155,11 @@ module Onyx
             class_ext_node = ClassExtNode.new(name, vars)
 
             while !cur_tok.rsq? do
-                parse_class_ext_elem(class_ext_node)
+                parse_decl_elem(class_ext_node)
             end
 
             expect(:rsq)
             class_ext_node
-        end
-
-        def parse_class_ext_elem(class_ext_node)
-            if cur_tok.id? then
-                tok = cur_tok
-                step
-
-                if cur_tok.lsq? then
-                    push_token(tok) 
-                    class_ext_node.add_method(parse_method)
-                elsif cur_tok.id? and cur_tok.value == :class then
-                    if tok.value != class_ext_node.name then
-                        parse_error("Class name doesn't match")
-                    end
-                    step
-                    class_ext_node.add_meta(parse_meta)
-                else
-                    parse_error('Expected "[" or "class"')
-                end
-            elsif cur_tok.binsel? or cur_tok.kw? then
-                class_ext_node.add_method(parse_method)
-            else
-                parse_error('Expected id, binsel, or kw.')
-            end
         end
 
         def parse_method
