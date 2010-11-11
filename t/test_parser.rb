@@ -138,16 +138,17 @@ class TestParser < Test::Unit::TestCase
         assert_equal(t.name, :Object)
         assert_instance_of(ConstNode, t.trait_expr)
 
-        assert_instance_of(MethodNode, t.methods[0])
-        assert_equal(:gar, t.methods[0].name)
-        assert_equal(0, t.methods[0].args.size)
-        assert_equal(0, t.methods[0].temps.size)
-        assert_equal(1, t.methods[0].stmts.nodes.size)
-        assert_instance_of(ReturnNode, t.methods[0].stmts.nodes[0])
+        assert_equal(2, t.meths.size)
+        assert_instance_of(MethodNode, t.meths[0])
+        assert_equal(:gar, t.meths[0].name)
+        assert_equal(0, t.meths[0].args.size)
+        assert_equal(0, t.meths[0].temps.size)
+        assert_equal(1, t.meths[0].stmts.nodes.size)
+        assert_instance_of(ReturnNode, t.meths[0].stmts.nodes[0])
 
-        assert_instance_of(Symbol, t.methods[1].stmts.nodes[0].expr.var)
+        assert_instance_of(Symbol, t.meths[1].stmts.nodes[0].expr.var)
         assert_instance_of(Symbol, 
-            t.meta[0].methods[0].stmts.nodes[0].expr.var)
+            t.meta[0].meths[0].stmts.nodes[0].expr.var)
     end
 
     def test_parse_trait
@@ -155,8 +156,8 @@ class TestParser < Test::Unit::TestCase
         t = p.parse_trait
 
         assert_instance_of(TraitNode, t)
-        assert_instance_of(Symbol, t.methods[0].stmts.nodes[0].var)
-        assert_instance_of(Symbol, t.methods[1].stmts.nodes[0].rcvr.var)
+        assert_instance_of(Symbol, t.meths[0].stmts.nodes[0].var)
+        assert_instance_of(Symbol, t.meths[1].stmts.nodes[0].rcvr.var)
     end
 
     def test_parse_extension
