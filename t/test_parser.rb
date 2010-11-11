@@ -47,6 +47,13 @@ class TestParser < Test::Unit::TestCase
         t = p.parse_expr
         assert_instance_of(SendNode, t)
         assert_equal(:not, t.message.selector)
+
+        p = parser_string('[ (x foo) bar ]')
+        t = p.parse_expr
+        assert_instance_of(BlockNode, t)
+        assert_equal(1, t.stmts.nodes.size)
+        assert_instance_of(SendNode, t.stmts.nodes[0])
+        assert_equal(:bar, t.stmts.nodes[0].message.selector)
     end
 
     def test_parse_executable_code

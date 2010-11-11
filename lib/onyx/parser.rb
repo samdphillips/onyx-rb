@@ -263,7 +263,7 @@ module Onyx
         def parse_statements(node)
             seq = SeqNode.new
             while true do
-                if cur_tok.one_of [:caret, :int, :string, :id, :lsq] then
+                if cur_tok.one_of [:caret, :int, :string, :id, :lpar, :lsq] then
                     seq.nodes << parse_statement
                 else
                     node.stmts = seq
@@ -283,7 +283,7 @@ module Onyx
             if cur_tok.caret? then
                 parse_return
             # FIXME: we sure check this a lot
-            elsif cur_tok.one_of [:string, :int, :id, :lsq] then
+            elsif cur_tok.one_of [:string, :int, :id, :lpar, :lsq] then
                 parse_expr
             else
                 parse_error
