@@ -128,7 +128,8 @@ class TestParser < Test::Unit::TestCase
         assert_instance_of(ReturnNode, t.methods[0].stmts.nodes[0])
 
         assert_instance_of(Symbol, t.methods[1].stmts.nodes[0].expr.var)
-        assert_instance_of(Symbol, t.meta[0].methods[0].stmts.nodes[0].expr.var)
+        assert_instance_of(Symbol, 
+            t.meta[0].methods[0].stmts.nodes[0].expr.var)
     end
 
     def test_parse_trait
