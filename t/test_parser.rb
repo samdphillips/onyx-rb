@@ -42,6 +42,11 @@ class TestParser < Test::Unit::TestCase
         p = parser_string('(x + y)')
         t = p.parse_expr
         assert_instance_of(SendNode, t)
+
+        p = parser_string('(self = anObject) not')
+        t = p.parse_expr
+        assert_instance_of(SendNode, t)
+        assert_equal(:not, t.message.selector)
     end
 
     def test_parse_executable_code

@@ -304,10 +304,8 @@ module Onyx
         end
 
         def parse_expr
-            if cur_tok.one_of [:string, :int, :lsq] then
+            if cur_tok.one_of [:lpar, :string, :int, :lsq] then
                 parse_message
-            elsif cur_tok.lpar? then
-                parse_nested_expr
             elsif cur_tok.id? then
                 parse_maybe_assign
             else
@@ -380,6 +378,8 @@ module Onyx
                 else
                     RefNode.new(name)
                 end
+            elsif cur_tok.lpar? then
+                parse_nested_expr
             elsif cur_tok.lsq? then
                 parse_block
             else
