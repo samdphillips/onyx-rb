@@ -38,6 +38,12 @@ class TestParser < Test::Unit::TestCase
         assert_instance_of(RefNode, t)
     end
 
+    def test_parse_nested
+        p = parser_string('(x + y)')
+        t = p.parse_expr
+        assert_instance_of(SendNode, t)
+    end
+
     def test_parse_executable_code
         p = parser_string('| a b | ^ a + b')
         block = BlockNode.new()

@@ -306,11 +306,20 @@ module Onyx
         def parse_expr
             if cur_tok.one_of [:string, :int, :lsq] then
                 parse_message
+            elsif cur_tok.lpar? then
+                parse_nested_expr
             elsif cur_tok.id? then
                 parse_maybe_assign
             else
                 parse_error
             end
+        end
+
+        def parse_nested_expr
+            step
+            e = parse_expr
+            expect(:rpar)
+            e
         end
 
         def parse_maybe_assign
