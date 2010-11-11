@@ -2,6 +2,14 @@
 module Onyx
 
     class ParseNode
+        def visit_name
+            ("visit_" +
+                self.class.name.split('::').last[0...-4].downcase).to_sym
+        end
+
+        def visit(visitor)
+            visitor.send(visit_name, self)
+        end
     end
 
     class ExprNode < ParseNode
@@ -124,7 +132,7 @@ module Onyx
             @name       = name
             @ivars      = ivars
             @trait_expr = nil
-            @meta       = []
+            @meta       = MetaNode.new
             @meths      = []
         end
 
@@ -133,7 +141,7 @@ module Onyx
         end
 
         def add_meta(meta_node)
-            @meta << meta_node
+            @meta.merge(meta_node)
         end
 
         def add_method(method_node)
@@ -159,13 +167,18 @@ module Onyx
     class MetaNode < ParseNode
         attr_reader :ivars, :meths
 
-        def initialize(ivars)
+        def initialize(ivars=[])
             @ivars = ivars
             @meths = []
         end
 
         def add_method(method_node)
             @meths << method_node
+        end
+
+        def merge(meta_node)
+            @ivars.push(*meta_node.ivars)
+            @meths.push(*meta_node.meths)
         end
     end
 end

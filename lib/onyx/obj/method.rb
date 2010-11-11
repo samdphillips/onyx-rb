@@ -1,17 +1,13 @@
 
 module Onyx
     class OMethod
-        attr_reader :code, :lits
+        attr_reader :name, :args, :temps, :stmts
 
-        def initialize(code, lits)
-            @code = code
-            @lits = lits
-        end
-
-        def ==(other)
-            self.class == other.class and
-                code == other.code and
-                lits == other.lits
+        def initialize(name, args, temps, stmts)
+            @name  = name
+            @args  = args
+            @temps = temps
+            @stmts = stmts
         end
     end
 end

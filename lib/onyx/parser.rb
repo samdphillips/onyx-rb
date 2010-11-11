@@ -12,6 +12,16 @@ module Onyx
     class Parser
         attr_reader :cur_tok, :globals, :scope
 
+        def self.parse_file(file_name)
+            f = File.open(file_name)
+            begin
+                p = new(f)
+                node = p.parse_module
+            ensure
+                f.close
+            end
+        end
+
         def initialize(io)
             @lex = Lexer.new(io)
             @stack = []
