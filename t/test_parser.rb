@@ -45,8 +45,8 @@ class TestParser < Test::Unit::TestCase
 
         assert_equal(:a, block.temps[0])
         assert_equal(:b, block.temps[1])
-        assert_equal(1, block.stmts.size)
-        r = block.stmts[0]
+        assert_equal(1, block.stmts.nodes.size)
+        r = block.stmts.nodes[0]
         assert_instance_of(ReturnNode, r)
         e = r.expr
         assert_instance_of(SendNode, e)
@@ -109,7 +109,7 @@ class TestParser < Test::Unit::TestCase
         assert_instance_of(BlockNode, t)
         assert_equal(2, t.args.size)
         assert_equal(1, t.temps.size)
-        assert_equal(1, t.stmts.size)
+        assert_equal(1, t.stmts.nodes.size)
     end
 
     def test_parse_class
@@ -124,11 +124,11 @@ class TestParser < Test::Unit::TestCase
         assert_equal(:gar, t.methods[0].name)
         assert_equal(0, t.methods[0].args.size)
         assert_equal(0, t.methods[0].temps.size)
-        assert_equal(1, t.methods[0].stmts.size)
-        assert_instance_of(ReturnNode, t.methods[0].stmts[0])
+        assert_equal(1, t.methods[0].stmts.nodes.size)
+        assert_instance_of(ReturnNode, t.methods[0].stmts.nodes[0])
 
-        assert_instance_of(Symbol, t.methods[1].stmts[0].expr.var)
-        assert_instance_of(Symbol, t.meta[0].methods[0].stmts[0].expr.var)
+        assert_instance_of(Symbol, t.methods[1].stmts.nodes[0].expr.var)
+        assert_instance_of(Symbol, t.meta[0].methods[0].stmts.nodes[0].expr.var)
     end
 
     def test_parse_trait
@@ -136,8 +136,8 @@ class TestParser < Test::Unit::TestCase
         t = p.parse_trait
 
         assert_instance_of(TraitNode, t)
-        assert_instance_of(Symbol, t.methods[0].stmts[0].var)
-        assert_instance_of(Symbol, t.methods[1].stmts[0].rcvr.var)
+        assert_instance_of(Symbol, t.methods[0].stmts.nodes[0].var)
+        assert_instance_of(Symbol, t.methods[1].stmts.nodes[0].rcvr.var)
     end
 
     def test_parse_extension
@@ -158,16 +158,16 @@ class TestParser < Test::Unit::TestCase
         p = parser_for_file('test_module.ost')
         t = p.parse_module
 
-        assert_instance_of(ModuleNode, t)
-        assert_equal(8, t.exprs.size)
-        assert_instance_of(ImportNode,   t.exprs[0])
-        assert_instance_of(ImportNode,   t.exprs[1])
-        assert_instance_of(ClassNode,    t.exprs[2])
-        assert_instance_of(TraitNode,    t.exprs[3])
-        assert_instance_of(ClassExtNode, t.exprs[4])
-        assert_instance_of(AssignNode,   t.exprs[5])
-        assert_instance_of(SendNode,     t.exprs[6])
-        assert_instance_of(SendNode,     t.exprs[7])
+        assert_instance_of(SeqNode, t)
+        assert_equal(8, t.nodes.size)
+        assert_instance_of(ImportNode,   t.nodes[0])
+        assert_instance_of(ImportNode,   t.nodes[1])
+        assert_instance_of(ClassNode,    t.nodes[2])
+        assert_instance_of(TraitNode,    t.nodes[3])
+        assert_instance_of(ClassExtNode, t.nodes[4])
+        assert_instance_of(AssignNode,   t.nodes[5])
+        assert_instance_of(SendNode,     t.nodes[6])
+        assert_instance_of(SendNode,     t.nodes[7])
     end
 
 end

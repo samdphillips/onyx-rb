@@ -7,11 +7,11 @@ module Onyx
     class ExprNode < ParseNode
     end
 
-    class ModuleNode < ParseNode
-        attr_reader :exprs
+    class SeqNode < ParseNode
+        attr_reader :nodes
 
-        def initialize(exprs)
-            @exprs = exprs
+        def initialize(nodes=[])
+            @nodes = nodes
         end
     end
 
@@ -78,9 +78,10 @@ module Onyx
     end
 
     class BlockNode < ExprNode
-        attr_reader :args, :temps, :stmts
+        attr_reader :args, :temps
+        attr_accessor :stmts
 
-        def initialize(args=[], temps=[], stmts=[])
+        def initialize(args=[], temps=[], stmts=nil)
             @args = args
             @temps = temps
             @stmts = stmts
@@ -101,9 +102,10 @@ module Onyx
     end
 
     class MethodNode < ParseNode
-        attr_reader :name, :args, :temps, :stmts
+        attr_reader :name, :args, :temps
+        attr_accessor :stmts
 
-        def initialize(name, args, temps=[], stmts=[])
+        def initialize(name, args, temps=[], stmts=nil)
             @name = name
             @args = args
             @temps = temps

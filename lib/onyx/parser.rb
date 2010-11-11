@@ -60,7 +60,7 @@ module Onyx
                 e << parse_module_elem
             end
 
-            ModuleNode.new(e)
+            SeqNode.new(e)
         end
 
         def parse_module_elem
@@ -261,16 +261,19 @@ module Onyx
         end
 
         def parse_statements(node)
+            seq = SeqNode.new
             while true do
                 if cur_tok.one_of [:caret, :int, :string, :id, :lsq] then
-                    node.stmts << parse_statement
+                    seq.nodes << parse_statement
                 else
+                    node.stmts = seq
                     break
                 end
                 
                 if cur_tok.dot? then
                     step
                 else
+                    node.stmts = seq
                     break
                 end
             end
