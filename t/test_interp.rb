@@ -65,6 +65,7 @@ class TestInterp < Test::Unit::TestCase
         # TODO:  Need to add proper tail-calls
         assert_interp("n := 0. [ n < 10 ] whileTrue: [ n := n + 1 ]", nil)
         assert_interp("n := 0. [ n < 10 ] whileTrue: [ n := n + 1 ]. n", 10)
+        assert_interp("n := 0. [ n = 10 ] whileFalse: [ n := n + 1 ]. n", 10)
     end
 end
 
