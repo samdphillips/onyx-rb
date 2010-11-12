@@ -11,6 +11,30 @@ module Onyx
             @mdict  = mdict
             @cmdict = cmdict
         end
+
+        def oclass?
+            true
+        end
+
+        def lookup_method(terp, selector, cls)
+            if cls then
+                d = cmdict
+            else
+                d = mdict
+            end
+
+            if d.include?(selector) then
+                [self, d[selector]]
+            elsif @super.nil? then
+                if cls then
+                    terp.globals[:Class].lookup_method(selector, false)
+                else
+                    nil
+                end
+            else
+                @super.lookup_method(selector, cls)
+            end
+        end
     end
 end
 

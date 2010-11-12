@@ -19,5 +19,8 @@ class TestInterp < Test::Unit::TestCase
         assert_equal(result, @terp.eval_string(s))
     end
 
+    def test_sends
+        assert_interp("3 + 4", 7)
+    end
 end
 

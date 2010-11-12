@@ -1,4 +1,6 @@
 
+require 'stringio'
+
 module Onyx
     class ParseError < Exception
         attr_reader :message
@@ -20,6 +22,10 @@ module Onyx
             ensure
                 f.close
             end
+        end
+
+        def self.on_string(s)
+            new(StringIO.new(s))
         end
 
         def initialize(io)

@@ -7,8 +7,8 @@ module Onyx
                 self.class.name.split('::').last[0...-4].downcase).to_sym
         end
 
-        def visit(visitor)
-            visitor.send(visit_name, self)
+        def visit(visitor, *args)
+            visitor.send(visit_name, self, *args)
         end
     end
 
@@ -72,9 +72,16 @@ module Onyx
             @selector = selector
             @args     = args
         end
+
+        def primitive?
+            false
+        end
     end
 
     class PrimMessageNode < MessageNode
+        def primitive?
+            true
+        end
     end
 
     class ReturnNode < ExprNode
