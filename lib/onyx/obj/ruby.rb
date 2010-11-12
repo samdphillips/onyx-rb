@@ -3,6 +3,10 @@ class Object
     def oclass?
         false
     end
+
+    def include_ivar?(var)
+        false
+    end
 end
 
 class Fixnum

@@ -17,6 +17,7 @@ module Onyx
         def initialize
             @globals = GEnv.new
             @cont    = nil
+            @env     = Env.new
         end
 
         def restore(env, cls, rcvr)
@@ -78,14 +79,30 @@ module Onyx
             Done.new(const_node.value)
         end
 
-        def visit_ref(ref_node)
-            var = ref_node.var
-
+        def lookup_var(var)
             if @env.include?(var) then
-                Done.new(@env.lookup(var).value)
+                @env.lookup(var)
+            elsif @rcvr.include_ivar?(var) then
+                @rcvr.lookup(var)
             else
-                raise 'need to write'
+                @globals.lookup(var)
             end
+        end
+
+        def visit_ref(ref_node)
+            Done.new(lookup_var(ref_node.var).value)
+        end
+
+        def assign_var(var, value)
+            lookup_var(var).assign(value)
+        end
+
+        def visit_assign(assign_node)
+            var = assign_node.var
+            expr = assign_node.expr
+
+            @cont = KAssign.new(@cont, var)
+            Doing.new(expr)
         end
 
         def visit_send(send_node)

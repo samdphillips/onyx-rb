@@ -11,6 +11,10 @@ module Onyx
 
     class MBinding
         include Binding
+
+        def assign(value)
+            @value = value
+        end
     end
 
     class IBinding
@@ -77,7 +81,7 @@ module Onyx
             v = super(name)
 
             if v.nil? then
-                add_binding(name)
+                v = add_binding(name)
             end
             v
         end

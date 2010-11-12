@@ -36,5 +36,9 @@ class TestInterp < Test::Unit::TestCase
             end
         end
     end
+
+    def test_assign
+        assert_interp("a := 3. a", 3)
+    end
 end
 

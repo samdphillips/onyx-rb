@@ -65,6 +65,19 @@ module Onyx
             end
         end
 
+        class KAssign < Cont
+            def initialize(parent, var)
+                super(parent)
+                @var = var
+            end
+
+            def continue(terp, value)
+                terp.assign_var(@var, value)
+                terp.cont = @parent
+                Done.new(value)
+            end
+        end
+
         class KRcvr < Cont
             def initialize(parent, message)
                 super(parent)
