@@ -19,6 +19,12 @@ module Onyx
             @cont    = nil
         end
 
+        def restore(env, cls, rcvr)
+            @env = env
+            @cls = cls
+            @rcvr = rcvr
+        end
+
         def eval_string(s)
             p = Parser.on_string(s)
             node = p.parse_module
@@ -89,6 +95,7 @@ module Onyx
 
         def visit_return(ret_node)
             @cont = @cont.retk
+            @cont.context_return!
             Doing.new(ret_node.expr)
         end
 
@@ -114,7 +121,7 @@ module Onyx
             if cls.nil? then
                 raise "DNU: #{sel}"
             end
-            @cont = KMethod.new(k, @env, @cls, @rcvr)
+            @cont = KMethod.new(k, @env, @cls, @rcvr, rcvr)
             @env  = Env.from_method(meth, args, rcvr, cls)
             @rcvr = rcvr
             @cls  = cls

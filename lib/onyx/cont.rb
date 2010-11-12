@@ -124,16 +124,28 @@ module Onyx
         end
 
         class KMethod < Cont
-            def initialize(parent, env, cls, rcvr)
+            def initialize(parent, env, cls, old_rcvr, rcvr)
                 super(parent)
-                @env  = env
-                @cls  = cls
-                @rcvr = rcvr
+                @env         = env
+                @cls         = cls
+                @old_rcvr    = old_rcvr
+                @rcvr        = rcvr
+                @return_self = true
+            end
+
+            def context_return!
+                @return_self = false
             end
 
             def continue(terp, value)
                 terp.cont = @parent
-                Done.new(value)
+                terp.restore(@env, @cls, @old_rcvr)
+                v = value
+                if @return_self then
+                    v = @rcvr
+                end
+
+                Done.new(v)
             end
 
             def retk
