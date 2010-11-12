@@ -25,11 +25,18 @@ module Onyx
         end
 
         def all_ivars
-            if @super_cls.nil? then
-                []
-            else
-                @super_cls.all_ivars + @ivars
+            if @all_ivars.nil? then
+                if @super.nil? then
+                    @all_ivars = @ivars
+                else
+                    @all_ivars = @super.all_ivars + @ivars
+                end
             end
+            @all_ivars
+        end
+
+        def ivar_index(var)
+            all_ivars.index(var)
         end
 
         def lookup_method(terp, selector, cls)
