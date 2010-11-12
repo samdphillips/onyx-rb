@@ -27,12 +27,12 @@ module Onyx
                 [self, d[selector]]
             elsif @super.nil? then
                 if cls then
-                    terp.globals[:Class].lookup_method(selector, false)
+                    terp.globals[:Class].lookup_method(terp, selector, false)
                 else
                     nil
                 end
             else
-                @super.lookup_method(selector, cls)
+                @super.lookup_method(terp, selector, cls)
             end
         end
     end

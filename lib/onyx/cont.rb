@@ -79,7 +79,7 @@ module Onyx
                 sel  = msg_node.selector
                 args = msg_node.args
                 if args.size == 0 then
-                    raise "writeme1"
+                    kklass.new(@parent, sel, value).do_send(terp)
                 else
                     terp.cont = kklass.new(@parent, sel, value, args[1..-1])
                     Doing.new(args[0])
@@ -92,7 +92,7 @@ module Onyx
         end
 
         class KMsg < Cont
-            def initialize(parent, sel, rcvr, args)
+            def initialize(parent, sel, rcvr, args=[])
                 super(parent)
                 @sel  = sel
                 @rcvr = rcvr
