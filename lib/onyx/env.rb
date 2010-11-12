@@ -25,19 +25,18 @@ module Onyx
         attr_reader :parent
 
         def self.from_method(meth, args, rcvr, cls)
-            env = Env.new
-
-            args.each_index do |i|
-                env.add_ibinding(meth.args[i], args[i])
-            end
-
-            meth.temps.each do |t|
-                env.add_binding(t)
-            end
-
+            env = self.new
+            env.add_args(meth, args)
+            env.add_temps(meth)
             env.add_binding(:self, rcvr)
             env.add_binding(:super, Super.new(cls, rcvr))
+            env
+        end
 
+        def self.from_block(blk, args)
+            env = self.new(blk.env)
+            env.add_args(blk, args)
+            env.add_temps(blk)
             env
         end
 
@@ -55,6 +54,18 @@ module Onyx
                 else
                     @parent.lookup(name)
                 end
+            end
+        end
+
+        def add_args(obj, vals)
+            vals.each_index do |i|
+                add_ibinding(obj.args[i], vals[i])
+            end
+        end
+
+        def add_temps(obj)
+            obj.temps.each do |t|
+                add_binding(t)
             end
         end
 

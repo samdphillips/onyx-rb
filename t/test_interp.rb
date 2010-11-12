@@ -45,5 +45,11 @@ class TestInterp < Test::Unit::TestCase
         assert_interp("a := 3 -> 4. a key", 3)
         assert_interp("a value", 4)
     end
+
+    def test_blocks
+        assert_interp("[ 3 ] value", 3)
+        assert_interp("[:a | a ] value: 10", 10)
+        assert_interp("a := 0. [:a | a ] value: 10", 10)
+    end
 end
 

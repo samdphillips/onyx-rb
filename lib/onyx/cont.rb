@@ -9,6 +9,10 @@ module Onyx
             def step(terp)
                 @node.visit(terp)
             end
+
+            def to_s
+                "<Doing #{@node}>"
+            end
         end
 
         class Done
@@ -28,11 +32,13 @@ module Onyx
             end
 
             def to_s
-                inspect
+                "<Done #{@value}>"
             end
         end
 
         class Cont
+            attr_reader :parent
+
             def initialize(parent)
                 @parent = parent
             end
@@ -43,6 +49,20 @@ module Onyx
                 else
                     @parent.retk
                 end
+            end
+
+            def chain
+                k = self
+                c = []
+                until k.nil? do
+                    c = c + [ k.to_s ]
+                    k = k.parent
+                end
+                c
+            end
+            
+            def inspect
+                chain.join(" <- ")
             end
         end
 
@@ -184,6 +204,31 @@ module Onyx
                 end
 
                 Done.new(v)
+            end
+
+            def retk
+                self
+            end
+        end
+
+        class KBlock < Cont
+            def initialize(parent, env, cls, rcvr, cont)
+                super(parent)
+                @env  = env
+                @cls  = cls
+                @rcvr = rcvr
+                @cont = cont
+                @normal_return = true
+            end
+
+            def continue(terp, value)
+                if @normal_return then
+                    terp.cont = @parent
+                    terp.restore(@env, @cls, @rcvr)
+                else
+                    raise "writeme"
+                end
+                Done.new(value)
             end
 
             def retk

@@ -5,7 +5,7 @@ module Onyx
         include Continuations
 
         attr_reader :globals
-        attr_accessor :cont
+        attr_accessor :cont, :debug
 
         def self.boot
             node = Parser.parse_file('system.ost')
@@ -18,6 +18,7 @@ module Onyx
             @globals = GEnv.new
             @cont    = nil
             @env     = Env.new
+            @debug   = false
         end
 
         def restore(env, cls, rcvr)
@@ -44,6 +45,9 @@ module Onyx
         def run
             until finished? do
                 @state = @state.step(self)
+                puts "state: #{@state}" if @debug
+                puts "cont:  #{@cont.inspect}" if @debug
+                puts if @debug
             end
             @state.value
         end
@@ -105,6 +109,11 @@ module Onyx
             Doing.new(expr)
         end
 
+        def visit_block(block_node)
+            blk = BlockClosure.new(@cls, @rcvr, @cont, @env, block_node)
+            Done.new(blk)
+        end
+
         def visit_send(send_node)
             @cont = KRcvr.new(@cont, send_node.message)
             Doing.new(send_node.rcvr)
@@ -121,9 +130,13 @@ module Onyx
             Doing.new(ret_node.expr)
         end
 
-
         def do_primitive(rcvr, sel, args)
+            puts "primitive: #{sel}" if @debug
             v = send("prim#{sel.to_s.gsub(':','_')}".to_sym, rcvr, *args)
+            v
+        end
+
+        def prim_success(v)
             Done.new(v)
         end
 
@@ -133,11 +146,20 @@ module Onyx
             if cls.nil? then
                 raise "DNU: #{sel}"
             end
+            puts "send: #{sel}" if @debug
             @cont = KMethod.new(k, @env, @cls, @rcvr, rcvr)
             @env  = Env.from_method(meth, args, rcvr, cls)
             @rcvr = rcvr
             @cls  = cls
             Doing.new(meth.stmts)
+        end
+
+        def do_block(blk, args=[])
+            @cont = KBlock.new(@cont, @env, @cls, @rcvr, blk.cont)
+            @env  = Env.from_block(blk, args)
+            @rcvr = blk.rcvr
+            @cls  = blk.cls
+            Doing.new(blk.stmts)
         end
     end
 end
