@@ -12,5 +12,9 @@ module Onyx
         def prim_objectEqual_(a, b)
             a == b
         end
+
+        def prim_smallIntLt_(a, b)
+            a < b
+        end
     end
 end

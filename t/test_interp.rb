@@ -26,5 +26,15 @@ class TestInterp < Test::Unit::TestCase
         assert_interp("3 = 3", true)
         assert_interp("3 = 4", false)
     end
+
+    def test_compare
+        [:<, :>, :<=, :>=].each do | s |
+            (1..3).each do | i |
+                (1..3).each do | j |
+                    assert_interp("#{i} #{s} #{j}", i.send(s, j))
+                end
+            end
+        end
+    end
 end
 
