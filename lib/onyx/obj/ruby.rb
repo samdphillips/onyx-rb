@@ -32,3 +32,9 @@ class TrueClass
         terp.globals[:True]
     end
 end
+
+class Array
+    def onyx_class(terp)
+        terp.globals[:Array]
+    end
+end

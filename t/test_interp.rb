@@ -67,5 +67,12 @@ class TestInterp < Test::Unit::TestCase
         assert_interp("n := 0. [ n < 10 ] whileTrue: [ n := n + 1 ]. n", 10)
         assert_interp("n := 0. [ n = 10 ] whileFalse: [ n := n + 1 ]. n", 10)
     end
+
+    def test_arrays
+        assert_interp("(Array new: 10) size", 10)
+        assert_interp("Array new size", 0)
+        assert_interp("a := Array new: 1. a at: 0 put: 10. a at: 0", 10)
+        assert_interp("a := Array with: 10. a at: 0", 10)
+    end
 end
 

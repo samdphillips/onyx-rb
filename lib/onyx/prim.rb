@@ -5,6 +5,10 @@ module Onyx
             prim_success(a + b)
         end
 
+        def prim_smallIntSub_(a, b)
+            prim_success(a - b)
+        end
+
         def prim_mulSmallInt_(a, b)
             prim_success(a * b)
         end
@@ -27,6 +31,23 @@ module Onyx
 
         def prim_blockValue_(rcvr, a)
             do_block(rcvr, [a])
+        end
+
+        def prim_arrayNew_(cls, size)
+            prim_success(Array.new(size))
+        end
+
+        def prim_arraySize(rcvr)
+            prim_success(rcvr.size)
+        end
+
+        def prim_arrayAt_put_(rcvr, i, j)
+            rcvr[i] = j
+            prim_success(j)
+        end
+
+        def prim_arrayAt_(rcvr, i)
+            prim_success(rcvr[i])
         end
     end
 end
