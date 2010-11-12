@@ -8,5 +8,9 @@ module Onyx
         def prim_mulSmallInt_(a, b)
             a * b
         end
+
+        def prim_objectEqual_(a, b)
+            a == b
+        end
     end
 end

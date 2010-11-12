@@ -23,6 +23,8 @@ class TestInterp < Test::Unit::TestCase
         assert_interp("3 + 4", 7)
         assert_interp("3 + 4 * 2", 14)
         assert_interp("3 isNumber", true)
+        assert_interp("3 = 3", true)
+        assert_interp("3 = 4", false)
     end
 end
 
