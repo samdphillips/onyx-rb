@@ -53,5 +53,18 @@ class TestInterp < Test::Unit::TestCase
         assert_interp("[:a | a ] value: 10", 10)
         assert_interp("a := 0. [:a | a ] value: 10", 10)
     end
+
+    def test_conditional
+        assert_interp("true  ifTrue: [ 10 ]", 10)
+        assert_interp("false ifTrue: [ 10 ]", nil)
+        assert_interp("true  ifTrue: [ 10 ] ifFalse: [ 11 ]", 10)
+        assert_interp("false ifTrue: [ 10 ] ifFalse: [ 11 ]", 11)
+    end
+
+    def test_loops
+        # TODO:  Need to add proper tail-calls
+        assert_interp("n := 0. [ n < 10 ] whileTrue: [ n := n + 1 ]", nil)
+        assert_interp("n := 0. [ n < 10 ] whileTrue: [ n := n + 1 ]. n", 10)
+    end
 end
 

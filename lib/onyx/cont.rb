@@ -11,7 +11,7 @@ module Onyx
             end
 
             def to_s
-                "<Doing #{@node}>"
+                "<Doing #{@node.inspect}>"
             end
         end
 
@@ -43,14 +43,6 @@ module Onyx
                 @parent = parent
             end
 
-            def retk
-                if @parent.nil? then
-                    nil
-                else
-                    @parent.retk
-                end
-            end
-
             def chain
                 k = self
                 c = []
@@ -62,7 +54,7 @@ module Onyx
             end
             
             def inspect
-                chain.join(" <- ")
+                chain.join(" <-\n        ")
             end
         end
 
@@ -182,12 +174,14 @@ module Onyx
         end
 
         class KMethod < Cont
-            def initialize(parent, env, cls, old_rcvr, rcvr)
+            def initialize(parent, name, env, cls, old_rcvr, rcvr, method)
                 super(parent)
+                @name        = name
                 @env         = env
                 @cls         = cls
                 @old_rcvr    = old_rcvr
                 @rcvr        = rcvr
+                @method      = method
                 @return_self = true
             end
 
@@ -197,7 +191,7 @@ module Onyx
 
             def continue(terp, value)
                 terp.cont = @parent
-                terp.restore(@env, @cls, @old_rcvr)
+                terp.restore(@method, @env, @cls, @old_rcvr)
                 v = value
                 if @return_self then
                     v = @rcvr
@@ -206,33 +200,25 @@ module Onyx
                 Done.new(v)
             end
 
-            def retk
-                self
+            def to_s
+                "<#{self.class.name} #{@name}>"
             end
         end
 
         class KBlock < Cont
-            def initialize(parent, env, cls, rcvr, cont)
+            def initialize(parent, env, cls, rcvr, cont, method)
                 super(parent)
-                @env  = env
-                @cls  = cls
-                @rcvr = rcvr
-                @cont = cont
-                @normal_return = true
+                @env    = env
+                @cls    = cls
+                @rcvr   = rcvr
+                @cont   = cont
+                @method = method
             end
 
             def continue(terp, value)
-                if @normal_return then
-                    terp.cont = @parent
-                    terp.restore(@env, @cls, @rcvr)
-                else
-                    raise "writeme"
-                end
+                terp.cont = @parent
+                terp.restore(@method, @env, @cls, @rcvr)
                 Done.new(value)
-            end
-
-            def retk
-                self
             end
         end
     end

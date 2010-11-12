@@ -9,6 +9,12 @@ class Object
     end
 end
 
+class NilClass
+    def onyx_class(terp)
+        terp.globals[:UndefinedObject]
+    end
+end
+
 class Fixnum
     def onyx_class(terp)
         terp.globals[:SmallInt]

@@ -18,13 +18,17 @@ module Onyx
             @globals = GEnv.new
             @cont    = nil
             @env     = Env.new
+            @method  = nil
+            @cls     = nil
+            @rcvr    = nil
             @debug   = false
         end
 
-        def restore(env, cls, rcvr)
-            @env = env
-            @cls = cls
-            @rcvr = rcvr
+        def restore(method, env, cls, rcvr)
+            @method = method
+            @env    = env
+            @cls    = cls
+            @rcvr   = rcvr
         end
 
         def eval_string(s)
@@ -84,11 +88,17 @@ module Onyx
         end
 
         def lookup_var(var)
+            puts "lookup: #{var}" if @debug
+            puts "env: #{@env.inspect}" if @debug
+
             if @env.include?(var) then
+                puts "found in env" if @debug
                 @env.lookup(var)
             elsif @rcvr.include_ivar?(var) then
+                puts "found in rcvr" if @debug
                 @rcvr.lookup(var)
             else
+                puts "found in globals" if @debug
                 @globals.lookup(var)
             end
         end
@@ -110,7 +120,7 @@ module Onyx
         end
 
         def visit_block(block_node)
-            blk = BlockClosure.new(@cls, @rcvr, @cont, @env, block_node)
+            blk = BlockClosure.new(@cls, @rcvr, @method, @env, block_node)
             Done.new(blk)
         end
 
@@ -125,13 +135,13 @@ module Onyx
         end
 
         def visit_return(ret_node)
-            @cont = @cont.retk
+            @cont = @method
             @cont.context_return!
             Doing.new(ret_node.expr)
         end
 
         def do_primitive(rcvr, sel, args)
-            puts "primitive: #{sel}" if @debug
+            puts "primitive: ##{sel}" if @debug
             v = send("prim#{sel.to_s.gsub(':','_')}".to_sym, rcvr, *args)
             v
         end
@@ -146,17 +156,20 @@ module Onyx
             if cls.nil? then
                 raise "DNU: #{sel}"
             end
-            puts "send: #{sel}" if @debug
-            @cont = KMethod.new(k, @env, @cls, @rcvr, rcvr)
-            @env  = Env.from_method(meth, args, rcvr, cls)
-            @rcvr = rcvr
-            @cls  = cls
+            puts "send: ##{sel}" if @debug
+            @cont   = KMethod.new(k, sel, @env, @cls, @rcvr, rcvr, @method)
+            @method = @cont
+            @env    = Env.from_method(meth, args, rcvr, cls)
+            @rcvr   = rcvr
+            @cls    = cls
             Doing.new(meth.stmts)
         end
 
         def do_block(blk, args=[])
-            @cont = KBlock.new(@cont, @env, @cls, @rcvr, blk.cont)
+            @cont = KBlock.new(@cont, @env, @cls, @rcvr, blk.cont, @method)
+            @method = blk.cont
             @env  = Env.from_block(blk, args)
+            puts "block env: #{@env.inspect}" if @debug
             @rcvr = blk.rcvr
             @cls  = blk.cls
             Doing.new(blk.stmts)

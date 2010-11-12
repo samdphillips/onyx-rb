@@ -78,7 +78,27 @@ module Onyx
         end
         
         def include?(var)
-            @binds.keys.include?(var)
+            if @binds.keys.include?(var) then
+                true
+            elsif @parent.nil? then
+                false
+            else
+                @parent.include?(var)
+            end
+        end
+
+        def inspect
+            s = "<Env \n"
+            @binds.each_value do |b|
+                s = s + "  #{b.name} => #{b.value}\n"
+            end
+
+            s = s + ">\n"
+            if @parent.nil? then
+                s
+            else
+                s + @parent.inspect
+            end
         end
     end
 
