@@ -40,5 +40,10 @@ class TestInterp < Test::Unit::TestCase
     def test_assign
         assert_interp("a := 3. a", 3)
     end
+
+    def test_instance_creation
+        assert_interp("a := 3 -> 4. a key", 3)
+        assert_interp("a value", 4)
+    end
 end
 

@@ -16,5 +16,9 @@ module Onyx
         def prim_smallIntLt_(a, b)
             a < b
         end
+
+        def prim_classNew(cls)
+            cls.new_instance
+        end
     end
 end

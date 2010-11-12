@@ -16,6 +16,22 @@ module Onyx
             true
         end
 
+        def onyx_class(terp)
+            self
+        end
+
+        def new_instance
+            OObject.new(self, all_ivars.size)
+        end
+
+        def all_ivars
+            if @super_cls.nil? then
+                []
+            else
+                @super_cls.all_ivars + @ivars
+            end
+        end
+
         def lookup_method(terp, selector, cls)
             if cls then
                 d = cmdict

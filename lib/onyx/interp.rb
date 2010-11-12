@@ -110,11 +110,17 @@ module Onyx
             Doing.new(send_node.rcvr)
         end
 
+        def visit_cascade(cascade_node)
+            @cont = KRcvr.new(@cont, cascade_node)
+            Doing.new(cascade_node.rcvr)
+        end
+
         def visit_return(ret_node)
             @cont = @cont.retk
             @cont.context_return!
             Doing.new(ret_node.expr)
         end
+
 
         def do_primitive(rcvr, sel, args)
             v = send("prim#{sel.to_s.gsub(':','_')}".to_sym, rcvr, *args)

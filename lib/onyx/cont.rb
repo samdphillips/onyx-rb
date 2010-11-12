@@ -78,29 +78,54 @@ module Onyx
             end
         end
 
-        class KRcvr < Cont
+        class KArg < Cont
+            def visit_message(msg_node, terp, value, k, kklass=KMsg)
+                sel  = msg_node.selector
+                args = msg_node.args
+                if args.size == 0 then
+                    kklass.new(k, sel, value).do_send(terp)
+                else
+                    terp.cont = kklass.new(k, sel, value, args[1..-1])
+                    Doing.new(args[0])
+                end
+            end
+
+            def visit_primmessage(msg_node, terp, value, k)
+                visit_message(msg_node, terp, value, k, KPrim)
+            end
+        end
+
+        class KRcvr < KArg
             def initialize(parent, message)
                 super(parent)
                 @message = message
             end
 
             def continue(terp, value)
-                @message.visit(self, terp, value)
+                @message.visit(self, terp, value, @parent)
             end
 
-            def visit_message(msg_node, terp, value, kklass=KMsg)
-                sel  = msg_node.selector
-                args = msg_node.args
-                if args.size == 0 then
-                    kklass.new(@parent, sel, value).do_send(terp)
+            def visit_cascade(casc_node, terp, value, k)
+                k = KCascade.new(@parent, value, casc_node.messages[1..-1])
+                casc_node.messages[0].visit(self, terp, value, k)
+            end
+
+        end
+
+        class KCascade < KArg
+            def initialize(parent, rcvr, messages)
+                super(parent)
+                @rcvr     = rcvr
+                @messages = messages
+            end
+
+            def continue(terp, value)
+                if @messages.size == 1 then
+                    m = @messages[0]
+                    m.visit(self, terp, @rcvr, @parent)
                 else
-                    terp.cont = kklass.new(@parent, sel, value, args[1..-1])
-                    Doing.new(args[0])
+                    raise "writeme2"
                 end
-            end
-
-            def visit_primmessage(msg_node, terp, value)
-                visit_message(msg_node, terp, value, KPrim)
             end
         end
 
