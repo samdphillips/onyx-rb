@@ -99,17 +99,6 @@ module Onyx
             Doing.new(ret_node.expr)
         end
 
-        def eval_message_with(rcvr, msg_node)
-            args = msg_node.args.collect {|a| eval(a)}
-
-            if msg_node.primitive? then
-                m = :do_primitive
-            else
-                m = :do_send
-            end
-            send(m, rcvr, msg_node.selector, args)
-        end
-
         def do_primitive(rcvr, sel, args)
             v = send("prim#{sel.to_s.gsub(':','_')}".to_sym, rcvr, *args)
             Done.new(v)
