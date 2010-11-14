@@ -9,6 +9,11 @@ module Onyx
             prim_success(a - b)
         end
 
+        def prim_smallIntQuo_(a, b)
+            q,m = a.divmod(b)
+            prim_success(q)
+        end
+
         def prim_mulSmallInt_(a, b)
             prim_success(a * b)
         end

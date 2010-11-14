@@ -25,6 +25,11 @@ class TestInterp < Test::Unit::TestCase
         assert_interp("3 isNumber", true)
         assert_interp("3 = 3", true)
         assert_interp("3 = 4", false)
+
+        assert_interp("3 // 4", 0)
+        assert_interp("8 // 4", 2)
+        assert_interp("9 // 4", 2)
+        assert_interp("6 // 4", 1)
     end
 
     def test_compare
@@ -73,6 +78,21 @@ class TestInterp < Test::Unit::TestCase
         assert_interp("Array new size", 0)
         assert_interp("a := Array new: 1. a at: 0 put: 10. a at: 0", 10)
         assert_interp("a := Array with: 10. a at: 0", 10)
+    end
+
+    def test_intervals
+        @terp.eval_string("i := 1 to: 10")
+        assert_interp("i start",  1)
+        assert_interp("i stop",  10)
+        assert_interp("i step",   1)
+
+        @terp.eval_string("i := 10 to: 1")
+        assert_interp("i start", 10)
+        assert_interp("i stop",   1)
+        assert_interp("i step",  -1)
+
+        @terp.eval_string("i := 1 to: 10")
+        assert_interp("i asArray", [1,2,3,4,5,6,7,8,9,10])
     end
 end
 
