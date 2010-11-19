@@ -1,72 +1,150 @@
 
 module Onyx
     class Interpreter
-        include Primitives 
+        include Primitives
         include Continuations
 
-        attr_reader :globals
-        attr_accessor :cont, :debug
+        class Doing
+            def initialize(terp, node)
+                @terp = terp
+                @node = node
+            end
+
+            def pretty_print_instance_variables
+                [:@node]
+            end
+
+            def done?
+                false
+            end
+
+            def step
+                @node.visit(@terp)
+            end
+
+            def to_s
+                "<#{self.class.name} #{@node}>"
+            end
+        end
+
+        class Done
+            attr_reader :value
+
+            def initialize(terp, value)
+                @terp  = terp
+                @value = value
+            end
+
+            def pretty_print_instance_variables
+                [:@value]
+            end
+
+            def done?
+                true
+            end
+
+            def step
+                @terp.cont.kontinue(@value)
+            end
+        end
 
         def self.boot
-            node = Parser.parse_file('system.ost')
             terp = self.new
+            node = Parser.parse_file('system.ost')
             terp.eval(node)
             terp
         end
+
+        attr_accessor :debug, :cont
+        attr_reader   :globals, :env, :rcvr, :retk, :tramp
 
         def initialize
             @globals = GEnv.new
             @cont    = nil
             @env     = Env.new
-            @method  = nil
-            @cls     = nil
             @rcvr    = nil
+            @retk    = nil
+            @tramp   = nil
             @debug   = false
         end
 
-        def restore(method, env, cls, rcvr)
-            @method = method
-            @env    = env
-            @cls    = cls
-            @rcvr   = rcvr
+        def pretty_print_instance_variables
+            i = instance_variables
+            i.delete("@globals")
+            i.sort
         end
 
-        def eval_string(s)
+        def writeme
+            raise 'writeme'
+        end
+
+        def done(value)
+            @tramp = Done.new(self, value)
+        end
+
+        def doing(node)
+            @tramp = Doing.new(self, node)
+        end
+
+        def restore(k)
+            @cont = k.parent
+            @env  = k.env
+            @rcvr = k.rcvr
+            @retk = k.retk
+        end
+
+        def eval(node, stepping=false)
+            self.doing(node)
+            unless stepping then
+                run
+                @tramp.value
+            end
+        end
+
+        def eval_string(s, stepping=false)
             p = Parser.on_string(s)
             node = p.parse_module
-            eval(node)
+            eval(node, stepping)
         end
 
-        def eval(node)
-            @state = Doing.new(node)
-            run
-        end
-
-        def finished?
-            @cont.nil? and @state.class == Done
+        def halted?
+            @halt or (@cont.nil? and @tramp.done?)
         end
 
         def run
-            until finished? do
-                @state = @state.step(self)
-                puts "state: #{@state}" if @debug
-                puts "cont:  #{@cont.inspect}" if @debug
-                puts if @debug
+            @halt = false
+            pp(self) if @debug
+            until halted? do
+                step
+                puts     if @debug
+                pp(self) if @debug
             end
-            @state.value
         end
 
-        def visit_seq(seq)
-            a = seq.nodes.first
-            rest = seq.nodes[1..-1]
-            @cont = KSeq.new(@cont, rest)
-            Doing.new(a)
+        def step
+            @tramp.step
+        end
+
+        def push_k(cls, *args)
+            @cont = cls.new(self, @env, @rcvr, @retk, @cont, *args)
+        end
+
+        def push_kseq(nodes)
+            push_k(KSeq, nodes)
+        end
+
+        def push_kassign(var)
+            push_k(KAssign, var)
+        end
+
+        def push_krcvr(message)
+            push_k(KRcvr, message)
         end
 
         def build_mdict(meths)
             mdict = {}
             meths.each do | m |
-                mdict[m.name] = 
+                mdict[m.name] =
                     OMethod.new(m.name, m.args, m.temps, m.stmts)
             end
             mdict
@@ -80,99 +158,87 @@ module Onyx
             cls = OClass.new(name, super_cls, cls_node.ivars,
                 cls_node.meta.ivars, mdict, cmdict)
             @globals.add_binding(name, cls)
-            Done.new(nil)
+            done(nil)
         end
 
         def visit_const(const_node)
-            Done.new(const_node.value)
+            c = const_node.value
+            done(c)
         end
 
-        def lookup_var(var)
-            puts "lookup: #{var}" if @debug
-            puts "env: #{@env.inspect}" if @debug
+        def visit_block(block_node)
+            blk = BlockClosure.new(@env, @rcvr, @retk, block_node)
+            done(blk)
+        end
 
-            if @env.include?(var) then
-                puts "found in env" if @debug
-                @env.lookup(var)
-            elsif @rcvr.include_ivar?(var) then
-                puts "found in rcvr" if @debug
-                @rcvr.lookup(var)
+        def visit_seq(seq_node)
+            if seq_node.nodes.size == 1 then
+                doing(seq_node.nodes[0])
             else
-                puts "found in globals" if @debug
-                @globals.lookup(var)
+                a = seq_node.nodes.first
+                rest = seq_node.nodes[1..-1]
+                push_kseq(rest)
+                doing(a)
             end
         end
-
-        def visit_ref(ref_node)
-            Done.new(lookup_var(ref_node.var).value)
+    
+        def lookup_var(var)
+            if @env.include?(var) then
+                @env.lookup(var)
+            elsif @rcvr.include_ivar?(var) then
+                @rcvr.lookup(var)
+            else
+                @globals.lookup(var)
+            end
         end
 
         def assign_var(var, value)
             lookup_var(var).assign(value)
         end
 
+        def visit_ref(ref_node)
+            done(lookup_var(ref_node.var).value)
+        end
+
         def visit_assign(assign_node)
-            var = assign_node.var
+            var  = assign_node.var
             expr = assign_node.expr
-
-            @cont = KAssign.new(@cont, var)
-            Doing.new(expr)
-        end
-
-        def visit_block(block_node)
-            blk = BlockClosure.new(@cls, @rcvr, @method, @env, block_node)
-            Done.new(blk)
-        end
-
-        def visit_send(send_node)
-            @cont = KRcvr.new(@cont, send_node.message)
-            Doing.new(send_node.rcvr)
-        end
-
-        def visit_cascade(cascade_node)
-            @cont = KRcvr.new(@cont, cascade_node)
-            Doing.new(cascade_node.rcvr)
+            push_kassign(var)
+            doing(expr)
         end
 
         def visit_return(ret_node)
-            @cont = @method
-            @cont.context_return!
-            Doing.new(ret_node.expr)
+            @cont = @retk
+            doing(ret_node.expr)
         end
 
-        def do_primitive(rcvr, sel, args)
-            puts "primitive: ##{sel}" if @debug
-            v = send("prim#{sel.to_s.gsub(':','_')}".to_sym, rcvr, *args)
-            v
+        def visit_send(send_node)
+            push_krcvr(send_node.message)
+            doing(send_node.rcvr)
         end
 
-        def prim_success(v)
-            Done.new(v)
-        end
-
-        def do_send(k, rcvr, sel, args)
+        def do_send(selector, rcvr, args)
             cls = rcvr.onyx_class(self)
-            cls, meth = cls.lookup_method(self, sel, rcvr.oclass?)
+            cls, meth = cls.lookup_method(self, selector, rcvr.oclass?)
             if cls.nil? then
-                raise "DNU: #{sel}"
+                raise "DNU: #{rcvr} #{selector} [#{args.join(', ')}]"
             end
-            puts "send: ##{sel}" if @debug
-            @cont   = KMethod.new(k, sel, @env, @cls, @rcvr, rcvr, @method)
-            @method = @cont
-            @env    = Env.from_method(meth, args, rcvr, cls)
-            @rcvr   = rcvr
-            @cls    = cls
-            Doing.new(meth.stmts)
+            
+            @env  = Env.from_method(meth, args, rcvr, cls)
+            @rcvr = rcvr
+            @retk = @cont
+            doing(meth.stmts)
         end
 
         def do_block(blk, args=[])
-            @cont = KBlock.new(@cont, @env, @cls, @rcvr, blk.cont, @method)
-            @method = blk.cont
-            @env  = Env.from_block(blk, args)
-            puts "block env: #{@env.inspect}" if @debug
+            @env = Env.from_block(blk, args)
             @rcvr = blk.rcvr
-            @cls  = blk.cls
-            Doing.new(blk.stmts)
+            @retk = blk.retk
+            doing(blk.stmts)
+        end
+
+        def do_primitive(selector, rcvr, args)
+            send("prim#{selector.to_s.gsub(':','_')}".to_sym, rcvr, *args)
         end
     end
 end

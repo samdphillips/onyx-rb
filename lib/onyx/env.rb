@@ -87,17 +87,25 @@ module Onyx
             end
         end
 
-        def inspect
-            s = "<Env \n"
-            @binds.each_value do |b|
-                s = s + "  #{b.name} => #{b.value}\n"
-            end
-
-            s = s + ">\n"
-            if @parent.nil? then
-                s
-            else
-                s + @parent.inspect
+        def pretty_print(q)
+            q.object_address_group(self) do
+                unless @parent.nil? then
+                    q.breakable
+                    q.pp(@parent)
+                end
+                if @binds.size > 0 then
+                    q.breakable
+                end
+                q.seplist(@binds, nil, :each_pair) do |k,v|
+                    q.group do
+                        q.pp k
+                        q.text ' =>'
+                        q.group(1) {
+                            q.breakable
+                            q.pp v.value
+                        }
+                    end
+                end
             end
         end
     end

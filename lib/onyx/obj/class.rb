@@ -12,6 +12,10 @@ module Onyx
             @cmdict = cmdict
         end
 
+        def pretty_print_instance_variables
+            ["@name", "@super"]
+        end
+
         def oclass?
             true
         end

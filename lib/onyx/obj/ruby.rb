@@ -13,6 +13,10 @@ class NilClass
     def onyx_class(terp)
         terp.globals[:UndefinedObject]
     end
+
+    def to_s
+        inspect
+    end
 end
 
 class Fixnum
@@ -38,3 +42,4 @@ class Array
         terp.globals[:Array]
     end
 end
+

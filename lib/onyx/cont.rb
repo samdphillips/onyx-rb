@@ -1,227 +1,141 @@
 
 module Onyx
     module Continuations
-        class Doing
-            def initialize(node)
-                @node = node
-            end
-
-            def step(terp)
-                @node.visit(terp)
-            end
-
-            def to_s
-                "<Doing #{@node.inspect}>"
-            end
-        end
-
-        class Done
-            attr_reader :value
-
-            def initialize(value)
-                @value = value
-            end
-
-            def step(terp)
-                if terp.cont.nil? then
-                    terp.running = false
-                    self
-                else
-                    terp.cont.continue(terp, @value)
-                end
-            end
-
-            def to_s
-                "<Done #{@value}>"
-            end
-        end
-
         class Cont
-            attr_reader :parent
+            attr_reader :terp, :parent, :env, :rcvr, :retk
 
-            def initialize(parent)
+            def initialize(terp, env, rcvr, retk, parent, *kargs)
+                @terp   = terp
                 @parent = parent
+                @env    = env
+                @rcvr   = rcvr
+                @retk   = retk
+                initialize_k(*kargs)
             end
 
-            def chain
-                k = self
-                c = []
-                until k.nil? do
-                    c = c + [ k.to_s ]
-                    k = k.parent
-                end
-                c
+            def initialize_k
             end
-            
-            def inspect
-                chain.join(" <-\n        ")
+
+            def writeme
+                raise "writeme"
+            end
+
+            def pretty_print_instance_variables
+                [:@parent, :@env, :@rcvr, :@retk]
+            end
+
+            def kontinue(value)
+                @terp.restore(self)
+                continue(value)
             end
         end
 
         class KSeq < Cont
-            def initialize(parent, nodes)
-                super(parent)
-                @nodes  = nodes
+            def initialize_k(rest)
+                @rest = rest
             end
 
-            def continue(terp, value)
-                if @nodes == [] then
-                    terp.cont = @parent
-                    Done.new(value)
+            def pretty_print_instance_variables
+                super + [:@rest]
+            end
+
+            def continue(value)
+                if @rest.size == 1 then
+                    @terp.doing(@rest[0])
                 else
-                    node = @nodes[0]
-                    nodes = @nodes[1..-1]
-                    terp.cont = KSeq.new(@parent, nodes)
-                    Doing.new(node)
+                    a = @rest.first
+                    rest = @rest[1..-1]
+                    @terp.push_kseq(rest)
+                    @terp.doing(a)
                 end
             end
         end
 
         class KAssign < Cont
-            def initialize(parent, var)
-                super(parent)
+            def initialize_k(var)
                 @var = var
             end
 
-            def continue(terp, value)
-                terp.assign_var(@var, value)
-                terp.cont = @parent
-                Done.new(value)
+            def pretty_print_instance_variables
+                super + [:@var]
+            end
+
+            def continue(value)
+                @terp.assign_var(@var, value)
             end
         end
 
-        class KArg < Cont
-            def visit_message(msg_node, terp, value, k, kklass=KMsg)
-                sel  = msg_node.selector
-                args = msg_node.args
-                if args.size == 0 then
-                    kklass.new(k, sel, value).do_send(terp)
-                else
-                    terp.cont = kklass.new(k, sel, value, args[1..-1])
-                    Doing.new(args[0])
-                end
-            end
-
-            def visit_primmessage(msg_node, terp, value, k)
-                visit_message(msg_node, terp, value, k, KPrim)
-            end
-        end
-
-        class KRcvr < KArg
-            def initialize(parent, message)
-                super(parent)
+        class KRcvr < Cont
+            def initialize_k(message)
                 @message = message
             end
 
-            def continue(terp, value)
-                @message.visit(self, terp, value, @parent)
+            def pretty_print_instance_variables
+                super + [:@message]
             end
 
-            def visit_cascade(casc_node, terp, value, k)
-                k = KCascade.new(@parent, value, casc_node.messages[1..-1])
-                casc_node.messages[0].visit(self, terp, value, k)
+            def continue(value)
+                @message.visit(self, value)
             end
 
-        end
-
-        class KCascade < KArg
-            def initialize(parent, rcvr, messages)
-                super(parent)
-                @rcvr     = rcvr
-                @messages = messages
-            end
-
-            def continue(terp, value)
-                if @messages.size == 1 then
-                    m = @messages[0]
-                    m.visit(self, terp, @rcvr, @parent)
+            def visit_message(message, value)
+                if @message.unary? then
+                    @terp.do_send(@message.selector, value, [])
                 else
-                    raise "writeme2"
+                    continue_message(value, KMsg)
                 end
+            end
+
+            def visit_primmessage(message, value)
+                if @message.unary? then
+                    @terp.do_primitive(@message.selector, value, [])
+                else
+                    continue_message(value, KPrim)
+                end
+            end
+
+            def continue_message(value, kcls)
+                selector = @message.selector
+                args = @message.args
+                @terp.push_k(kcls, selector, value, args[1..-1])
+                @terp.doing(args.first)
             end
         end
 
         class KMsg < Cont
-            def initialize(parent, sel, rcvr, args=[])
-                super(parent)
-                @sel  = sel
-                @rcvr = rcvr
-                @args = args
-                @vals = []
+            def initialize_k(selector, rcvr_v, args, vals=[])
+                @selector = selector
+                @rcvr_v   = rcvr_v
+                @args     = args
+                @vals     = vals
             end
 
-            def continue(terp, value)
-                @vals << value
+            def pretty_print_instance_variables
+                super + [:@selector, :@rcvr_v, :@args, :@vals]
+            end
 
+            def continue(value)
+                vals = @vals + [ value ]
                 if @args.size == 0 then
-                    do_send(terp)
+                    do_send(vals)
                 else
-                    a = @args.shift
-                    Doing.new(a)
+                    a = @args[0]
+                    args = @args[1..-1]
+                    @terp.push_k(self.class, @selector, @rcvr_v, args, vals)
+                    @terp.doing(a)
                 end
             end
 
-            def do_send(terp)
-                terp.do_send(@parent, @rcvr, @sel, @vals)
+            def do_send(vals)
+                @terp.do_send(@selector, @rcvr_v, vals)
             end
         end
 
         class KPrim < KMsg
-            def do_send(terp)
-                terp.cont = @parent
-                terp.do_primitive(@rcvr, @sel, @vals)
+            def do_send(vals)
+                @terp.do_primitive(@selector, @rcvr_v, vals)
             end
         end
 
-        class KMethod < Cont
-            def initialize(parent, name, env, cls, old_rcvr, rcvr, method)
-                super(parent)
-                @name        = name
-                @env         = env
-                @cls         = cls
-                @old_rcvr    = old_rcvr
-                @rcvr        = rcvr
-                @method      = method
-                @return_self = true
-            end
-
-            def context_return!
-                @return_self = false
-            end
-
-            def continue(terp, value)
-                terp.cont = @parent
-                terp.restore(@method, @env, @cls, @old_rcvr)
-                v = value
-                if @return_self then
-                    v = @rcvr
-                end
-
-                Done.new(v)
-            end
-
-            def to_s
-                "<#{self.class.name} #{@name}>"
-            end
-        end
-
-        class KBlock < Cont
-            def initialize(parent, env, cls, rcvr, cont, method)
-                super(parent)
-                @env    = env
-                @cls    = cls
-                @rcvr   = rcvr
-                @cont   = cont
-                @method = method
-            end
-
-            def continue(terp, value)
-                terp.cont = @parent
-                terp.restore(@method, @env, @cls, @rcvr)
-                Done.new(value)
-            end
-        end
     end
 end
-
-    

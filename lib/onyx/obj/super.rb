@@ -7,6 +7,10 @@ module Onyx
             @cls  = cls
             @rcvr = rcvr
         end
+
+        def inspect
+            to_s
+        end
     end
 end
 

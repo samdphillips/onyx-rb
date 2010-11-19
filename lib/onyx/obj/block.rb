@@ -1,13 +1,12 @@
 
 module Onyx
     class BlockClosure
-        attr_reader :cls, :rcvr, :cont, :env, :args, :temps, :stmts
+        attr_reader :env, :rcvr, :retk, :args, :temps, :stmts
 
-        def initialize(cls, rcvr, cont, env, node)
-            @cls   = cls
-            @rcvr  = rcvr
-            @cont  = cont
+        def initialize(env, rcvr, retk, node)
             @env   = env
+            @rcvr  = rcvr
+            @retk  = retk
             @args  = node.args
             @temps = node.temps
             @stmts = node.stmts

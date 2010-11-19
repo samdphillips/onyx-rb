@@ -21,6 +21,14 @@ module Onyx
         def initialize(nodes=[])
             @nodes = nodes
         end
+
+        def pretty_print(q)
+            @nodes.each { |n|
+                q.pp(n)
+                q.text('.')
+                q.breakable
+            }
+        end
     end
 
     class ImportNode < ParseNode
@@ -37,6 +45,10 @@ module Onyx
         def initialize(var)
             @var = var
         end
+
+        def pretty_print(q)
+            q.text(@var.to_s)
+        end
     end
 
     class ConstNode < ExprNode
@@ -44,6 +56,10 @@ module Onyx
 
         def initialize(value)
             @value = value
+        end
+
+        def pretty_print(q)
+            q.text(@value.to_s)
         end
     end
 
@@ -63,6 +79,11 @@ module Onyx
             @rcvr    = rcvr
             @message = message
         end
+
+        def pretty_print(q)
+            q.group(1, '(', ')') { q.pp(@rcvr) }
+            q.pp(@message)
+        end
     end
 
     class MessageNode < ParseNode
@@ -75,6 +96,38 @@ module Onyx
 
         def primitive?
             false
+        end
+
+        def unary?
+            @args.size == 0
+        end
+
+        def binary?
+            @args.size == 1 and !keyword?
+        end
+
+        def keyword?
+            @selector.to_s[-1] == ?:
+        end
+
+        def pretty_print(q)
+            if unary? then
+                q.text ' '
+                q.text(selector.to_s)
+            elsif binary? then
+                q.breakable
+                q.text(selector.to_s)
+                q.breakable
+                q.group(1, '(', ')') { q.pp(@args[0]) }
+            else
+                sel = @selector.to_s.split(':')
+                @args.each_index {|i|
+                    q.breakable
+                    q.text(sel[i] + ':')
+                    q.breakable
+                    q.group(1, '(', ')') { q.pp(@args[i]) }
+                }
+            end
         end
     end
 
@@ -89,6 +142,11 @@ module Onyx
 
         def initialize(expr)
             @expr = expr
+        end
+
+        def pretty_print(q)
+            q.text '^ '
+            q.pp(@expr)
         end
     end
 
@@ -105,6 +163,25 @@ module Onyx
         def add_temps(temps)
             @temps = temps
         end
+
+        def pretty_print(q)
+            q.group(1, '[', ']') {
+                @args.each {|a|
+                    q.text(':' + a.to_s)
+                    q.breakable
+                }
+                q.text '|'
+                if @temps.size > 0 then
+                    q.text '|'
+                    @temps.each {|t|
+                        q.text(t.to_s)
+                        q.breakable
+                    }
+                    q.text '|'
+                end
+                q.pp(@stmts)
+            }
+        end
     end
     
     class AssignNode < ExprNode
@@ -113,6 +190,13 @@ module Onyx
         def initialize(var, expr)
             @var = var
             @expr = expr
+        end
+
+        def pretty_print(q)
+            q.text(@var.to_s)
+            q.text ' :='
+            q.breakable(' ')
+            q.pp(@expr)
         end
     end
 
