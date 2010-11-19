@@ -65,7 +65,34 @@ module Onyx
             end
         end
 
+        module ContMsg
+            def visit_message(message, rcvr)
+                if message.unary? then
+                    @terp.do_send(message.selector, rcvr, [])
+                else
+                    continue_message(message, rcvr, KMsg)
+                end
+            end
+
+            def visit_primmessage(message, rcvr)
+                if message.unary? then
+                    @terp.do_primitive(message.selector, rcvr, [])
+                else
+                    continue_message(message, rcvr, KPrim)
+                end
+            end
+
+            def continue_message(message, rcvr, kcls)
+                selector = message.selector
+                args = message.args
+                @terp.push_k(kcls, selector, rcvr, args[1..-1])
+                @terp.doing(args.first)
+            end
+        end
+
         class KRcvr < Cont
+            include ContMsg
+
             def initialize_k(message)
                 @message = message
             end
@@ -78,27 +105,31 @@ module Onyx
                 @message.visit(self, value)
             end
 
-            def visit_message(message, value)
-                if @message.unary? then
-                    @terp.do_send(@message.selector, value, [])
-                else
-                    continue_message(value, KMsg)
-                end
+            def visit_cascade(message, value)
+                a = message.messages.first
+                rest = message.messages[1..-1]
+                @terp.push_kcascade(value, rest)
+                a.visit(self, value)
+            end
+        end
+
+        class KCascade < Cont
+            include ContMsg
+
+            def initialize_k(rcvr_val, messages)
+                @rcvr_val = rcvr_val
+                @messages = messages
             end
 
-            def visit_primmessage(message, value)
-                if @message.unary? then
-                    @terp.do_primitive(@message.selector, value, [])
+            def continue(value)
+                if @messages.size == 1 then
+                    @messages.first.visit(self, @rcvr_val)
                 else
-                    continue_message(value, KPrim)
+                    a = @messages.first
+                    rest = @messages[1..-1]
+                    @terp.push_kcascade(@rcvr_val, rest)
+                    a.visit(self, @rcvr_val)
                 end
-            end
-
-            def continue_message(value, kcls)
-                selector = @message.selector
-                args = @message.args
-                @terp.push_k(kcls, selector, value, args[1..-1])
-                @terp.doing(args.first)
             end
         end
 

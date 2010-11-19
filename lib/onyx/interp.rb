@@ -141,6 +141,10 @@ module Onyx
             push_k(KRcvr, message)
         end
 
+        def push_kcascade(rcvr, messages)
+            push_k(KCascade, rcvr, messages)
+        end
+
         def build_mdict(meths)
             mdict = {}
             meths.each do | m |
@@ -215,6 +219,11 @@ module Onyx
         def visit_send(send_node)
             push_krcvr(send_node.message)
             doing(send_node.rcvr)
+        end
+
+        def visit_cascade(casc_node)
+            push_krcvr(casc_node)
+            doing(casc_node.rcvr)
         end
 
         def do_send(selector, rcvr, args)
