@@ -97,6 +97,13 @@ module Onyx
             self.doing(node)
             unless stepping then
                 run
+
+                # reset @env and @rcvr if we're returning to the top level
+                if @cont.nil? and @tramp.done? then
+                    @env  = Env.new
+                    @rcvr = nil
+                end
+
                 @tramp.value
             end
         end

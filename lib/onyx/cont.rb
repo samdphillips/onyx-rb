@@ -121,6 +121,10 @@ module Onyx
                 @messages = messages
             end
 
+            def pretty_print_instance_variables
+                super + [:@rcvr_val, :@messages]
+            end
+
             def continue(value)
                 if @messages.size == 1 then
                     @messages.first.visit(self, @rcvr_val)

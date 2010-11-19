@@ -47,8 +47,9 @@ class TestInterp < Test::Unit::TestCase
     end
 
     def test_instance_creation
-        assert_interp("a := 3 -> 4. a key", 3)
-        assert_interp("a value", 4)
+        @terp.eval_string("a := 3 -> 4")
+        assert_interp("k := a key", 3)
+        assert_interp("v := a value", 4)
         assert_interp("key", nil)
         assert_interp("value", nil)
     end
@@ -67,7 +68,6 @@ class TestInterp < Test::Unit::TestCase
     end
 
     def test_loops
-        # TODO:  Need to add proper tail-calls
         assert_interp("n := 0. [ n < 10 ] whileTrue: [ n := n + 1 ]", nil)
         assert_interp("n := 0. [ n < 10 ] whileTrue: [ n := n + 1 ]. n", 10)
         assert_interp("n := 0. [ n = 10 ] whileFalse: [ n := n + 1 ]. n", 10)
