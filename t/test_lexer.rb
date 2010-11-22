@@ -83,6 +83,11 @@ class TestLexer < Test::Unit::TestCase
         assert_token(l, :string, "test string")
     end
 
+    def test_lex_character
+        l = lex_string("$a")
+        assert_token(l, :character, ?a)
+    end
+
     def test_lex_parens
         l = lex_string("( )")
         assert_token(l, :lpar, '(')

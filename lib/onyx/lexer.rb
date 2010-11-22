@@ -66,6 +66,7 @@ module Onyx
             @char_table[?;] = :semi
             @char_table[?"] = :comment
             @char_table[?'] = :string
+            @char_table[?$] = :character
         end
 
         def self.char_scanners(*types)
@@ -138,6 +139,13 @@ module Onyx
             end
             step
             nil
+        end
+
+        def scan_character
+            step
+            tok = Token.new(:character, cur_char)
+            step
+            tok
         end
 
         def read_number

@@ -320,7 +320,7 @@ module Onyx
         end
 
         def parse_expr
-            if cur_tok.one_of [:lpar, :string, :int, :lsq] then
+            if cur_tok.one_of [:lpar, :string, :int, :character, :lsq] then
                 parse_message
             elsif cur_tok.id? then
                 parse_maybe_assign
@@ -384,6 +384,10 @@ module Onyx
         def parse_primary
             if cur_tok.one_of [:string, :int] then
                 v = cur_tok.value
+                step
+                ConstNode.new(v)
+            elsif cur_tok.character? then
+                v = Char.code_point(cur_tok.value)
                 step
                 ConstNode.new(v)
             elsif cur_tok.id? then

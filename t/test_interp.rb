@@ -125,6 +125,10 @@ class TestInterp < Test::Unit::TestCase
 	@terp.eval_string("a1 := Character codePoint: 97")
 	@terp.eval_string("a2 := Character codePoint: 97")
 	assert_interp("a1 == a2", true)
+
+	assert_interp("$a == $a", true)
+	assert_interp("$a == $b", false)
+	assert_interp("$  codePoint", 32)
     end
 end
 
