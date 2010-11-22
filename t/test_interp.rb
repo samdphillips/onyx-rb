@@ -94,5 +94,25 @@ class TestInterp < Test::Unit::TestCase
         @terp.eval_string("i := 1 to: 10")
         assert_interp("i asArray", [1,2,3,4,5,6,7,8,9,10])
     end
+
+    def test_ordered_collections
+        @terp.eval_string("c := OrderedCollection new")
+        assert_interp("c size", 0)
+        assert_interp("c asArray", [])
+
+        @terp.eval_string("c add: 0")
+        assert_interp("c size", 1)
+        assert_interp("c asArray", [0])
+
+        @terp.eval_string("c add: 1")
+        assert_interp("c size", 2)
+        assert_interp("c asArray", [0, 1])
+
+        @terp.eval_string("c addFirst: 2")
+        assert_interp("c size", 3)
+        assert_interp("c asArray", [2, 0, 1])
+
+        assert(false, "write more tests")
+    end
 end
 

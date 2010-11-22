@@ -235,9 +235,17 @@ module Onyx
 
         def do_send(selector, rcvr, args)
             cls = rcvr.onyx_class(self)
+            if rcvr.class == Super then
+                rcvr = rcvr.rcvr
+            end
             cls, meth = cls.lookup_method(self, selector, rcvr.oclass?)
             if cls.nil? then
                 raise "DNU: #{rcvr} #{selector} [#{args.join(', ')}]"
+            end
+
+            if @debug then
+                puts
+                puts "SEND #{selector}" if @debug
             end
             
             @env  = Env.from_method(meth, args, rcvr, cls)
