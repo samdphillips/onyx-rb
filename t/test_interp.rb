@@ -112,5 +112,19 @@ class TestInterp < Test::Unit::TestCase
         assert_interp("c size", 3)
         assert_interp("c asArray", [2, 0, 1])
     end
+
+    def test_string
+	assert_interp("'abc', '123'", "abc123")
+	assert_interp("('abc' at: 0) codePoint", ?a)
+
+	@terp.eval_string("foo := 'abc'")
+	assert_interp("(foo at: 0) == (foo at: 0)", true)
+    end
+
+    def test_character
+	@terp.eval_string("a1 := Character codePoint: 97")
+	@terp.eval_string("a2 := Character codePoint: 97")
+	assert_interp("a1 == a2", true)
+    end
 end
 

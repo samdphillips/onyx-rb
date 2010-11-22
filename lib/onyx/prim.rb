@@ -54,5 +54,25 @@ module Onyx
         def prim_arrayAt_(rcvr, i)
             done(rcvr[i])
         end
+
+        def prim_characterClassCodePoint_(rcvr, code_point)
+            done(Char.code_point(code_point))
+        end
+
+        def prim_characterCodePoint(rcvr)
+            done(rcvr.code_point)
+        end
+
+        def prim_stringSize(rcvr)
+            done(rcvr.size)
+        end
+
+        def prim_stringAt_(rcvr, i)
+            done(Char.code_point(rcvr[i]))
+        end
+
+        def prim_stringConcat_(rcvr, string)
+            done(rcvr + string)
+        end
     end
 end

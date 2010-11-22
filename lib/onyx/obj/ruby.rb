@@ -43,3 +43,8 @@ class Array
     end
 end
 
+class String
+    def onyx_class(terp)
+        terp.globals[:String]
+    end
+end
