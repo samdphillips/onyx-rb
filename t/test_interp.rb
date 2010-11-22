@@ -111,8 +111,6 @@ class TestInterp < Test::Unit::TestCase
         @terp.eval_string("c addFirst: 2")
         assert_interp("c size", 3)
         assert_interp("c asArray", [2, 0, 1])
-
-        assert(false, "write more tests")
     end
 end
 
