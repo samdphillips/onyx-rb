@@ -48,3 +48,9 @@ class String
         terp.globals[:String]
     end
 end
+
+class Symbol
+    def onyx_class(terp)
+        terp.globals[:Symbol]
+    end
+end

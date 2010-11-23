@@ -130,5 +130,13 @@ class TestInterp < Test::Unit::TestCase
         assert_interp("$a == $b", false)
         assert_interp("$  codePoint", 32)
     end
+
+    def test_symbol
+        assert_interp("#a", :a)
+        assert_interp("#a asString", 'a')
+        assert_interp("'abc' asSymbol", :abc)
+        assert_interp("#a == #a", true)
+        assert_interp("#a == 'a' asSymbol", true)
+    end
 end
 

@@ -74,5 +74,13 @@ module Onyx
         def prim_stringConcat_(rcvr, string)
             done(rcvr + string)
         end
+
+        def prim_stringAsSymbol(string)
+            done(string.to_sym)
+        end
+
+        def prim_symbolAsString(symbol)
+            done(symbol.to_s)
+        end
     end
 end
