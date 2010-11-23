@@ -93,5 +93,13 @@ class TestLexer < Test::Unit::TestCase
         assert_token(l, :lpar, '(')
         assert_token(l, :rpar, ')')
     end
+
+    def test_lex_symbols
+        l = lex_string("#aUnarySymbol #+ #aKeyword:symbol: #'another symbol'")	
+        assert_token(l, :symbol, :aUnarySymbol)
+        assert_token(l, :symbol, :+)
+        assert_token(l, :symbol, :'aKeyword:symbol:')
+        assert_token(l, :symbol, :'another symbol')
+    end
 end
 

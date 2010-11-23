@@ -67,6 +67,7 @@ module Onyx
             @char_table[?"] = :comment
             @char_table[?'] = :string
             @char_table[?$] = :character
+            @char_table[?#] = :hash
         end
 
         def self.char_scanners(*types)
@@ -139,6 +140,38 @@ module Onyx
             end
             step
             nil
+        end
+
+        def scan_hash
+            step
+            if [:id, :binsel, :string].include?(cur_type) then
+                scan_symbol
+            else
+                scan_error
+            end
+        end
+
+        def scan_symbol
+            if cur_type == :id then
+                buf = read_id
+                while true do
+                    if cur_char == ?: then
+                        buf << cur_char
+                        step
+                        buf = buf + read_id
+                    else
+                        break
+                    end
+                end
+
+                Token.new(:symbol, buf.to_sym)
+            elsif cur_type == :binsel then
+                Token.new(:symbol, read_binsel.to_sym)
+            elsif cur_type == :string then
+                Token.new(:symbol, read_string.to_sym)
+            else
+                scan_error
+            end
         end
 
         def scan_character
