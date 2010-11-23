@@ -16,7 +16,7 @@ class TestInterp < Test::Unit::TestCase
     end
 
     def assert_interp(s, result)
-        assert_equal(result, @terp.eval_string(s))
+        assert_equal(result, @terp.eval_string(s), s)
     end
 
     def test_sends
@@ -52,6 +52,10 @@ class TestInterp < Test::Unit::TestCase
         assert_interp("v := a value", 4)
         assert_interp("key", nil)
         assert_interp("value", nil)
+
+        assert_interp("a isKindOf: Boolean", false)
+        assert_interp("a isKindOf: Association", true)
+        assert_interp("a isKindOf: Object", true)
     end
 
     def test_blocks

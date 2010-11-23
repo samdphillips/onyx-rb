@@ -1,6 +1,10 @@
 
 module Onyx
     module Primitives
+        def prim_objectClass(rcvr)
+            done(rcvr.onyx_class(self))
+        end
+
         def prim_addSmallInt_(a, b)
             done(a + b)
         end
@@ -28,6 +32,10 @@ module Onyx
 
         def prim_classNew(cls)
             done(cls.new_instance)
+        end
+
+        def prim_classSuper(cls)
+            done(cls.super)
         end
 
         def prim_blockValue(rcvr)
