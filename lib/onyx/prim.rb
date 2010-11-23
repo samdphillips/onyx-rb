@@ -55,6 +55,10 @@ module Onyx
             done(rcvr[i])
         end
 
+        def prim_arrayAppend_(a, b)
+            done(a + b)
+        end
+
         def prim_characterClassCodePoint_(rcvr, code_point)
             done(Char.code_point(code_point))
         end
