@@ -38,6 +38,11 @@ module Onyx
             do_block(rcvr, [a])
         end
 
+        def prim_blockEnsure_(rcvr, block)
+            push_kensure(block)
+            do_block(rcvr, [])
+        end
+
         def prim_arrayNew_(cls, size)
             done(Array.new(size))
         end

@@ -152,5 +152,33 @@ class TestInterp < Test::Unit::TestCase
             @terp.eval_string("Object new error: 'error message'")
         end
     end
+
+    def test_block_ensure
+        @terp.eval_string("n := 0")
+        assert_raise OnyxException do
+            @terp.eval_string("[ 42 error: 'failure' ] ensure: [ n := 1 ]")
+        end
+        assert_interp("n", 1)
+
+        @terp.eval_string("[ n := 2 ] ensure: [ n := 3 ]")
+        assert_interp("n", 3)
+
+        @terp.eval_string("
+        Object subclass: Foo [ 
+            foo [ 
+                [ ^ n := 4 ] ensure: [ n := 5 ] 
+            ]
+
+            bar [
+                [ [ ^ n := 6 ] ensure: [ n := 7 ] ] ensure: [ n := 8 ]
+            ]
+        ]")
+
+        assert_interp("Foo new foo", 4)
+        assert_interp("n", 5)
+
+        assert_interp("Foo new bar", 6)
+        assert_interp("n", 8)
+    end
 end
 

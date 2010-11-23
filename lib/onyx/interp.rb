@@ -60,6 +60,31 @@ module Onyx
             end
         end
 
+        class Abort
+            attr_reader :exc
+
+            def initialize(terp, exc)
+                @terp = terp
+                @exc  = exc
+            end
+
+            def pretty_print_instance_variables
+                [:@exc]
+            end
+
+            def done?
+                false
+            end
+
+            def step
+                if @terp.cont.nil? then
+                    raise OnyxException.new(@exc)
+                else
+                    @terp.cont.kabort(@exc)
+                end
+            end
+        end
+
         def self.boot
             terp = self.new
             node = Parser.parse_file('system.ost')
@@ -68,7 +93,7 @@ module Onyx
         end
 
         attr_accessor :debug, :cont
-        attr_reader   :globals, :env, :rcvr, :retk, :tramp, :exc
+        attr_reader   :globals, :env, :rcvr, :retk, :tramp
 
         def initialize
             @globals = GEnv.new
@@ -77,7 +102,6 @@ module Onyx
             @rcvr    = nil
             @retk    = nil
             @tramp   = nil
-            @exc     = nil
             @debug   = false
         end
 
@@ -99,12 +123,15 @@ module Onyx
             @tramp = Doing.new(self, node)
         end
 
+        def abort(exc)
+            @tramp = Abort.new(self, exc)
+        end
+
         def restore(k)
             @cont = k.parent
             @env  = k.env
             @rcvr = k.rcvr
             @retk = k.retk
-            @exc  = k.exc
         end
 
         def eval(node, stepping=false)
@@ -147,7 +174,7 @@ module Onyx
         end
 
         def push_k(cls, *args)
-            @cont = cls.new(self, @env, @rcvr, @retk, @cont, @exc, *args)
+            @cont = cls.new(self, @env, @rcvr, @retk, @cont, *args)
         end
 
         def push_kseq(nodes)
@@ -164,6 +191,18 @@ module Onyx
 
         def push_kcascade(rcvr, messages)
             push_k(KCascade, rcvr, messages)
+        end
+
+        def push_kvalue(value)
+            push_k(KValue, value)
+        end
+
+        def push_kensure(block)
+            push_k(KEnsure, block)
+        end
+
+        def push_kabort(exc)
+            push_k(KAbort, exc)
         end
 
         def build_mdict(meths)
@@ -233,7 +272,24 @@ module Onyx
         end
 
         def visit_return(ret_node)
-            @cont = @retk
+            k = @cont
+            pending = []
+            while k != @retk do
+                if k.ensure? then
+                    pending << k
+                end
+                k = k.parent
+            end
+
+            r = @retk
+            pending.reverse.each do | e |
+                if r.nil? then
+                    r = e
+                else
+                    r = r.splice(e)
+                end
+            end
+            @cont = r
             doing(ret_node.expr)
         end
 
@@ -280,12 +336,25 @@ module Onyx
         end
 
         def do_exception_signal(exc)
-            if @exc.nil? then
-                do_send(:defaultAction, exc, [])
+            if @cont.nil? then
+                abort(exc)
             else
+                do_find_handler(exc, @cont)
+            end
+        end
+
+        def do_find_handler(exc, cont)
+            until cont.nil? or cont.handles_exceptions? do
+                cont = cont.parent
+            end
+
+            if cont.nil? then
+                abort(exc)
+            else 
                 writeme
             end
         end
+
     end
 end
 

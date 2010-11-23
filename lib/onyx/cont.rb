@@ -4,13 +4,12 @@ module Onyx
         class Cont
             attr_reader :terp, :parent, :env, :rcvr, :retk, :exc
 
-            def initialize(terp, env, rcvr, retk, parent, exc, *kargs)
+            def initialize(terp, env, rcvr, retk, parent, *kargs)
                 @terp   = terp
                 @parent = parent
                 @env    = env
                 @rcvr   = rcvr
                 @retk   = retk
-                @exc    = exc
                 initialize_k(*kargs)
             end
 
@@ -28,6 +27,26 @@ module Onyx
             def kontinue(value)
                 @terp.restore(self)
                 continue(value)
+            end
+
+            def handles_exceptions?
+                false
+            end
+
+            def ensure?
+                false
+            end
+
+            def kabort(exc)
+                @terp.restore(self)
+                abort(exc)
+            end
+
+            def abort(exc)
+            end
+
+            def splice(cont)
+                cont.splice_onto(self)
             end
         end
 
@@ -173,5 +192,48 @@ module Onyx
             end
         end
 
+        class KValue < Cont
+            def initialize_k(value)
+                @value = value
+            end
+
+            def continue(value)
+                @terp.done(@value)
+            end
+        end
+
+        class KEnsure < Cont
+            def initialize_k(block)
+                @block = block
+            end
+
+            def ensure?
+                true
+            end
+
+            def splice_onto(cont)
+                KEnsure.new(@terp, @env, @rcvr, @retk, cont, @block)
+            end
+
+            def continue(value)
+                @terp.push_kvalue(value)
+                @terp.do_block(@block, [])
+            end
+
+            def abort(exc)
+                @terp.push_kabort(exc)
+                @terp.do_block(@block, [])
+            end
+        end
+
+        class KAbort < Cont
+            def initialize_k(exc)
+                @exc = exc
+            end
+
+            def continue(value)
+                @terp.abort(@exc)
+            end
+        end
     end
 end
