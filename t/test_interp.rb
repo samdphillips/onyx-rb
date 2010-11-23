@@ -160,7 +160,7 @@ class TestInterp < Test::Unit::TestCase
         end
         assert_interp("n", 1)
 
-        @terp.eval_string("[ n := 2 ] ensure: [ n := 3 ]")
+        assert_interp("[ n := 2 ] ensure: [ n := 3 ]", 2)
         assert_interp("n", 3)
 
         @terp.eval_string("
@@ -179,6 +179,9 @@ class TestInterp < Test::Unit::TestCase
 
         assert_interp("Foo new bar", 6)
         assert_interp("n", 8)
+
+        assert_interp("[ [ n := 9 ] ensure: [ n := 10 ] ] ensure: [ n := 11 ]", 9)
+        assert_interp("n", 11)
     end
 end
 
