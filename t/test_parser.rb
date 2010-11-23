@@ -22,6 +22,14 @@ class TestParser < Test::Unit::TestCase
         assert_equal(42, t.value)
     end
 
+    def test_parse_symbol
+        p = parser_string('#test')
+        t = p.parse_expr
+
+        assert_instance_of(ConstNode, t)
+        assert_equal(:test, t.value)
+    end
+
     def test_parse_global_id
         p = parser_string('Object')
         t = p.parse_expr
