@@ -202,7 +202,21 @@ module Onyx
             end
         end
 
-        class KEnsure < Cont
+        class KCurtailed < Cont
+            def initialize_k(block)
+                @block = block 
+            end
+
+            def continue(value)
+            end
+
+            def abort(exc)
+                @terp.push_kabort(exc)
+                @terp.do_block(@block, [])
+            end
+        end
+
+        class KEnsure < KCurtailed
             def initialize_k(block)
                 @block = block
             end
@@ -217,11 +231,6 @@ module Onyx
 
             def continue(value)
                 @terp.push_kvalue(value)
-                @terp.do_block(@block, [])
-            end
-
-            def abort(exc)
-                @terp.push_kabort(exc)
                 @terp.do_block(@block, [])
             end
         end

@@ -43,6 +43,11 @@ module Onyx
             do_block(rcvr, [])
         end
 
+        def prim_blockIfCurtailed_(rcvr, block)
+            push_kcurtailed(block)
+            do_block(rcvr, [])
+        end
+
         def prim_arrayNew_(cls, size)
             done(Array.new(size))
         end

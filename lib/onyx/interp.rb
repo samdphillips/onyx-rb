@@ -197,6 +197,10 @@ module Onyx
             push_k(KValue, value)
         end
 
+        def push_kcurtailed(block)
+            push_k(KCurtailed, block)
+        end
+
         def push_kensure(block)
             push_k(KEnsure, block)
         end

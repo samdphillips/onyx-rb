@@ -183,5 +183,17 @@ class TestInterp < Test::Unit::TestCase
         assert_interp("[ [ n := 9 ] ensure: [ n := 10 ] ] ensure: [ n := 11 ]", 9)
         assert_interp("n", 11)
     end
+
+    def test_block_ifCurtailed
+        @terp.eval_string("n := 0")
+        assert_interp("[ n := 1 ] ifCurtailed: [ n := 2 ]", 1)
+        assert_interp("n", 1)
+
+        assert_raise OnyxException do
+            @terp.eval_string("[ n := 2. n error: 'uh-oh' ] ifCurtailed: [ n := 3 ]")
+        end
+        assert_interp("n", 3)
+    end
+
 end
 
