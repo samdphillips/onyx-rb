@@ -1,5 +1,17 @@
 
 module Onyx
+    class OnyxException < Exception
+        def initialize(exc)
+            @exc  = exc
+        end
+
+        def to_s
+            exc_name = @exc.onyx_class.name
+            msg = @exc.lookup(:messageText).value
+            "Unhandled Onyx Exception: #{exc_name}: #{msg}"
+        end
+    end
+
     class Interpreter
         include Primitives
         include Continuations
@@ -56,7 +68,7 @@ module Onyx
         end
 
         attr_accessor :debug, :cont
-        attr_reader   :globals, :env, :rcvr, :retk, :tramp
+        attr_reader   :globals, :env, :rcvr, :retk, :tramp, :exc
 
         def initialize
             @globals = GEnv.new
@@ -65,6 +77,7 @@ module Onyx
             @rcvr    = nil
             @retk    = nil
             @tramp   = nil
+            @exc     = nil
             @debug   = false
         end
 
@@ -91,6 +104,7 @@ module Onyx
             @env  = k.env
             @rcvr = k.rcvr
             @retk = k.retk
+            @exc  = k.exc
         end
 
         def eval(node, stepping=false)
@@ -133,7 +147,7 @@ module Onyx
         end
 
         def push_k(cls, *args)
-            @cont = cls.new(self, @env, @rcvr, @retk, @cont, *args)
+            @cont = cls.new(self, @env, @rcvr, @retk, @cont, @exc, *args)
         end
 
         def push_kseq(nodes)
@@ -263,6 +277,14 @@ module Onyx
 
         def do_primitive(selector, rcvr, args)
             send("prim#{selector.to_s.gsub(':','_')}".to_sym, rcvr, *args)
+        end
+
+        def do_exception_signal(exc)
+            if @exc.nil? then
+                do_send(:defaultAction, exc, [])
+            else
+                writeme
+            end
         end
     end
 end

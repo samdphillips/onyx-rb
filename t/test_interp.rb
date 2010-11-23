@@ -146,5 +146,11 @@ class TestInterp < Test::Unit::TestCase
         assert_interp("#a == #a", true)
         assert_interp("#a == 'a' asSymbol", true)
     end
+
+    def test_error
+        assert_raise OnyxException do
+            @terp.eval_string("Object new error: 'error message'")
+        end
+    end
 end
 

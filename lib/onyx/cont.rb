@@ -2,14 +2,15 @@
 module Onyx
     module Continuations
         class Cont
-            attr_reader :terp, :parent, :env, :rcvr, :retk
+            attr_reader :terp, :parent, :env, :rcvr, :retk, :exc
 
-            def initialize(terp, env, rcvr, retk, parent, *kargs)
+            def initialize(terp, env, rcvr, retk, parent, exc, *kargs)
                 @terp   = terp
                 @parent = parent
                 @env    = env
                 @rcvr   = rcvr
                 @retk   = retk
+                @exc    = exc
                 initialize_k(*kargs)
             end
 

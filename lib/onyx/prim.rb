@@ -86,5 +86,13 @@ module Onyx
         def prim_symbolAsString(symbol)
             done(symbol.to_s)
         end
+
+        def prim_exceptionSignal(exc)
+            do_exception_signal(exc)
+        end
+
+        def prim_exceptionRaise(exc)
+            raise OnyxException.new(exc)
+        end
     end
 end
