@@ -1,17 +1,5 @@
 
 module Onyx
-    class OnyxException < Exception
-        def initialize(exc)
-            @exc  = exc
-        end
-
-        def to_s
-            exc_name = @exc.onyx_class.name
-            msg = @exc.lookup(:messageText).value
-            "Unhandled Onyx Exception: #{exc_name}: #{msg}"
-        end
-    end
-
     class Interpreter
         include Primitives
         include Continuations
@@ -60,31 +48,6 @@ module Onyx
             end
         end
 
-        class Abort
-            attr_reader :exc
-
-            def initialize(terp, exc)
-                @terp = terp
-                @exc  = exc
-            end
-
-            def pretty_print_instance_variables
-                [:@exc]
-            end
-
-            def done?
-                false
-            end
-
-            def step
-                if @terp.cont.nil? then
-                    raise OnyxException.new(@exc)
-                else
-                    @terp.cont.kabort(@exc)
-                end
-            end
-        end
-
         def self.boot
             terp = self.new
             node = Parser.parse_file('system.ost')
@@ -121,10 +84,6 @@ module Onyx
 
         def doing(node)
             @tramp = Doing.new(self, node)
-        end
-
-        def abort(exc)
-            @tramp = Abort.new(self, exc)
         end
 
         def restore(k)
@@ -191,22 +150,6 @@ module Onyx
 
         def push_kcascade(rcvr, messages)
             push_k(KCascade, rcvr, messages)
-        end
-
-        def push_kvalue(value)
-            push_k(KValue, value)
-        end
-
-        def push_kcurtailed(block)
-            push_k(KCurtailed, block)
-        end
-
-        def push_kensure(block)
-            push_k(KEnsure, block)
-        end
-
-        def push_kabort(exc)
-            push_k(KAbort, exc)
         end
 
         def build_mdict(meths)
@@ -276,24 +219,7 @@ module Onyx
         end
 
         def visit_return(ret_node)
-            k = @cont
-            pending = []
-            while k != @retk do
-                if k.ensure? then
-                    pending << k
-                end
-                k = k.parent
-            end
-
-            r = @retk
-            pending.reverse.each do | e |
-                if r.nil? then
-                    r = e
-                else
-                    r = r.splice(e)
-                end
-            end
-            @cont = r
+            @cont = @retk
             doing(ret_node.expr)
         end
 
@@ -338,27 +264,6 @@ module Onyx
         def do_primitive(selector, rcvr, args)
             send("prim#{selector.to_s.gsub(':','_')}".to_sym, rcvr, *args)
         end
-
-        def do_exception_signal(exc)
-            if @cont.nil? then
-                abort(exc)
-            else
-                do_find_handler(exc, @cont)
-            end
-        end
-
-        def do_find_handler(exc, cont)
-            until cont.nil? or cont.handles_exceptions? do
-                cont = cont.parent
-            end
-
-            if cont.nil? then
-                abort(exc)
-            else 
-                writeme
-            end
-        end
-
     end
 end
 

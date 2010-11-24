@@ -1,10 +1,6 @@
 
 module Onyx
     module Primitives
-        def prim_objectClass(rcvr)
-            done(rcvr.onyx_class(self))
-        end
-
         def prim_addSmallInt_(a, b)
             done(a + b)
         end
@@ -34,26 +30,12 @@ module Onyx
             done(cls.new_instance)
         end
 
-        def prim_classSuper(cls)
-            done(cls.super)
-        end
-
         def prim_blockValue(rcvr)
             do_block(rcvr)
         end
 
         def prim_blockValue_(rcvr, a)
             do_block(rcvr, [a])
-        end
-
-        def prim_blockEnsure_(rcvr, block)
-            push_kensure(block)
-            do_block(rcvr, [])
-        end
-
-        def prim_blockIfCurtailed_(rcvr, block)
-            push_kcurtailed(block)
-            do_block(rcvr, [])
         end
 
         def prim_arrayNew_(cls, size)
@@ -103,14 +85,6 @@ module Onyx
 
         def prim_symbolAsString(symbol)
             done(symbol.to_s)
-        end
-
-        def prim_exceptionSignal(exc)
-            do_exception_signal(exc)
-        end
-
-        def prim_exceptionRaise(exc)
-            raise OnyxException.new(exc)
         end
     end
 end

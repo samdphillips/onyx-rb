@@ -17,7 +17,7 @@ module Onyx
             end
         end
 
-        def onyx_class(terp=nil)
+        def onyx_class(terp)
             @cls
         end
         

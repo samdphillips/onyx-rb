@@ -16,7 +16,7 @@ class TestInterp < Test::Unit::TestCase
     end
 
     def assert_interp(s, result)
-        assert_equal(result, @terp.eval_string(s), s)
+        assert_equal(result, @terp.eval_string(s))
     end
 
     def test_sends
@@ -52,10 +52,6 @@ class TestInterp < Test::Unit::TestCase
         assert_interp("v := a value", 4)
         assert_interp("key", nil)
         assert_interp("value", nil)
-
-        assert_interp("a isKindOf: Boolean", false)
-        assert_interp("a isKindOf: Association", true)
-        assert_interp("a isKindOf: Object", true)
     end
 
     def test_blocks
@@ -150,54 +146,5 @@ class TestInterp < Test::Unit::TestCase
         assert_interp("#a == #a", true)
         assert_interp("#a == 'a' asSymbol", true)
     end
-
-    def test_error
-        assert_raise OnyxException do
-            @terp.eval_string("Object new error: 'error message'")
-        end
-    end
-
-    def test_block_ensure
-        @terp.eval_string("n := 0")
-        assert_raise OnyxException do
-            @terp.eval_string("[ 42 error: 'failure' ] ensure: [ n := 1 ]")
-        end
-        assert_interp("n", 1)
-
-        assert_interp("[ n := 2 ] ensure: [ n := 3 ]", 2)
-        assert_interp("n", 3)
-
-        @terp.eval_string("
-        Object subclass: Foo [ 
-            foo [ 
-                [ ^ n := 4 ] ensure: [ n := 5 ] 
-            ]
-
-            bar [
-                [ [ ^ n := 6 ] ensure: [ n := 7 ] ] ensure: [ n := 8 ]
-            ]
-        ]")
-
-        assert_interp("Foo new foo", 4)
-        assert_interp("n", 5)
-
-        assert_interp("Foo new bar", 6)
-        assert_interp("n", 8)
-
-        assert_interp("[ [ n := 9 ] ensure: [ n := 10 ] ] ensure: [ n := 11 ]", 9)
-        assert_interp("n", 11)
-    end
-
-    def test_block_ifCurtailed
-        @terp.eval_string("n := 0")
-        assert_interp("[ n := 1 ] ifCurtailed: [ n := 2 ]", 1)
-        assert_interp("n", 1)
-
-        assert_raise OnyxException do
-            @terp.eval_string("[ n := 2. n error: 'uh-oh' ] ifCurtailed: [ n := 3 ]")
-        end
-        assert_interp("n", 3)
-    end
-
 end
 
