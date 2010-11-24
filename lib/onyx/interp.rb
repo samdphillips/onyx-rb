@@ -60,7 +60,7 @@ module Onyx
 
         def initialize
             @globals = GEnv.new
-            @cont    = nil
+            @cont    = KHalt.new(self)
             @env     = Env.new
             @rcvr    = nil
             @retk    = nil
@@ -99,7 +99,7 @@ module Onyx
                 run
 
                 # reset @env and @rcvr if we're returning to the top level
-                if @cont.nil? and @tramp.done? then
+                if @cont.halt? and @tramp.done? then
                     @env  = Env.new
                     @rcvr = nil
                 end
@@ -115,7 +115,7 @@ module Onyx
         end
 
         def halted?
-            @halt or (@cont.nil? and @tramp.done?)
+            @halt or (@cont.halt? and @tramp.done?)
         end
 
         def run

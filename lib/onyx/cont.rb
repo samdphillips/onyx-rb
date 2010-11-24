@@ -20,6 +20,10 @@ module Onyx
                 raise "writeme"
             end
 
+            def halt?
+                false
+            end
+
             def pretty_print_instance_variables
                 [:@parent, :@env, :@rcvr, :@retk]
             end
@@ -27,6 +31,16 @@ module Onyx
             def kontinue(value)
                 @terp.restore(self)
                 continue(value)
+            end
+        end
+
+        class KHalt < Cont
+            def initialize(terp)
+                super(terp, nil, nil, nil, nil)
+            end
+
+            def halt?
+                true
             end
         end
 
