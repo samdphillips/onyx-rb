@@ -146,5 +146,20 @@ class TestInterp < Test::Unit::TestCase
         assert_interp("#a == #a", true)
         assert_interp("#a == 'a' asSymbol", true)
     end
+
+    def test_continuations
+        assert_interp("[ 2 + 5 ] withPrompt: #foo", 7)
+        assert_interp(
+            "[ 2 + ([:k | 5 ] control: #foo) ] withPrompt: #foo", 5)
+        assert_interp(
+            "[ 2 + ([:k | k value: 5 ] control: #foo) ] withPrompt: #foo", 7)
+        assert_interp(
+            "[ 2 + 
+                ([:k | 1 + 
+                    ([:k1 | k value: 6 ] control: #foo) ] control: #foo) ] withPrompt: #foo", 8)
+        assert_interp(
+            "[ 2 + [:k | [:k1 | [:k2 | k2 value: 6 ] control ] control ]
+                       control ] withPrompt", 6)
+    end
 end
 

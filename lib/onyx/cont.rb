@@ -16,6 +16,10 @@ module Onyx
             def initialize_k
             end
 
+            def onyx_class(terp)
+                terp.globals[:Continuation]
+            end
+
             def writeme
                 raise "writeme"
             end
@@ -32,6 +36,22 @@ module Onyx
                 @terp.restore(self)
                 continue(value)
             end
+
+            def delimited_with(tag)
+                splice_onto(@parent.delimited_with(tag))
+            end
+
+            def erase_prompt(tag)
+                @parent.erase_prompt(tag)
+            end
+
+            def compose(cont)
+                splice_onto(@parent.compose(cont))
+            end
+
+            def splice_onto(parent)
+                self.class.new(@terp, @env, @rcvr, @retk, parent, *kargs)
+            end
         end
 
         class KHalt < Cont
@@ -42,11 +62,27 @@ module Onyx
             def halt?
                 true
             end
+
+            def delimited_with(tag)
+                self
+            end
+
+            def erase_prompt(tag)
+                self
+            end
+
+            def compose(cont)
+                cont
+            end
         end
 
         class KSeq < Cont
             def initialize_k(rest)
                 @rest = rest
+            end
+
+            def kargs
+                [@rest]
             end
 
             def pretty_print_instance_variables
@@ -68,6 +104,10 @@ module Onyx
         class KAssign < Cont
             def initialize_k(var)
                 @var = var
+            end
+
+            def kargs
+                [@var]
             end
 
             def pretty_print_instance_variables
@@ -111,6 +151,10 @@ module Onyx
                 @message = message
             end
 
+            def kargs
+                [@message]
+            end
+
             def pretty_print_instance_variables
                 super + [:@message]
             end
@@ -133,6 +177,10 @@ module Onyx
             def initialize_k(rcvr_val, messages)
                 @rcvr_val = rcvr_val
                 @messages = messages
+            end
+
+            def kargs
+                [@rcvr_val, @messages]
             end
 
             def pretty_print_instance_variables
@@ -163,6 +211,10 @@ module Onyx
                 super + [:@selector, :@rcvr_v, :@args, :@vals]
             end
 
+            def kargs
+                [@selector, @rcvr_v, @args, @vals]
+            end
+
             def continue(value)
                 vals = @vals + [ value ]
                 if @args.size == 0 then
@@ -183,6 +235,39 @@ module Onyx
         class KPrim < KMsg
             def do_send(vals)
                 @terp.do_primitive(@selector, @rcvr_v, vals)
+            end
+        end
+
+        class KPrompt < Cont
+            def initialize_k(tag)
+                @tag = tag
+            end
+
+            def kargs
+                [@tag]
+            end
+
+            def pretty_print_instance_variables
+                super + [:@tag]
+            end
+
+            def continue(value)
+            end
+
+            def delimited_with(tag)
+                if @tag == tag then
+                    KHalt.new(@terp)
+                else
+                    super(tag)
+                end
+            end
+
+            def erase_prompt(tag)
+                if @tag == tag then
+                    @parent
+                else
+                    super(tag)
+                end
             end
         end
 

@@ -38,6 +38,27 @@ module Onyx
             do_block(rcvr, [a])
         end
 
+        def prim_blockWithPrompt_(rcvr, tag)
+            push_kprompt(tag)
+            do_block(rcvr, [])
+        end
+
+        def prim_blockControl_(rcvr, tag)
+            k = @cont
+            if k.nil? then
+                d = nil
+            else
+                @cont = k.erase_prompt(tag)
+                dk = k.delimited_with(tag)
+            end
+            do_block(rcvr, [dk])
+        end
+
+        def prim_continuationValue_(cont, value)
+            @cont = cont.compose(@cont)
+            done(value)
+        end
+
         def prim_arrayNew_(cls, size)
             done(Array.new(size))
         end

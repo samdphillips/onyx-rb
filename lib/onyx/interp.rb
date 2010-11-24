@@ -152,6 +152,10 @@ module Onyx
             push_k(KCascade, rcvr, messages)
         end
 
+        def push_kprompt(tag)
+            push_k(KPrompt, tag)
+        end
+
         def build_mdict(meths)
             mdict = {}
             meths.each do | m |
