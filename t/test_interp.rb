@@ -161,5 +161,18 @@ class TestInterp < Test::Unit::TestCase
             "[ 2 + [:k | [:k1 | [:k2 | k2 value: 6 ] control ] control ]
                        control ] withPrompt", 6)
     end
+
+    def test_marks
+        assert_interp("[ 3 + 4 ] withMark: #foo value: #bar", 7)
+        assert_interp(
+            "[ [ 3 + [:k | k value: (k firstMark: #foo) ] control ]
+                   withMark: #foo value: 4 ] withPrompt", 7)
+
+        # the #gar serves to push an intermediate frame between where we start
+        # to capture control and the prompt.
+        assert_interp(
+            "[ [ [:k | k marks: #foo ] control. #gar ] withMark: #foo value: 1 ] withPrompt",
+            [1])
+    end
 end
 

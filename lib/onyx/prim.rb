@@ -54,9 +54,22 @@ module Onyx
             do_block(rcvr, [dk])
         end
 
+        def prim_blockWithMark_value_(rcvr, tag, value)
+            @marks[tag] = value
+            do_block(rcvr, [])
+        end
+
         def prim_continuationValue_(cont, value)
             @cont = cont.compose(@cont)
             done(value)
+        end
+
+        def prim_continuationFirstMark_(cont, tag)
+            done(cont.find_first_mark(tag))
+        end
+
+        def prim_continuationMarks_(cont, tag)
+            done(cont.find_marks(tag))
         end
 
         def prim_arrayNew_(cls, size)

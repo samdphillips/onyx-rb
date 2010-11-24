@@ -2,14 +2,15 @@
 module Onyx
     module Continuations
         class Cont
-            attr_reader :terp, :parent, :env, :rcvr, :retk
+            attr_reader :terp, :parent, :env, :rcvr, :retk, :marks
 
-            def initialize(terp, env, rcvr, retk, parent, *kargs)
+            def initialize(terp, env, rcvr, retk, parent, marks, *kargs)
                 @terp   = terp
                 @parent = parent
                 @env    = env
                 @rcvr   = rcvr
                 @retk   = retk
+                @marks  = marks
                 initialize_k(*kargs)
             end
 
@@ -29,7 +30,7 @@ module Onyx
             end
 
             def pretty_print_instance_variables
-                [:@parent, :@env, :@rcvr, :@retk]
+                [:@parent, :@env, :@rcvr, :@retk, :@marks]
             end
 
             def kontinue(value)
@@ -50,13 +51,29 @@ module Onyx
             end
 
             def splice_onto(parent)
-                self.class.new(@terp, @env, @rcvr, @retk, parent, *kargs)
+                self.class.new(@terp, @env, @rcvr, @retk, parent, @marks, *kargs)
+            end
+
+            def find_first_mark(tag)
+                if @marks.include?(tag) then
+                    @marks[tag]
+                else
+                    @parent.find_first_mark(tag)
+                end
+            end
+
+            def find_marks(tag)
+                if @marks.include?(tag) then
+                    [ @marks[tag] ] + @parent.find_marks(tag)
+                else
+                    @parent.find_marks(tag)
+                end
             end
         end
 
         class KHalt < Cont
             def initialize(terp)
-                super(terp, nil, nil, nil, nil)
+                super(terp, nil, nil, nil, nil, {})
             end
 
             def halt?
@@ -73,6 +90,22 @@ module Onyx
 
             def compose(cont)
                 cont
+            end
+
+            def find_first_mark(tag)
+                if @marks.include?(tag) then
+                    @marks[tag]
+                else
+                    nil
+                end
+            end
+
+            def find_marks(tag)
+                if @marks.include?(tag) then
+                    [@marks[tag]]
+                else
+                    []
+                end
             end
         end
 

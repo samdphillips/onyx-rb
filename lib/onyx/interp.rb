@@ -65,6 +65,7 @@ module Onyx
             @rcvr    = nil
             @retk    = nil
             @tramp   = nil
+            @marks   = {}
             @debug   = false
         end
 
@@ -87,10 +88,11 @@ module Onyx
         end
 
         def restore(k)
-            @cont = k.parent
-            @env  = k.env
-            @rcvr = k.rcvr
-            @retk = k.retk
+            @cont  = k.parent
+            @env   = k.env
+            @rcvr  = k.rcvr
+            @retk  = k.retk
+            @marks = k.marks
         end
 
         def eval(node, stepping=false)
@@ -100,8 +102,9 @@ module Onyx
 
                 # reset @env and @rcvr if we're returning to the top level
                 if @cont.halt? and @tramp.done? then
-                    @env  = Env.new
-                    @rcvr = nil
+                    @marks = {}
+                    @env   = Env.new
+                    @rcvr  = nil
                 end
 
                 @tramp.value
@@ -133,7 +136,7 @@ module Onyx
         end
 
         def push_k(cls, *args)
-            @cont = cls.new(self, @env, @rcvr, @retk, @cont, *args)
+            @cont = cls.new(self, @env, @rcvr, @retk, @cont, @marks, *args)
         end
 
         def push_kseq(nodes)
