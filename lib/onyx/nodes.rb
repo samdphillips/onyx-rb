@@ -3,8 +3,7 @@ module Onyx
 
     class ParseNode
         def visit_name
-            ("visit_" +
-                self.class.name.split('::').last[0...-4].downcase).to_sym
+            ("visit_" + self.class.name.split('::').last[0...-4].downcase).to_sym
         end
 
         def visit(visitor, *args)
