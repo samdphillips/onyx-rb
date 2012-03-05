@@ -45,12 +45,8 @@ module Onyx
 
         def prim_blockControl_(rcvr, tag)
             k = @cont
-            if k.nil? then
-                d = nil
-            else
-                @cont = k.erase_prompt(tag)
-                dk = k.delimited_with(tag)
-            end
+            @cont = k.erase_prompt(tag)
+            dk = k.delimited_with(tag)
             do_block(rcvr, [dk])
         end
 
