@@ -37,6 +37,12 @@ module Onyx
         end
     end
 
+    class LexEofError < LexError
+        def message
+            "Unexpected EOF"
+        end
+    end
+
     class Lexer
         attr_reader :cur_char
 
@@ -77,7 +83,13 @@ module Onyx
             end
         end
 
-        def initialize(io)
+        def initialize(io=nil)
+            unless io.nil? then
+                self.io = io
+            end
+        end
+
+        def io=(io)
             @io = io
             step
         end
@@ -109,6 +121,10 @@ module Onyx
 
         def scan_error
             raise LexError.new(self)
+        end
+
+        def eof_error
+            raise LexEofError.new(self)
         end
 
         def scan_eof
