@@ -21,11 +21,11 @@ module OnyxRSpecMatchers
             @str = str
         end
 
-        def to_tokens(toks)
+        def to_tokens(*toks)
             MatchTokens.new(@str, toks)
         end
 
-        def to_token(type, value)
+        def to_token(type, value=nil)
             MatchTokens.new(@str, [[type, value]])
         end
 
