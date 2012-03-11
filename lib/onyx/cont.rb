@@ -1,7 +1,7 @@
 
 module Onyx
     module Continuations
-        class Cont
+        class Continuation
             attr_reader :terp, :parent, :env, :rcvr, :retk, :marks
 
             def initialize(terp, env, rcvr, retk, parent, marks, *kargs)
@@ -71,7 +71,7 @@ module Onyx
             end
         end
 
-        class KHalt < Cont
+        class KHalt < Continuation
             def initialize(terp)
                 super(terp, nil, nil, nil, nil, {})
             end
@@ -109,7 +109,7 @@ module Onyx
             end
         end
 
-        class KSeq < Cont
+        class KSeq < Continuation
             def initialize_k(rest)
                 @rest = rest
             end
@@ -134,7 +134,7 @@ module Onyx
             end
         end
 
-        class KAssign < Cont
+        class KAssign < Continuation
             def initialize_k(var)
                 @var = var
             end
@@ -177,7 +177,7 @@ module Onyx
             end
         end
 
-        class KRcvr < Cont
+        class KRcvr < Continuation
             include ContMsg
 
             def initialize_k(message)
@@ -204,7 +204,7 @@ module Onyx
             end
         end
 
-        class KCascade < Cont
+        class KCascade < Continuation
             include ContMsg
 
             def initialize_k(rcvr_val, messages)
@@ -232,7 +232,7 @@ module Onyx
             end
         end
 
-        class KMsg < Cont
+        class KMsg < Continuation
             def initialize_k(selector, rcvr_v, args, vals=[])
                 @selector = selector
                 @rcvr_v   = rcvr_v
@@ -271,7 +271,7 @@ module Onyx
             end
         end
 
-        class KPrompt < Cont
+        class KPrompt < Continuation
             def initialize_k(tag)
                 @tag = tag
             end
