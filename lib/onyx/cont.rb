@@ -1,9 +1,19 @@
 
 module Onyx
     module Continuations
+
+        # Common functionality shared by all continuations.
+        # @abstract 
         class Continuation
             attr_reader :terp, :parent, :env, :rcvr, :retk, :marks
 
+            # @param [Interpreter] terp
+            # @param [Env] env Saved environment
+            # @param [Object] rcvr Saved receiver object
+            # @param [Continuation] retk Saved return Continuation
+            # @param [Continuation] parent The previous Continuation
+            # @param [Hash<Object,Object>] marks - Continuation marks on this frame
+            # @param [Array<Object>] *kargs - Continuation specific arguments
             def initialize(terp, env, rcvr, retk, parent, marks, *kargs)
                 @terp   = terp
                 @parent = parent
@@ -14,6 +24,7 @@ module Onyx
                 initialize_k(*kargs)
             end
 
+            # Performs Continuation specific initialization
             def initialize_k
             end
 
@@ -25,6 +36,7 @@ module Onyx
                 raise "writeme"
             end
 
+            # Does returning from this Continuation halt the Interpreter.
             def halt?
                 false
             end
@@ -33,6 +45,9 @@ module Onyx
                 [:@parent, :@env, :@rcvr, :@retk, :@marks]
             end
 
+            # Restores saved values in the Continuation into the Interpreter, and
+            # then passes the value to a Continuation specific action.
+            # @param [Object] value
             def kontinue(value)
                 @terp.restore(self)
                 continue(value)

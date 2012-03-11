@@ -79,10 +79,12 @@ module Onyx
             raise 'writeme'
         end
 
+        # Installs a Done state into @tramp.
         def done(value)
             @tramp = Done.new(self, value)
         end
 
+        # Installs a Doing state into @tramp.
         def doing(node)
             @tramp = Doing.new(self, node)
         end
