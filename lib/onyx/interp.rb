@@ -44,7 +44,7 @@ module Onyx
             end
 
             def step
-                @terp.cont.kontinue(@value)
+                @terp.stack.continue(@value)
             end
         end
 
@@ -55,18 +55,22 @@ module Onyx
             terp
         end
 
-        attr_accessor :debug, :cont
-        attr_reader   :globals, :env, :rcvr, :retk, :tramp
+        attr_accessor :debug
+        attr_reader   :globals, :env, :rcvr, :retk, :tramp, :stack
 
         def initialize
             @globals = GEnv.new
-            @cont    = HaltFrame.new(self)
             @env     = Env.new
+            @stack   = Stack.new
+            @retp    = -1
             @rcvr    = nil
-            @retk    = nil
             @tramp   = nil
             @marks   = {}
             @debug   = false
+        end
+
+        def cont
+            raise 'cont'
         end
 
         def pretty_print_instance_variables
@@ -89,12 +93,12 @@ module Onyx
             @tramp = Doing.new(self, node)
         end
 
-        def restore(k)
-            @cont  = k.parent
-            @env   = k.env
-            @rcvr  = k.rcvr
-            @retk  = k.retk
-            @marks = k.marks
+        def restore(frame)
+            @stack.pop
+            @env   = frame.env
+            @rcvr  = frame.rcvr
+            @retp  = frame.retk
+            @marks = frame.marks
         end
 
         def eval(node, stepping=false)
@@ -103,7 +107,7 @@ module Onyx
                 run
 
                 # reset @env and @rcvr if we're returning to the top level
-                if @cont.halt? and @tramp.done? then
+                if @stack.halt? and @tramp.done? then
                     @marks = {}
                     @env   = Env.new
                     @rcvr  = nil
@@ -120,7 +124,7 @@ module Onyx
         end
 
         def halted?
-            @halt or (@cont.halt? and @tramp.done?)
+            @halt or (@stack.halt? and @tramp.done?)
         end
 
         def run
@@ -138,7 +142,7 @@ module Onyx
         end
 
         def push_k(cls, *args)
-            @cont = cls.new(self, @env, @rcvr, @retk, @cont, @marks, *args)
+            @stack.push(cls.new(self, @env, @rcvr, @retp, nil, @marks, *args))
         end
 
         def push_kseq(nodes)
@@ -187,7 +191,7 @@ module Onyx
         end
 
         def visit_block(block_node)
-            blk = BlockClosure.new(@env, @rcvr, @retk, block_node)
+            blk = BlockClosure.new(@env, @rcvr, @retp, block_node)
             done(blk)
         end
 
@@ -228,7 +232,7 @@ module Onyx
         end
 
         def visit_return(ret_node)
-            @cont = @retk
+            @stack.top = @retp
             doing(ret_node.expr)
         end
 
@@ -259,14 +263,14 @@ module Onyx
             
             @env  = Env.from_method(meth, args, rcvr, cls)
             @rcvr = rcvr
-            @retk = @cont
+            @retp = @stack.top
             doing(meth.stmts)
         end
 
         def do_block(blk, args=[])
             @env = Env.from_block(blk, args)
             @rcvr = blk.rcvr
-            @retk = blk.retk
+            @retp = blk.retk
             doing(blk.stmts)
         end
 

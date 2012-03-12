@@ -1,5 +1,43 @@
 
 module Onyx
+    class Stack
+        attr_accessor :top
+
+        def initialize
+            @frames = []
+            @top = -1
+        end
+
+        def halt?
+            @top == -1
+        end
+
+        def full?
+            @top + 1 == @frames.size
+        end
+
+        def grow_stack
+            @frames = @frames + Array.new(16)
+        end
+
+        def push(frame)
+            if full? then
+                grow_stack
+            end
+
+            @top += 1
+            @frames[@top] = frame
+        end
+
+        def pop
+            @top -= 1
+        end
+
+        def continue(value)
+            @frames[@top].kontinue(value)
+        end
+    end
+
     module Frames
 
         # Common functionality shared by all frames.
