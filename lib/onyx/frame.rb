@@ -1,10 +1,10 @@
 
 module Onyx
-    module Continuations
+    module Frames
 
-        # Common functionality shared by all continuations.
+        # Common functionality shared by all frames.
         # @abstract 
-        class Continuation
+        class Frame
             attr_reader :terp, :parent, :env, :rcvr, :retk, :marks
 
             # @param [Interpreter] terp
@@ -86,7 +86,8 @@ module Onyx
             end
         end
 
-        class KHalt < Continuation
+        # XXX: HaltFrame should be removed.
+        class HaltFrame < Frame
             def initialize(terp)
                 super(terp, nil, nil, nil, nil, {})
             end
@@ -124,7 +125,7 @@ module Onyx
             end
         end
 
-        class KSeq < Continuation
+        class SeqFrame < Frame
             def initialize_k(rest)
                 @rest = rest
             end
@@ -149,7 +150,7 @@ module Onyx
             end
         end
 
-        class KAssign < Continuation
+        class AssignFrame < Frame
             def initialize_k(var)
                 @var = var
             end
@@ -167,12 +168,12 @@ module Onyx
             end
         end
 
-        module ContMsg
+        module MsgFrameUtil
             def visit_message(message, rcvr)
                 if message.unary? then
                     @terp.do_send(message.selector, rcvr, [])
                 else
-                    continue_message(message, rcvr, KMsg)
+                    continue_message(message, rcvr, MsgFrame)
                 end
             end
 
@@ -180,7 +181,7 @@ module Onyx
                 if message.unary? then
                     @terp.do_primitive(message.selector, rcvr, [])
                 else
-                    continue_message(message, rcvr, KPrim)
+                    continue_message(message, rcvr, PrimFrame)
                 end
             end
 
@@ -192,8 +193,8 @@ module Onyx
             end
         end
 
-        class KRcvr < Continuation
-            include ContMsg
+        class RcvrFrame < Frame
+            include MsgFrameUtil
 
             def initialize_k(message)
                 @message = message
@@ -219,8 +220,8 @@ module Onyx
             end
         end
 
-        class KCascade < Continuation
-            include ContMsg
+        class CascadeFrame < Frame
+            include MsgFrameUtil
 
             def initialize_k(rcvr_val, messages)
                 @rcvr_val = rcvr_val
@@ -247,7 +248,7 @@ module Onyx
             end
         end
 
-        class KMsg < Continuation
+        class MsgFrame < Frame
             def initialize_k(selector, rcvr_v, args, vals=[])
                 @selector = selector
                 @rcvr_v   = rcvr_v
@@ -280,13 +281,13 @@ module Onyx
             end
         end
 
-        class KPrim < KMsg
+        class PrimFrame < MsgFrame
             def do_send(vals)
                 @terp.do_primitive(@selector, @rcvr_v, vals)
             end
         end
 
-        class KPrompt < Continuation
+        class PromptFrame < Frame
             def initialize_k(tag)
                 @tag = tag
             end
@@ -304,7 +305,7 @@ module Onyx
 
             def delimited_with(tag)
                 if @tag == tag then
-                    KHalt.new(@terp)
+                    HaltFrame.new(@terp)
                 else
                     super(tag)
                 end

@@ -2,7 +2,7 @@
 module Onyx
     class Interpreter
         include Primitives
-        include Continuations
+        include Frames
 
         class Doing
             def initialize(terp, node)
@@ -60,7 +60,7 @@ module Onyx
 
         def initialize
             @globals = GEnv.new
-            @cont    = KHalt.new(self)
+            @cont    = HaltFrame.new(self)
             @env     = Env.new
             @rcvr    = nil
             @retk    = nil
@@ -142,23 +142,23 @@ module Onyx
         end
 
         def push_kseq(nodes)
-            push_k(KSeq, nodes)
+            push_k(SeqFrame, nodes)
         end
 
         def push_kassign(var)
-            push_k(KAssign, var)
+            push_k(AssignFrame, var)
         end
 
         def push_krcvr(message)
-            push_k(KRcvr, message)
+            push_k(RcvrFrame, message)
         end
 
         def push_kcascade(rcvr, messages)
-            push_k(KCascade, rcvr, messages)
+            push_k(CascadeFrame, rcvr, messages)
         end
 
         def push_kprompt(tag)
-            push_k(KPrompt, tag)
+            push_k(PromptFrame, tag)
         end
 
         def build_mdict(meths)

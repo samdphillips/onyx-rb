@@ -11,7 +11,7 @@ require 'onyx/obj/method'
 require 'onyx/obj/ruby'
 require 'onyx/obj/super'
 require 'onyx/parser'
-require 'onyx/cont'
+require 'onyx/frame'
 require 'onyx/prim'
 require 'onyx/interp'
 
