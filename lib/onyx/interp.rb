@@ -44,7 +44,7 @@ module Onyx
             end
 
             def step
-                @terp.stack.continue(@value)
+                @terp.continue(@value)
             end
         end
 
@@ -62,15 +62,12 @@ module Onyx
             @globals = GEnv.new
             @env     = Env.new
             @stack   = Stack.new
-            @retp    = -1
+            @retp    = nil
             @rcvr    = nil
             @tramp   = nil
+            @prompts = {}
             @marks   = {}
             @debug   = false
-        end
-
-        def cont
-            raise 'cont'
         end
 
         def pretty_print_instance_variables
@@ -93,12 +90,13 @@ module Onyx
             @tramp = Doing.new(self, node)
         end
 
-        def restore(frame)
-            @stack.pop
+        def continue(value)
+            frame = @stack.pop
             @env   = frame.env
             @rcvr  = frame.rcvr
             @retp  = frame.retk
             @marks = frame.marks
+            frame.continue(value)
         end
 
         def eval(node, stepping=false)
@@ -107,7 +105,7 @@ module Onyx
                 run
 
                 # reset @env and @rcvr if we're returning to the top level
-                if @stack.halt? and @tramp.done? then
+                if @stack.empty? and @tramp.done? then
                     @marks = {}
                     @env   = Env.new
                     @rcvr  = nil
@@ -124,7 +122,7 @@ module Onyx
         end
 
         def halted?
-            @halt or (@stack.halt? and @tramp.done?)
+            @halt or (@stack.empty? and @tramp.done?)
         end
 
         def run
@@ -139,6 +137,28 @@ module Onyx
 
         def step
             @tramp.step
+        end
+
+        def add_prompt(tag)
+            unless @prompts.include? tag then
+                @prompts[tag] = []
+            end
+
+            @prompts[tag].push(@stack.top)
+        end
+
+        def make_continuation(tag)
+            prompt_frame = @prompts[tag].last
+            frames = @stack.get_frames_after(prompt_frame)
+            cont = @globals[:Continuation].new_instance
+            cont.lookup(:frames).assign(frames)
+            cont
+        end
+
+        def add_continuation(frames)
+            frames.each do | frame |
+                @stack.push(frame)
+            end
         end
 
         def push_k(cls, *args)
@@ -163,6 +183,7 @@ module Onyx
 
         def push_kprompt(tag)
             push_k(PromptFrame, tag)
+            add_prompt(tag)
         end
 
         def build_mdict(meths)

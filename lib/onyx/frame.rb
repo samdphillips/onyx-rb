@@ -8,7 +8,7 @@ module Onyx
             @top = -1
         end
 
-        def halt?
+        def empty?
             @top == -1
         end
 
@@ -30,11 +30,13 @@ module Onyx
         end
 
         def pop
+            frame = @frames[@top]
             @top -= 1
+            frame
         end
 
-        def continue(value)
-            @frames[@top].kontinue(value)
+        def get_frames_after(first)
+            @frames[first+1 .. @top]
         end
     end
 
@@ -66,17 +68,8 @@ module Onyx
             def initialize_k
             end
 
-            def onyx_class(terp)
-                terp.globals[:Continuation]
-            end
-
             def writeme
                 raise "writeme"
-            end
-
-            # Does returning from this Continuation halt the Interpreter.
-            def halt?
-                false
             end
 
             def pretty_print_instance_variables
@@ -120,45 +113,6 @@ module Onyx
                     [ @marks[tag] ] + @parent.find_marks(tag)
                 else
                     @parent.find_marks(tag)
-                end
-            end
-        end
-
-        # XXX: HaltFrame should be removed.
-        class HaltFrame < Frame
-            def initialize(terp)
-                super(terp, nil, nil, nil, nil, {})
-            end
-
-            def halt?
-                true
-            end
-
-            def delimited_with(tag)
-                self
-            end
-
-            def erase_prompt(tag)
-                self
-            end
-
-            def compose(cont)
-                cont
-            end
-
-            def find_first_mark(tag)
-                if @marks.include?(tag) then
-                    @marks[tag]
-                else
-                    nil
-                end
-            end
-
-            def find_marks(tag)
-                if @marks.include?(tag) then
-                    [@marks[tag]]
-                else
-                    []
                 end
             end
         end

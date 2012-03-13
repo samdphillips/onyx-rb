@@ -43,10 +43,8 @@ module Onyx
             do_block(rcvr, [])
         end
 
-        def prim_blockControl_(rcvr, tag)
-            k = @cont
-            @cont = k.erase_prompt(tag)
-            dk = k.delimited_with(tag)
+        def prim_blockWithCont_(rcvr, tag)
+            dk = make_continuation(tag)
             do_block(rcvr, [dk])
         end
 
@@ -56,7 +54,8 @@ module Onyx
         end
 
         def prim_continuationValue_(cont, value)
-            @cont = cont.compose(@cont)
+            frames = cont.lookup(:frames).value
+            add_continuation(frames)
             done(value)
         end
 
