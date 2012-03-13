@@ -152,6 +152,8 @@ class TestInterp < Test::Unit::TestCase
         assert_interp(
             "[ 2 + ([:k | 5 ] withCont: #foo) ] withPrompt: #foo", 7)
         assert_interp(
+            "[ 2 + (0 abort: #foo) + 5 ] withPrompt: #foo", 0)
+        assert_interp(
             "[ 2 + ([:k | k value: 5 ] withCont: #foo) ] withPrompt: #foo", 9)
         # assert_interp(
         #     "[ 2 + 
