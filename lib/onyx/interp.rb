@@ -172,8 +172,8 @@ module Onyx
             push_k(CascadeFrame, rcvr, messages)
         end
 
-        def push_kprompt(tag)
-            push_k(PromptFrame, tag)
+        def push_kprompt(tag, abort_handler)
+            push_k(PromptFrame, tag, abort_handler)
         end
 
         def build_mdict(meths)

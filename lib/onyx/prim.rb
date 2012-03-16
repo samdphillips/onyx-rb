@@ -38,9 +38,16 @@ module Onyx
             do_block(rcvr, [a])
         end
 
-        def prim_blockWithPrompt_(rcvr, tag)
-            push_kprompt(tag)
+        def prim_blockWithPrompt_abort_(rcvr, tag, abort_handler)
+            push_kprompt(tag, abort_handler)
             do_block(rcvr, [])
+        end
+
+        def prim_objectAbort_(rcvr, tag)
+            prompt_frame = @stack.find_prompt(tag)
+            abort_handler = @stack[prompt_frame].abort_handler
+            @stack.top = prompt_frame - 1
+            do_block(abort_handler, [rcvr])
         end
 
         def prim_blockWithCont_(rcvr, tag)

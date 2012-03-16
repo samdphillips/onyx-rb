@@ -46,6 +46,10 @@ module Onyx
         def get_frames_after(first)
             @frames[first+1 .. @top]
         end
+
+        def [](i)
+            @frames[i]
+        end
     end
 
     module Frames
@@ -292,8 +296,11 @@ module Onyx
         end
 
         class PromptFrame < Frame
-            def initialize_k(tag)
+            attr_reader :abort_handler
+
+            def initialize_k(tag, abort_handler)
                 @tag = tag
+                @abort_handler = abort_handler
             end
 
             def kargs
