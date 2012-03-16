@@ -35,6 +35,14 @@ module Onyx
             frame
         end
 
+        def find_prompt(tag)
+            i = @top
+            while i >= 0 and not @frames[i].has_tag?(tag) do
+                i = i - 1
+            end
+            i
+        end
+
         def get_frames_after(first)
             @frames[first+1 .. @top]
         end
@@ -82,6 +90,10 @@ module Onyx
             def kontinue(value)
                 @terp.restore(self)
                 continue(value)
+            end
+
+            def has_tag?(tag)
+                false
             end
 
             def delimited_with(tag)
@@ -293,6 +305,10 @@ module Onyx
             end
 
             def continue(value)
+            end
+
+            def has_tag?(tag)
+                tag == @tag
             end
 
             def delimited_with(tag)

@@ -65,7 +65,6 @@ module Onyx
             @retp    = nil
             @rcvr    = nil
             @tramp   = nil
-            @prompts = {}
             @marks   = {}
             @debug   = false
         end
@@ -139,16 +138,8 @@ module Onyx
             @tramp.step
         end
 
-        def add_prompt(tag)
-            unless @prompts.include? tag then
-                @prompts[tag] = []
-            end
-
-            @prompts[tag].push(@stack.top)
-        end
-
         def make_continuation(tag)
-            prompt_frame = @prompts[tag].last
+            prompt_frame = @stack.find_prompt(tag)
             frames = @stack.get_frames_after(prompt_frame)
             cont = @globals[:Continuation].new_instance
             cont.lookup(:frames).assign(frames)
@@ -183,7 +174,6 @@ module Onyx
 
         def push_kprompt(tag)
             push_k(PromptFrame, tag)
-            add_prompt(tag)
         end
 
         def build_mdict(meths)
