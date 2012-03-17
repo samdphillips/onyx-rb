@@ -156,13 +156,13 @@ class TestInterp < Test::Unit::TestCase
         assert_interp(
             "[ 2 + (0 abort: #foo) + 5 ] withPrompt: #foo", 0)
 
-        # assert_interp(
-        #     "[ 2 + 
-        #         ([:k | 1 + 
-        #             ([:k1 | k value: 6 ] withCont: #foo) ] withCont: #foo) ] withPrompt: #foo", 8)
-        # assert_interp(
-        #     "[ 2 + [:k | [:k1 | [:k2 | k2 value: 6 ] withCont ] withCont ]
-        #                withCont ] withPrompt", 6)
+        assert_interp(
+            "[ 2 + ([ 3 + ([:k | k value: 2 ] withCont: #foo) ] withPrompt: #foo) ] withPrompt: #foo", 10)
+
+        assert_interp(
+            "[ 2 + ([:k | k abort: #foo ] withCont: #foo) ]
+                 withPrompt: #foo
+                 abort: [:x | x value: 3 ]", 5)
     end
 
     def xtest_marks
