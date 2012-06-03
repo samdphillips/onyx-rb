@@ -1,4 +1,5 @@
 
 * Stack unwinding
-* ContinuationMark class and object
+* Class instance variables
+* implement exceptions
 
