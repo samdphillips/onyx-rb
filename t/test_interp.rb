@@ -165,17 +165,13 @@ class TestInterp < Test::Unit::TestCase
                  abort: [:x | x value: 3 ]", 5)
     end
 
-    def xtest_marks
+    def test_marks
         assert_interp("[ 3 + 4 ] withMark: #foo value: #bar", 7)
         assert_interp(
-            "[ [ 3 + [:k | k value: (k firstMark: #foo) ] control ]
-                   withMark: #foo value: 4 ] withPrompt", 7)
-
-        # the #gar serves to push an intermediate frame between where we start
-        # to capture control and the prompt.
-        assert_interp(
-            "[ [ [:k | k marks: #foo ] control. #gar ] withMark: #foo value: 1 ] withPrompt",
-            [1])
+            "cmark := ContinuationMark new. 
+             [ [ 3 + (cmark firstMark: #foo) ] 
+                   withMark: cmark 
+                   value: 4 ] withPrompt: #foo", 7)
     end
 end
 

@@ -66,8 +66,13 @@ module Onyx
             done(value)
         end
 
-        def prim_continuationFirstMark_(cont, tag)
-            done(cont.find_first_mark(tag))
+        def prim_continuationFirstMark_(cmark, prompt_tag)
+            if @marks.include?(cmark) then
+                val = @marks[cmark]
+            else
+                val = @stack.find_first_mark(cmark, prompt_tag)
+            end
+            done(val)
         end
 
         def prim_continuationMarks_(cont, tag)
