@@ -148,20 +148,21 @@ class TestInterp < Test::Unit::TestCase
     end
 
     def test_continuations
-        assert_interp("[ 2 + 5 ] withPrompt: #foo", 7)
+        assert_interp("p := PromptTag new. [ 2 + 5 ] withPrompt: p", 7)
         assert_interp(
-            "[ 2 + ([:k | 5 ] withCont: #foo) ] withPrompt: #foo", 7)
+            "p := PromptTag new. [ 2 + ([:k | 5 ] withCont: p) ] withPrompt: p", 7)
         assert_interp(
-            "[ 2 + ([:k | k value: 5 ] withCont: #foo) ] withPrompt: #foo", 9)
+            "p := PromptTag new. [ 2 + ([:k | k value: 5 ] withCont: p) ] withPrompt: p", 9)
         assert_interp(
-            "[ 2 + (0 abort: #foo) + 5 ] withPrompt: #foo", 0)
+            "p := PromptTag new. [ 2 + (p abort: 0) + 5 ] withPrompt: p", 0)
 
         assert_interp(
-            "[ 2 + ([ 3 + ([:k | k value: 2 ] withCont: #foo) ] withPrompt: #foo) ] withPrompt: #foo", 10)
+            "p := PromptTag new. [ 2 + ([ 3 + ([:k | k value: 2 ] withCont: p) ] withPrompt: p) ] withPrompt: p", 10)
 
         assert_interp(
-            "[ 2 + ([:k | k abort: #foo ] withCont: #foo) ]
-                 withPrompt: #foo
+            "p := PromptTag new.
+             [ 2 + ([:k | p abort: k ] withCont: p) ]
+                 withPrompt: p
                  abort: [:x | x value: 3 ]", 5)
     end
 
