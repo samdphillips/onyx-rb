@@ -74,6 +74,12 @@ module OnyxRSpecMatchers
     end
 end
 
+RSpec::Matchers.define(:interpret) do | input, val |
+    match do | terp |
+        terp.eval_string(input).eql? val
+    end
+end
+
 # RSpec::Matchers.define(:lex) do | input |
 #     match do | lexer |
 #         lexer.io = StringIO.new(input)

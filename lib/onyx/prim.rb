@@ -75,8 +75,13 @@ module Onyx
             done(val)
         end
 
-        def prim_continuationMarks_(cont, tag)
-            done(cont.find_marks(tag))
+        def prim_continuationMarks_(cmark, prompt_tag)
+            v = []
+            if @marks.include?(cmark) then
+                v << @marks[cmark]
+            end
+
+            done(@stack.find_marks(cmark, prompt_tag, v))
         end
 
         def prim_arrayNew_(cls, size)
