@@ -42,6 +42,11 @@ module Onyx
             do_block(rcvr, [a])
         end
 
+        def prim_blockValue_value_(rcvr, a, b)
+            do_block(rcvr, [a, b])
+        end
+
+
         def prim_blockWithPrompt_abort_(rcvr, tag, abort_handler)
             push_kprompt(tag, abort_handler)
             do_block(rcvr, [])

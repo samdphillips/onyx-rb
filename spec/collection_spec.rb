@@ -46,5 +46,12 @@ describe Onyx::Interpreter do
             c detect: [:x | x > 20 ] ifNone: [ 242 ]', 242)
     end
 
+    it "collections: #inject: 0 into: [:a :b | a + b ] method should sum the elements of the collection" do
+        should interpret('
+            c := OrderedCollection new.
+            1 to: 5 do: [:i | c add: i ].
+            c inject: 0 into: [:a :b | a + b ]', 15)
+    end
+
 end
 
