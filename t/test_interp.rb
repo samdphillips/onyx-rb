@@ -170,9 +170,10 @@ class TestInterp < Test::Unit::TestCase
         assert_interp("[ 3 + 4 ] withMark: #foo value: #bar", 7)
         assert_interp(
             "cmark := ContinuationMark new. 
-             [ [ 3 + (cmark firstMark: #foo) ] 
+             p := PromptTag new.
+             [ [ 3 + (cmark firstMark: p) ] 
                    withMark: cmark 
-                   value: 4 ] withPrompt: #foo", 7)
+                   value: 4 ] withPrompt: p", 7)
     end
 end
 
