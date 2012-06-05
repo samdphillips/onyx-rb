@@ -47,6 +47,40 @@ module Onyx
             @frames[first+1 .. @top]
         end
 
+        def find_first_mark(mark, prompt)
+            i = @top
+            while i >= 0 do
+                f = @frames[i]
+
+                if f.has_mark?(mark) then
+                    return f.mark_value(mark)
+                end
+
+                if f.has_tag?(prompt) then
+                    return nil
+                end
+                i = i - 1
+            end
+            nil
+        end
+
+        def find_marks(mark, prompt, v)
+            i = @top
+            while i >= 0 do
+                f = @frames[i]
+
+                if f.has_mark?(mark) then
+                    v << f.mark_value(mark)
+                end
+
+                if f.has_tag?(prompt) then
+                    break
+                end
+                i = i - 1
+            end
+            v
+        end
+
         def [](i)
             @frames[i]
         end
@@ -96,6 +130,14 @@ module Onyx
 
             def has_tag?(tag)
                 false
+            end
+
+            def has_mark?(mark)
+                @marks.include?(mark)
+            end
+
+            def mark_value(mark)
+                @marks[mark]
             end
 
         end

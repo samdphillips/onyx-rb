@@ -154,6 +154,7 @@ module Onyx
 
         def push_k(cls, *args)
             @stack.push(cls.new(self, @env, @rcvr, @retp, @marks, *args))
+            @marks = {}
         end
 
         def push_kseq(nodes)
