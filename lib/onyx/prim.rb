@@ -26,6 +26,10 @@ module Onyx
             done(a < b)
         end
 
+        def prim_smallIntIsOdd(a)
+            done((a & 1) == 1)
+        end
+
         def prim_classNew(cls)
             done(cls.new_instance)
         end

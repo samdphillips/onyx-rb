@@ -26,6 +26,11 @@ class TestInterp < Test::Unit::TestCase
         assert_interp("3 = 3", true)
         assert_interp("3 = 4", false)
 
+        assert_interp("1 isOdd", true)
+        assert_interp("2 isOdd", false)
+        assert_interp("3 isOdd", true)
+        assert_interp("4 isOdd", false)
+
         assert_interp("3 // 4", 0)
         assert_interp("8 // 4", 2)
         assert_interp("9 // 4", 2)
