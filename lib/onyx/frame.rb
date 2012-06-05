@@ -57,18 +57,16 @@ module Onyx
         # Common functionality shared by all frames.
         # @abstract 
         class Frame
-            attr_reader :terp, :parent, :env, :rcvr, :retk, :marks
+            attr_reader :terp, :env, :rcvr, :retk, :marks
 
             # @param [Interpreter] terp
             # @param [Env] env Saved environment
             # @param [Object] rcvr Saved receiver object
             # @param [Continuation] retk Saved return Continuation
-            # @param [Continuation] parent The previous Continuation
             # @param [Hash<Object,Object>] marks - Continuation marks on this frame
             # @param [Array<Object>] *kargs - Continuation specific arguments
-            def initialize(terp, env, rcvr, retk, parent, marks, *kargs)
+            def initialize(terp, env, rcvr, retk, marks, *kargs)
                 @terp   = terp
-                @parent = parent
                 @env    = env
                 @rcvr   = rcvr
                 @retk   = retk
@@ -85,7 +83,7 @@ module Onyx
             end
 
             def pretty_print_instance_variables
-                [:@parent, :@env, :@rcvr, :@retk, :@marks]
+                [:@env, :@rcvr, :@retk, :@marks]
             end
 
             # Restores saved values in the Continuation into the Interpreter, and
@@ -100,37 +98,6 @@ module Onyx
                 false
             end
 
-            def delimited_with(tag)
-                splice_onto(@parent.delimited_with(tag))
-            end
-
-            def erase_prompt(tag)
-                @parent.erase_prompt(tag)
-            end
-
-            def compose(cont)
-                splice_onto(@parent.compose(cont))
-            end
-
-            def splice_onto(parent)
-                self.class.new(@terp, @env, @rcvr, @retk, parent, @marks, *kargs)
-            end
-
-            def find_first_mark(tag)
-                if @marks.include?(tag) then
-                    @marks[tag]
-                else
-                    @parent.find_first_mark(tag)
-                end
-            end
-
-            def find_marks(tag)
-                if @marks.include?(tag) then
-                    [ @marks[tag] ] + @parent.find_marks(tag)
-                else
-                    @parent.find_marks(tag)
-                end
-            end
         end
 
         class SeqFrame < Frame
@@ -316,22 +283,6 @@ module Onyx
 
             def has_tag?(tag)
                 tag == @tag
-            end
-
-            def delimited_with(tag)
-                if @tag == tag then
-                    HaltFrame.new(@terp)
-                else
-                    super(tag)
-                end
-            end
-
-            def erase_prompt(tag)
-                if @tag == tag then
-                    @parent
-                else
-                    super(tag)
-                end
             end
         end
 
