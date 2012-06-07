@@ -113,6 +113,10 @@ module Onyx
             done(rcvr.code_point)
         end
 
+        def prim_objectClass(rcvr)
+            done(rcvr.onyx_class(self))
+        end
+
         def prim_stringSize(rcvr)
             done(rcvr.size)
         end
