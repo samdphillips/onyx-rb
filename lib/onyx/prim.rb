@@ -30,6 +30,10 @@ module Onyx
             done(cls.new_instance)
         end
 
+        def prim_classSuperclass(cls)
+            done(cls.super)
+        end
+
         def prim_blockValue(rcvr)
             do_block(rcvr)
         end
