@@ -129,14 +129,6 @@ module Onyx
                 [:@env, :@rcvr, :@retk, :@marks]
             end
 
-            # Restores saved values in the Continuation into the Interpreter, and
-            # then passes the value to a Continuation specific action.
-            # @param [Object] value
-            def kontinue(value)
-                @terp.restore(self)
-                continue(value)
-            end
-
             def has_tag?(tag)
                 false
             end
