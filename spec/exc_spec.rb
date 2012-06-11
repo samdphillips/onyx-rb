@@ -1,0 +1,21 @@
+
+require 'onyx'
+require 'spec_helper'
+
+RSpec::configure do |config|
+    config.include(OnyxRSpecMatchers)
+end
+
+describe Onyx::Interpreter do
+    subject { Onyx::Interpreter.boot }
+
+    it "exceptions: nothing signalled returns value of protected block" do
+        should interpret('[ 42 ] on: Exception do: [:exc | 43 ]', 42)
+    end
+
+    it "exceptions: signalling an exception should run the exception block" do
+        should interpret('[ Exception signal. 42 ] on: Exception do: [:exc | 43 ]', 43)
+    end
+
+end
+
