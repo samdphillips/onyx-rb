@@ -84,6 +84,15 @@ module Onyx
         def [](i)
             @frames[i]
         end
+
+        def trace
+            (0..@top).each do | i |
+                puts self[i]
+                self[i].marks.each do |k,v|
+                    puts "    #{k} => #{v}"
+                end
+            end
+        end
     end
 
     module Frames

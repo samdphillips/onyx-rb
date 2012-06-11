@@ -52,6 +52,11 @@ module Onyx
             done(val)
         end
 
+        def prim_objectStackTrace(r)
+            @stack.trace
+            done(r)
+        end
+
         def prim_objectAbort_(rcvr, tag)
             prompt_frame = @stack.find_prompt(tag)
             abort_handler = @stack[prompt_frame].abort_handler
