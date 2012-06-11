@@ -47,6 +47,11 @@ module Onyx
             do_block(rcvr, [])
         end
 
+        def prim_objectDebug(val)
+            puts val.inspect
+            done(val)
+        end
+
         def prim_objectAbort_(rcvr, tag)
             prompt_frame = @stack.find_prompt(tag)
             abort_handler = @stack[prompt_frame].abort_handler
