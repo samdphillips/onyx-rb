@@ -17,5 +17,15 @@ describe Onyx::Interpreter do
         should interpret('[ Exception signal. 42 ] on: Exception do: [:exc | 43 ]', 43)
     end
 
+    it "exceptions: passing on an exception should run the outer handler" do
+        should interpret('
+                   [ 
+                       [ Exception signal. 40 ] 
+                           on: Exception 
+                           do: [:exc | exc pass. 41 ]
+                   ] on: Exception do: [ :exc | 42 ]
+                   ', 42)
+    end
+
 end
 
