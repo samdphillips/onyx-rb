@@ -11,12 +11,12 @@ describe Onyx::Interpreter do
 
     it "continuation marks: multiple marked values should be returned as an Array" do
         should interpret('
-            p := #foo.
+            p := PromptTag new.
             m := ContinuationMark new.
             [
                 [
                     [
-                        [ (m marks: p) abort: p ] withMark: m value: 1.
+                        [ p abort: (m marks: p) ] withMark: m value: 1.
                         #foo
                     ] withMark: m value: 2.
                     #foo 

@@ -84,6 +84,15 @@ module Onyx
         def [](i)
             @frames[i]
         end
+
+        def trace
+            (0..@top).each do | i |
+                puts self[i]
+                self[i].marks.each do |k,v|
+                    puts "    #{k} => #{v}"
+                end
+            end
+        end
     end
 
     module Frames
@@ -118,14 +127,6 @@ module Onyx
 
             def pretty_print_instance_variables
                 [:@env, :@rcvr, :@retk, :@marks]
-            end
-
-            # Restores saved values in the Continuation into the Interpreter, and
-            # then passes the value to a Continuation specific action.
-            # @param [Object] value
-            def kontinue(value)
-                @terp.restore(self)
-                continue(value)
             end
 
             def has_tag?(tag)

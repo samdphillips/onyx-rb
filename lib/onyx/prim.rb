@@ -34,6 +34,10 @@ module Onyx
             done(cls.new_instance)
         end
 
+        def prim_classSuperclass(cls)
+            done(cls.super)
+        end
+
         def prim_blockValue(rcvr)
             do_block(rcvr)
         end
@@ -52,10 +56,21 @@ module Onyx
             do_block(rcvr, [])
         end
 
+        def prim_objectDebug(val)
+            puts val.inspect
+            done(val)
+        end
+
+        def prim_objectStackTrace(r)
+            @stack.trace
+            done(r)
+        end
+
         def prim_objectAbort_(rcvr, tag)
             prompt_frame = @stack.find_prompt(tag)
             abort_handler = @stack[prompt_frame].abort_handler
-            @stack.top = prompt_frame - 1
+            @stack.top = prompt_frame
+            continue(nil)
             do_block(abort_handler, [rcvr])
         end
 
@@ -120,6 +135,10 @@ module Onyx
 
         def prim_characterCodePoint(rcvr)
             done(rcvr.code_point)
+        end
+
+        def prim_objectClass(rcvr)
+            done(rcvr.onyx_class(self))
         end
 
         def prim_stringSize(rcvr)
