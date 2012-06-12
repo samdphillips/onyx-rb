@@ -25,5 +25,9 @@ describe Onyx::Interpreter do
             ', [1,2,3])
     end
 
+    it "continuation marks: aborts should restore correct marks" do
+       should interpret_script('spec/ost/cmark2.ost', ['last'])
+    end
+
 end
 

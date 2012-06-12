@@ -1,0 +1,40 @@
+
+Object subclass: CMTest [
+    | mark prompt1 prompt2 |
+
+    start [
+        mark    := ContinuationMark new.
+        prompt1 := PromptTag new.
+        prompt2 := PromptTag new.
+        [ self last ] withPrompt: prompt1
+    ]
+
+    last [
+        [ self report.  self between ] withMark: mark value: 'last'
+    ]
+
+    between [
+        [ self first ] 
+            withPrompt: prompt2
+            abort: [:v | mark marks: prompt1 ]
+    ]
+
+    first [
+        [ self finish ] withMark: mark value: 'first'
+    ]
+
+    finish [
+        self report.
+        prompt2 abort.
+    ]
+
+    report [
+        "'------' debug.
+        (mark marks: prompt1) debug.
+        self stackTrace."
+        nil
+    ]
+]
+
+CMTest new start
+

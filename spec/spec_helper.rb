@@ -80,6 +80,13 @@ RSpec::Matchers.define(:interpret) do | input, val |
     end
 end
 
+RSpec::Matchers.define(:interpret_script) do | file_name, val |
+    match do | terp |
+        node = Onyx::Parser.parse_file(file_name)
+        terp.eval(node).eql? val
+    end
+end
+
 # RSpec::Matchers.define(:lex) do | input |
 #     match do | lexer |
 #         lexer.io = StringIO.new(input)
