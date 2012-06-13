@@ -29,5 +29,9 @@ describe Onyx::Interpreter do
        should interpret_script('spec/ost/cmark2.ost', ['last'])
     end
 
+    it "ifCurtailed: block should be run if an exception is signalled" do
+       should interpret_script('spec/ost/curtailed1.ost', 42)
+    end
+
 end
 
