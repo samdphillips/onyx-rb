@@ -63,6 +63,7 @@ module Onyx
 
         def prim_objectStackTrace(r)
             @stack.trace
+            puts
             done(r)
         end
 
