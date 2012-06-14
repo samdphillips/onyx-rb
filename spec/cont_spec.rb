@@ -33,5 +33,9 @@ describe Onyx::Interpreter do
        should interpret_script('spec/ost/curtailed1.ost', 42)
     end
 
+    it "ifCurtailed: all blocks should be run ifCurtailed" do
+       should interpret_script('spec/ost/curtailed2.ost', 43)
+    end
+
 end
 

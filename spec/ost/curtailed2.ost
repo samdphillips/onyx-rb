@@ -1,0 +1,17 @@
+
+CheckedValue := 41.
+
+Object subclass: TestCurtailed [
+
+    foo [
+        [ self bar ] ifCurtailed: [ CheckedValue := CheckedValue + 1 ]
+    ]
+
+    bar [
+        [ Exception signal ] ifCurtailed: [ CheckedValue := CheckedValue + 1 ]
+    ]
+]
+
+[ TestCurtailed new foo ] on: Exception do: [:ex | nil ].
+CheckedValue 
+
