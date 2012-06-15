@@ -57,7 +57,7 @@ module Onyx
         end
 
         def prim_objectDebug(val)
-            puts val.inspect
+            pp(val)
             done(val)
         end
 
