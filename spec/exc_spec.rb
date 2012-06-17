@@ -27,5 +27,9 @@ describe Onyx::Interpreter do
                    ', 42)
     end
 
+    it "exceptions: resuming jumps back into protected block" do
+        should interpret_script('spec/ost/exc_resume1.ost', 42)
+    end
+
 end
 

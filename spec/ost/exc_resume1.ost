@@ -1,0 +1,14 @@
+
+Object subclass: TestResume [
+
+    start [
+        [ self foo + 40 ] on: Exception do: [:e | e resume: 2 ]
+    ]
+
+    foo [
+        Exception signal
+    ]
+
+]
+
+TestResume new start
