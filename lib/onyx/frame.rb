@@ -87,9 +87,9 @@ module Onyx
 
         def trace
             (0..@top).each do | i |
-                puts self[i]
+                puts "[#{i}] #{self[i]}"
                 self[i].marks.each do |k,v|
-                    puts "    #{k} => #{v}"
+                    puts "\t#{k} => #{v}"
                 end
             end
         end

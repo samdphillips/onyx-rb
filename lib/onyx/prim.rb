@@ -38,6 +38,10 @@ module Onyx
             done(cls.super)
         end
 
+        def prim_className(cls)
+            done(cls.name)
+        end
+
         def prim_blockValue(rcvr)
             do_block(rcvr)
         end
