@@ -1,0 +1,17 @@
+
+Object subclass: TestMNU [
+
+    start [
+        [ self foo ]
+            on: MessageNotUnderstood
+            do: [:exc | true ]
+    ]
+
+    doesNotUnderstand: aMessage [
+        super doesNotUnderstand: aMessage
+    ]
+
+]
+
+TestMNU new start
+

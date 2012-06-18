@@ -31,5 +31,9 @@ describe Onyx::Interpreter do
         should interpret_script('spec/ost/exc_resume1.ost', 42)
     end
 
+    it "exceptions: method lookups cause MessageNotUnderstood" do
+        should interpret_script('spec/ost/exc_mnu.ost', true)
+    end
+
 end
 

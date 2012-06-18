@@ -271,13 +271,19 @@ module Onyx
         end
 
         def do_send(selector, rcvr, args)
-            cls = rcvr.onyx_class(self)
+            rcls = rcvr.onyx_class(self)
             if rcvr.class == Super then
                 rcvr = rcvr.rcvr
             end
-            cls, meth = cls.lookup_method(self, selector, rcvr.oclass?)
+            cls, meth = rcls.lookup_method(self, selector, rcvr.oclass?)
             if cls.nil? then
-                raise "DNU: #{rcvr} #{selector} [#{args.join(', ')}]"
+                # raise "DNU: #{rcvr} #{selector} [#{args.join(', ')}]"
+                cls, meth = rcls.lookup_method(self, :'doesNotUnderstand:', rcvr.oclass?)
+                if cls.nil? then
+                    raise "DNU: #{rcvr} #{selector} [#{args.join(', ')}]"
+                end
+
+                args = make_dnu_args(selector, args)
             end
 
             if @debug then
@@ -289,6 +295,13 @@ module Onyx
             @rcvr = rcvr
             @retp = @stack.top
             doing(meth.stmts)
+        end
+
+        def make_dnu_args(selector, args)
+            msg = OObject.new(@globals.lookup(:Message).value, 2)
+            msg.lookup(:selector).assign(selector)
+            msg.lookup(:arguments).assign(args)
+            [msg]
         end
 
         def do_block(blk, args=[])
