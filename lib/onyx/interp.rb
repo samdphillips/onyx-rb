@@ -52,10 +52,11 @@ module Onyx
             terp = self.new
             node = Parser.parse_file('system.ost')
             terp.eval(node)
+            terp.booted = true
             terp
         end
 
-        attr_accessor :debug
+        attr_accessor :debug, :booted 
         attr_reader   :globals, :env, :rcvr, :retk, :tramp, :stack
 
         def initialize
@@ -67,6 +68,7 @@ module Onyx
             @tramp   = nil
             @marks   = {}
             @debug   = false
+            @booted  = false
         end
 
         def pretty_print_instance_variables
@@ -99,6 +101,16 @@ module Onyx
         end
 
         def eval(node, stepping=false)
+
+            # if we have a minimal system booted then run code under an exception handler
+            if booted then
+                m = @globals.lookup(:ExceptionHandlerMark).value
+                h_cls = @globals.lookup(:PrimExceptionHandler).value
+                h = OObject.new(h_cls, 0)
+                @marks[m] = h
+                push_kprompt(nil, nil)
+            end
+            
             self.doing(node)
             unless stepping then
                 run

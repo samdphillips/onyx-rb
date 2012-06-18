@@ -1,5 +1,13 @@
 
 module Onyx
+    class OnyxError < Exception
+        def initialize(exc)
+            m = "an Exception (#{exc.onyx_class(nil).name.to_s}) was not caught in onyx"
+            super(m)
+            @exc = exc
+        end
+    end
+
     module Primitives
         def prim_addSmallInt_(a, b)
             done(a + b)
@@ -54,7 +62,6 @@ module Onyx
             do_block(rcvr, [a, b])
         end
 
-
         def prim_blockWithPrompt_abort_(rcvr, tag, abort_handler)
             push_kprompt(tag, abort_handler)
             do_block(rcvr, [])
@@ -77,6 +84,10 @@ module Onyx
             @stack.top = prompt_frame
             continue(nil)
             do_block(abort_handler, [rcvr])
+        end
+
+        def prim_systemIsBroken_(rcvr, exc)
+            raise OnyxError, exc
         end
 
         def prim_blockWithCont_(rcvr, tag)
