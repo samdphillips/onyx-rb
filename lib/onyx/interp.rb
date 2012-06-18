@@ -106,8 +106,9 @@ module Onyx
             if booted then
                 m = @globals.lookup(:ExceptionHandlerMark).value
                 h_cls = @globals.lookup(:PrimExceptionHandler).value
-                h = OObject.new(h_cls, 0)
+                h = h_cls.new_instance
                 @marks[m] = h
+                # this prompt is just to hold the handler mark
                 push_kprompt(nil, nil)
             end
             
