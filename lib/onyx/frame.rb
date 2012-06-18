@@ -88,8 +88,12 @@ module Onyx
         def trace
             (0..@top).each do | i |
                 puts "[#{i}] #{self[i]}"
+                n = self[i].trace_info
+                if n.size > 0 then
+                    puts n
+                end
                 self[i].marks.each do |k,v|
-                    puts "\t#{k} => #{v}"
+                    puts "\tmark: #{k} => #{v}"
                 end
             end
         end
@@ -141,6 +145,9 @@ module Onyx
                 @marks[mark]
             end
 
+            def trace_info
+                ""
+            end
         end
 
         class SeqFrame < Frame
@@ -326,6 +333,10 @@ module Onyx
 
             def has_tag?(tag)
                 tag == @tag
+            end
+
+            def trace_info
+                "\ttag = #{@tag}"
             end
         end
 
