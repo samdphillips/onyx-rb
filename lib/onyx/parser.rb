@@ -12,8 +12,6 @@ module Onyx
     end
 
     class Parser
-        attr_reader :cur_tok, :globals, :scope
-
         def self.parse_file(file_name)
             f = File.open(file_name)
             begin
