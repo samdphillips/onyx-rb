@@ -29,5 +29,8 @@ describe Onyx::Interpreter do
         should interpret_script('spec/ost/exc_mnu.ost', true)
     end
 
+    it "exceptions: isNested works" do
+        should interpret_script('spec/ost/exc_isNested.ost', [true, false])
+    end
 end
 
