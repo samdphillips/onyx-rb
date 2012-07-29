@@ -18,13 +18,7 @@ describe Onyx::Interpreter do
     end
 
     it "exceptions: passing on an exception should run the outer handler" do
-        should interpret('
-                   [ 
-                       [ Exception signal. 40 ] 
-                           on: Exception 
-                           do: [:exc | exc pass. 41 ]
-                   ] on: Exception do: [ :exc | 42 ]
-                   ', 42)
+        should interpret_script('spec/ost/exc_pass.ost', 42)
     end
 
     it "exceptions: resuming jumps back into protected block" do

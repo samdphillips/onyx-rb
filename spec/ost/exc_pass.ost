@@ -1,0 +1,18 @@
+
+Object subclass: ExcPass [
+    start [
+        [ self next ] 
+            on: Exception
+            do: [:exc | 42 ]
+    ]
+
+    next [
+        [ Exception signal. 40 ]
+            on: Exception
+            do: [:exc | exc pass. 41 ]
+    ]
+
+]
+
+ExcPass new start
+
