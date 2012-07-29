@@ -1,6 +1,8 @@
 
 module Onyx
     class OnyxError < Exception
+        attr_reader :exc
+
         def initialize(exc)
             m = "an Exception (#{exc.onyx_class(nil).name.to_s}) was not caught in onyx"
             super(m)
