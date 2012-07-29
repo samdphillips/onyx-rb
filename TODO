@@ -1,5 +1,9 @@
 
-* Stack unwinding
 * Class instance variables
-* implement exceptions
+ - currently using globals, which work but expose the values
+   to the whole system.
+* finish implementing exceptions
+ - test: signal, pass, resume
+ - test: signal, pass, resume, signal
+ - test: signal, outer
 
