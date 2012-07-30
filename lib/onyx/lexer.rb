@@ -162,6 +162,9 @@ module Onyx
             step
             if [:id, :binsel, :string].include?(cur_type) then
                 scan_symbol
+            elsif cur_type == :lpar then
+                step
+                Token.new(:lparray, '#(')
             else
                 scan_error
             end
