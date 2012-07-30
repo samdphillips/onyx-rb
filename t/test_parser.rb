@@ -46,6 +46,18 @@ class TestParser < Test::Unit::TestCase
         assert_instance_of(RefNode, t)
     end
 
+    def test_parse_literal_array
+        p = parser_string("#(1 $c 'string' #symbol)")
+        t = p.parse_expr
+        assert_instance_of(ConstNode, t)
+        assert_equal(t.value.size, 4)
+        assert_equal(t.value[0], 1)
+        assert_instance_of(Char, t.value[1])
+        assert_equal(t.value[1].code_point, ?c)
+        assert_equal(t.value[2], 'string')
+        assert_equal(t.value[3], :symbol)
+    end
+
     def test_parse_nested
         p = parser_string('(x + y)')
         t = p.parse_expr

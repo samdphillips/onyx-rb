@@ -318,7 +318,7 @@ module Onyx
         end
 
         def parse_expr
-            if cur_tok.one_of [:lpar, :string, :int, :symbol, :character, :lsq] then
+            if cur_tok.one_of [:lpar, :lparray, :string, :int, :symbol, :character, :lsq] then
                 parse_message
             elsif cur_tok.id? then
                 parse_maybe_assign
@@ -398,6 +398,8 @@ module Onyx
                 end
             elsif cur_tok.lpar? then
                 parse_nested_expr
+            elsif cur_tok.lparray? then
+                parse_litarray
             elsif cur_tok.lsq? then
                 parse_block
             else
@@ -407,6 +409,23 @@ module Onyx
 
         def const_value
             { :true => true, :false => false, :nil => nil }
+        end
+
+        def parse_litarray
+            expect(:lparray)
+            arr = []
+            while cur_tok.one_of([:string, :int, :symbol, :character]) do
+                v = cur_tok.value
+
+                if cur_tok.type == :character then
+                    v = Char.code_point(v)
+                end
+
+                arr << v
+                step
+            end
+            expect(:rpar)
+            ConstNode.new(arr)
         end
 
         def parse_block
