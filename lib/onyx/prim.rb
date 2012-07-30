@@ -102,7 +102,7 @@ module Onyx
             do_block(rcvr, [])
         end
 
-        def prim_continuationApply_(cont, block)
+        def prim_continuationDo_(cont, block)
             frames = cont.lookup(:frames).value
             add_continuation(frames)
             do_block(block, [])
