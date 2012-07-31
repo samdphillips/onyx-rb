@@ -1,6 +1,6 @@
 
 class Object
-    def oclass?
+    def onyx_class?
         false
     end
 
@@ -54,3 +54,4 @@ class Symbol
         terp.globals[:Symbol]
     end
 end
+

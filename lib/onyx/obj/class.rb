@@ -16,7 +16,7 @@ module Onyx
             ["@name", "@super"]
         end
 
-        def oclass?
+        def onyx_class?
             true
         end
 

@@ -276,10 +276,10 @@ module Onyx
             if rcvr.class == Super then
                 rcvr = rcvr.rcvr
             end
-            cls, meth = rcls.lookup_method(self, selector, rcvr.oclass?)
+            cls, meth = rcls.lookup_method(self, selector, rcvr.onyx_class?)
             if cls.nil? then
                 # raise "DNU: #{rcvr} #{selector} [#{args.join(', ')}]"
-                cls, meth = rcls.lookup_method(self, :'doesNotUnderstand:', rcvr.oclass?)
+                cls, meth = rcls.lookup_method(self, :'doesNotUnderstand:', rcvr.onyx_class?)
                 if cls.nil? then
                     raise "DNU: #{rcvr} #{selector} [#{args.join(', ')}]"
                 end
