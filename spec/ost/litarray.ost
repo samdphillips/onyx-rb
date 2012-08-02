@@ -1,0 +1,15 @@
+
+Object subclass: Foo [
+    foo [ 
+        #(1 2 3 4)
+    ]
+]
+
+f := Foo new.
+pass := false.
+
+[ f foo at: 0 put: 2 ]
+    on: ImmutableCollectionError
+    do: [ pass := true ].
+
+pass

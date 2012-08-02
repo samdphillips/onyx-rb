@@ -135,8 +135,12 @@ module Onyx
         end
 
         def prim_arrayAt_put_(rcvr, i, j)
-            rcvr[i] = j
-            done(j)
+            if rcvr.onyx_immutable? then
+                do_send(:immutableError, rcvr, [])
+            else
+                rcvr[i] = j
+                done(j)
+            end
         end
 
         def prim_arrayAt_(rcvr, i)

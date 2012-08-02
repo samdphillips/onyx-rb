@@ -53,5 +53,9 @@ describe Onyx::Interpreter do
             c inject: 0 into: [:a :b | a + b ]', 15)
     end
 
+    it "litarray: literal arrays are immutable" do
+        should interpret_script('spec/ost/litarray.ost', true)
+    end
+
 end
 

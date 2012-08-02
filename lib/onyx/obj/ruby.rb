@@ -4,6 +4,14 @@ class Object
         false
     end
 
+    def onyx_immutable?
+        not @onyx_immutable.nil? and @onyx_immutable
+    end
+
+    def onyx_immutable!
+        @onyx_immutable = true
+    end
+
     def include_ivar?(var)
         false
     end

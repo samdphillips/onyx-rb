@@ -54,6 +54,7 @@ module Onyx
         attr_reader :value
 
         def initialize(value)
+            value.onyx_immutable!
             @value = value
         end
 
