@@ -3,10 +3,11 @@ module Onyx
     class OnyxError < Exception
         attr_reader :exc
 
-        def initialize(exc)
-            m = "an Exception (#{exc.onyx_class(nil).name.to_s}) was not caught in onyx"
+        def initialize(exc, msg)
+            m = "an Exception (#{exc.onyx_class(nil).name.to_s}) was not caught in onyx: #{msg}"
             super(m)
             @exc = exc
+            @msg = msg
         end
     end
 
@@ -88,8 +89,8 @@ module Onyx
             do_block(abort_handler, [rcvr])
         end
 
-        def prim_systemIsBroken_(rcvr, exc)
-            raise OnyxError, exc
+        def prim_systemIsBroken_(rcvr, msg)
+            raise OnyxError.new(rcvr, msg)
         end
 
         def prim_blockWithCont_(rcvr, tag)
