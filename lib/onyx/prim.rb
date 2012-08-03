@@ -172,6 +172,15 @@ module Onyx
             done(Char.code_point(rcvr[i]))
         end
 
+        def prim_stringAt_put_(rcvr, i, j)
+            if rcvr.onyx_immutable? then
+                do_send(:immutableError, rcvr, [])
+            else
+                rcvr[i] = j.code_point
+                done(j)
+            end
+        end
+
         def prim_stringConcat_(rcvr, string)
             done(rcvr + string)
         end

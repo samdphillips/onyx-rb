@@ -57,5 +57,9 @@ describe Onyx::Interpreter do
         should interpret_script('spec/ost/litarray.ost', true)
     end
 
+    it "litstring: literal strings are immutable" do
+        should interpret_script('spec/ost/litstring.ost', true)
+    end
+
 end
 
