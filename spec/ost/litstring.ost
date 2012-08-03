@@ -1,0 +1,15 @@
+
+Object subclass: Foo [
+    foo [ 
+        'abc123'
+    ]
+]
+
+f := Foo new.
+pass := false.
+
+[ f foo at: 0 put: $b ]
+    on: ImmutableCollectionError
+    do: [ pass := true ].
+
+pass
