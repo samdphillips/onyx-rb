@@ -66,6 +66,8 @@ module Onyx
             @char_table[?^] = :caret
             @char_table[?(] = :lpar
             @char_table[?)] = :rpar
+            @char_table[?{] = :lcurl
+            @char_table[?}] = :rcurl
             @char_table[?[] = :lsq
             @char_table[?]] = :rsq
             @char_table[?.] = :dot
@@ -137,7 +139,7 @@ module Onyx
             tok
         end
 
-        char_scanners :caret, :lpar, :rpar, :lsq, :rsq, :dot, :semi
+        char_scanners :caret, :lpar, :rpar, :lcurl, :rcurl, :lsq, :rsq, :dot, :semi
 
         def scan_space
             while cur_type == :space do

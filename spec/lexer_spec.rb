@@ -40,5 +40,6 @@ describe Onyx::Lexer do
     it { should lex('( )').to_tokens(:lpar, :rpar) }
 
     it { should lex('#( )').to_tokens(:lparray, :rpar) }
+    it { should lex('{  }').to_tokens(:lcurl, :rcurl) }
 end
 
