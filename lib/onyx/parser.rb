@@ -39,7 +39,7 @@ module Onyx
         end
 
         def step
-            if @stack == [] then
+            if @stack.empty? then
                 @cur_tok = @lex.next
             else
                 @stack.shift
@@ -47,7 +47,7 @@ module Onyx
         end
 
         def cur_tok
-            if @stack == [] then
+            if @stack.empty? then
                 @cur_tok
             else
                 @stack[0]
