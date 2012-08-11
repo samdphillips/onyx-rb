@@ -3,11 +3,13 @@ require 'stringio'
 
 module Onyx
     class ParseError < Exception
-        attr_reader :message
-
         def initialize(parser, message='')
             @parser = parser
             @message = message
+        end
+
+        def message
+            "#{@message}, at \"#{@parser.cur_tok.value}\""
         end
     end
 
