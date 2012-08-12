@@ -156,7 +156,9 @@ class TestParser < Test::Unit::TestCase
 
         assert_instance_of(ClassNode, t)
         assert_equal(t.name, :Object)
-        assert_instance_of(ConstNode, t.trait_expr)
+        assert_instance_of(TraitRemoveNode, t.trait_expr)
+        assert_instance_of(RefNode, t.trait_expr.trait)
+        assert_equal(:TA, t.trait_expr.trait.var)
 
         assert_equal(2, t.meths.size)
         assert_instance_of(MethodNode, t.meths[0])
@@ -178,6 +180,132 @@ class TestParser < Test::Unit::TestCase
         assert_instance_of(TraitNode, t)
         assert_instance_of(Symbol, t.meths[0].stmts.nodes[0].var)
         assert_instance_of(Symbol, t.meths[1].stmts.nodes[0].rcvr.var)
+    end
+
+    def test_parse_trait_expr_id
+        p = parser_string('TA')
+        t = p.parse_trait_expr
+        assert_instance_of(RefNode, t)
+    end
+
+    def test_parse_trait_expr_add
+        p = parser_string('TA + TB')
+        t = p.parse_trait_expr
+        assert_instance_of(TraitUnionNode, t)
+    end
+
+    def test_parse_trait_expr_add3
+        p = parser_string('TA + TB + TC')
+        t = p.parse_trait_expr
+        assert_instance_of(TraitUnionNode, t)
+        assert_instance_of(TraitUnionNode, t.left)
+        assert_instance_of(RefNode, t.right)
+    end
+
+    def test_parse_trait_expr_union
+        p = parser_string('{ TA. TB }')
+        t = p.parse_trait_expr
+        assert_instance_of(TraitUnionNode, t)
+    end
+
+    def test_parse_trait_empty
+        p = parser_string('{  }')
+        t = p.parse_trait_expr
+        assert(t.nil?)
+    end
+
+    def test_parse_trait_expr_union3
+        p = parser_string('{ TA. TB. TC }')
+        t = p.parse_trait_expr
+        assert_instance_of(TraitUnionNode, t)
+        assert_instance_of(TraitUnionNode, t.left)
+        assert_instance_of(RefNode, t.right)
+    end
+
+    def test_parse_trait_expr_union_end_dot
+        p = parser_string('{ TA. TB. }')
+        t = p.parse_trait_expr
+        assert_instance_of(TraitUnionNode, t)
+    end
+
+    def test_parse_trait_expr_union_end3_dot
+        p = parser_string('{ TA. TB. TC. }')
+        t = p.parse_trait_expr
+        assert_instance_of(TraitUnionNode, t)
+        assert_instance_of(TraitUnionNode, t.left)
+        assert_instance_of(RefNode, t.right)
+    end
+
+    def test_parse_trait_rename0
+        p = parser_string('TA @ { }')
+        t = p.parse_trait_expr
+        assert_instance_of(TraitRenameNode, t)
+        assert_instance_of(RefNode, t.trait)
+        assert_equal(t.renames.size, 0)
+    end
+
+    def test_parse_trait_rename1
+        p = parser_string('TA @ { #a -> #b }')
+        t = p.parse_trait_expr
+        assert_instance_of(TraitRenameNode, t)
+        assert_equal(t.renames.size, 1)
+    end
+
+    def test_parse_trait_rename2
+        p = parser_string('TA @ { #a -> #b. #c -> #d }')
+        t = p.parse_trait_expr
+        assert_instance_of(TraitRenameNode, t)
+        assert_equal(t.renames.size, 2)
+    end
+
+    def test_parse_trait_rename1_end_dot
+        p = parser_string('TA @ { #a -> #b. }')
+        t = p.parse_trait_expr
+        assert_instance_of(TraitRenameNode, t)
+        assert_equal(t.renames.size, 1)
+    end
+
+    def test_parse_trait_rename2_end_dot
+        p = parser_string('TA @ { #a -> #b. #c -> #d. }')
+        t = p.parse_trait_expr
+        assert_instance_of(TraitRenameNode, t)
+        assert_equal(t.renames.size, 2)
+    end
+
+    def test_parse_trait_remove0
+        p = parser_string('TA - { }')
+        t = p.parse_trait_expr
+        assert_instance_of(TraitRemoveNode, t)
+        assert_instance_of(RefNode, t.trait)
+        assert_equal(t.removes.size, 0)
+    end
+
+    def test_parse_trait_remove1
+        p = parser_string('TA - { #a }')
+        t = p.parse_trait_expr
+        assert_instance_of(TraitRemoveNode, t)
+        assert_equal(t.removes.size, 1)
+    end
+
+    def test_parse_trait_remove2
+        p = parser_string('TA - { #a. #c }')
+        t = p.parse_trait_expr
+        assert_instance_of(TraitRemoveNode, t)
+        assert_equal(t.removes.size, 2)
+    end
+
+    def test_parse_trait_remove1_end_dot
+        p = parser_string('TA - { #a. }')
+        t = p.parse_trait_expr
+        assert_instance_of(TraitRemoveNode, t)
+        assert_equal(t.removes.size, 1)
+    end
+
+    def test_parse_trait_remove2_end_dot
+        p = parser_string('TA - { #a. #c. }')
+        t = p.parse_trait_expr
+        assert_instance_of(TraitRemoveNode, t)
+        assert_equal(t.removes.size, 2)
     end
 
     def test_parse_extension

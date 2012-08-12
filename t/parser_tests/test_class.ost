@@ -4,7 +4,7 @@
 nil subclass: Object [
     | some vars |
 
-    Object uses: nil.
+    Object uses: TA - { #gar. #foo }.
 
     Object class [
         | blab |

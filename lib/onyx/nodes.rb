@@ -272,4 +272,31 @@ module Onyx
             @meths.push(*meta_node.meths)
         end
     end
+
+    class TraitUnionNode < ParseNode
+        attr_reader :left, :right
+
+        def initialize(left, right)
+            @left  = left
+            @right = right
+        end
+    end
+
+    class TraitRenameNode < ParseNode
+        attr_reader :trait, :renames
+
+        def initialize(trait, renames)
+            @trait = trait
+            @renames = renames
+        end
+    end
+
+    class TraitRemoveNode < ParseNode
+        attr_reader :trait, :removes
+
+        def initialize(trait, removes)
+            @trait = trait
+            @removes = removes
+        end
+    end
 end

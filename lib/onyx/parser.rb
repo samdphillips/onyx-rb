@@ -163,9 +163,117 @@ module Onyx
         end
 
         def parse_trait_clause
-            t = parse_expr
+            t = parse_trait_expr
             expect(:dot)
             t
+        end
+
+        def parse_trait_expr
+            trait_node = parse_tprime
+
+            while true do
+                if cur_tok.value == :'+' then
+                    step
+                    trait_node = TraitUnionNode.new(trait_node, parse_tprime)
+                elsif cur_tok.value == :'@' then
+                    step
+                    trait_node = TraitRenameNode.new(trait_node, parse_trait_renames)
+                elsif cur_tok.value == :'-' then
+                    step
+                    trait_node = TraitRemoveNode.new(trait_node, parse_trait_removes)
+                else
+                    break
+                end
+            end
+            trait_node
+        end
+
+        def parse_tprime
+            if cur_tok.id? then
+                if cur_tok.value == :nil then
+                    node = ConstNode.new(nil)
+                else
+                    node = RefNode.new(cur_tok.value)
+                end
+                step
+            elsif cur_tok.lcurl? then
+                step
+                node = parse_texpr_list
+            else
+                parse_error('expect id or "{"')
+            end
+            node
+        end
+
+        def parse_texpr_list
+            trait_node = nil
+
+            if cur_tok.id? then
+                trait_node = parse_trait_expr
+                while cur_tok.dot? do
+                    step
+                    if cur_tok.rcurl? then
+                        break
+                    end
+                    trait_node = TraitUnionNode.new(trait_node, parse_trait_expr)
+                end
+            end
+            expect(:rcurl)
+            trait_node
+        end
+
+        def parse_trait_renames
+            renames = []
+            expect(:lcurl)
+            if cur_tok.symbol? then
+                renames << parse_trait_rename
+                while cur_tok.dot? do
+                    step
+                    if cur_tok.rcurl? then
+                        break
+                    end
+                    renames << parse_trait_rename
+                end
+            end
+            expect(:rcurl)
+            renames
+        end
+
+        def parse_trait_rename
+            if not cur_tok.symbol? then
+                parse_error('expected symbol')
+            end
+
+            a = cur_tok.value
+            step
+            expect(:binsel, :'->')
+            
+            if not cur_tok.symbol? then
+                parse_error('expected symbol')
+            end
+
+            b = cur_tok.value
+            step
+            [a,b]
+        end
+
+        def parse_trait_removes
+            removes = []
+            expect(:lcurl)
+            if cur_tok.symbol? then
+                removes << cur_tok
+                step
+                while cur_tok.dot? do
+                    step
+                    if cur_tok.rcurl? then
+                        break
+                    end
+                    removes << cur_tok
+                    step
+                end
+            end
+            expect(:rcurl)
+            removes
         end
 
         def parse_decl_body(node_class, *inits)
