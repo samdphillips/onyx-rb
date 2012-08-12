@@ -9,7 +9,7 @@ module Onyx
         end
 
         def message
-            "#{@message}, at \"#{@parser.cur_tok.value}\""
+            "#{@message}, at \"#{@parser.cur_tok.value}\" (#{@parser.cur_tok.type})"
         end
     end
 
