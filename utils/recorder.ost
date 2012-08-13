@@ -1,0 +1,28 @@
+
+Object subclass: Recorder [
+    | messages |
+
+    initialize [
+        messages := OrderedCollection new
+    ]
+
+    doesNotUnderstand: aMessage [
+        messages add: aMessage
+    ]
+
+    messages [
+        messages
+    ]
+
+    selectors [
+        messages collect: [:m | m selector ]
+    ]
+]
+
+rec := Recorder new
+           initialize;
+           yourself.
+
+rec doStuff.
+rec selectors asArray debug
+
