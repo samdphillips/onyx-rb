@@ -55,7 +55,6 @@ module Onyx
             terp
         end
 
-        attr_accessor :debug
         attr_reader   :globals, :env, :rcvr, :retk, :tramp, :stack
 
         def initialize
@@ -66,7 +65,6 @@ module Onyx
             @rcvr    = nil
             @tramp   = nil
             @marks   = {}
-            @debug   = false
         end
 
         def pretty_print_instance_variables
@@ -126,11 +124,8 @@ module Onyx
 
         def run
             @halt = false
-            pp(self) if @debug
             until halted? do
                 step
-                puts     if @debug
-                pp(self) if @debug
             end
         end
 
@@ -274,11 +269,6 @@ module Onyx
                 args = make_dnu_args(selector, args)
             end
 
-            if @debug then
-                puts
-                puts "SEND #{selector}" if @debug
-            end
-            
             @env  = Env.from_method(meth, args, rcvr, cls)
             @rcvr = rcvr
             @retp = @stack.top
