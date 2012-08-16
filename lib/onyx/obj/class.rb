@@ -1,13 +1,14 @@
 
 module Onyx
     class OClass
-        attr_reader :name, :super, :ivars, :cvars, :mdict, :cmdict
+        attr_reader :name, :super, :ivars, :cvars, :trait, :mdict, :cmdict
 
-        def initialize(name, super_cls, ivars, cvars, mdict, cmdict)
+        def initialize(name, super_cls, ivars, cvars, trait, mdict, cmdict)
             @name   = name
             @super  = super_cls
             @ivars  = ivars
             @cvars  = cvars
+            @trait  = trait
             @mdict  = mdict
             @cmdict = cmdict
         end
@@ -43,23 +44,35 @@ module Onyx
             all_ivars.index(var)
         end
 
+        def instance_lookup_method(terp, selector)
+            if mdict.include? selector then
+                [self, mdict[selector]]
+            elsif @trait.include? selector then
+                [self, @trait[selector]]
+            elsif @super.nil? then
+                nil
+            else
+                @super.instance_lookup_method(terp, selector)
+            end
+        end
+
+        def class_lookup_method(terp, selector)
+            if cmdict.include? selector then
+                [self, cmdict[selector]]
+            elsif @trait.cls.include? selector then
+                [self, @trait.cls[selector]]
+            elsif @super.nil? then
+                terp.globals[:Class].instance_lookup_method(terp, selector)
+            else
+                @super.class_lookup_method(terp, selector)
+            end
+        end
+
         def lookup_method(terp, selector, cls)
             if cls then
-                d = cmdict
+                class_lookup_method(terp, selector)
             else
-                d = mdict
-            end
-
-            if d.include?(selector) then
-                [self, d[selector]]
-            elsif @super.nil? then
-                if cls then
-                    terp.globals[:Class].lookup_method(terp, selector, false)
-                else
-                    nil
-                end
-            else
-                @super.lookup_method(terp, selector, cls)
+                instance_lookup_method(terp, selector)
             end
         end
     end

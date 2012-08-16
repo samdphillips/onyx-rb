@@ -1,0 +1,29 @@
+
+
+Trait named: Foo [
+    Foo class [
+        test [
+            self new test debug
+        ]
+    ]
+
+    test [
+        'foo ', self foo
+    ]
+]
+
+Object subclass: Bar [
+    Bar uses: Foo.
+
+    foo [ 'barfoo' ]
+]
+
+Object subclass: Baz [
+    Baz uses: Foo.
+
+    foo [ 'bazfoo' ]
+]
+
+Bar test.
+Baz test.
+

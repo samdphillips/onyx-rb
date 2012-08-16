@@ -211,7 +211,7 @@ class TestParser < Test::Unit::TestCase
     def test_parse_trait_empty
         p = parser_string('{  }')
         t = p.parse_trait_expr
-        assert(t.nil?)
+        assert_instance_of(NullTrait, t)
     end
 
     def test_parse_trait_expr_union3

@@ -58,13 +58,14 @@ module Onyx
         attr_reader   :globals, :env, :rcvr, :retk, :tramp, :stack
 
         def initialize
-            @globals = GEnv.new
-            @env     = Env.new
-            @stack   = Stack.new
-            @retp    = nil
-            @rcvr    = nil
-            @tramp   = nil
-            @marks   = {}
+            @globals    = GEnv.new
+            @env        = Env.new
+            @stack      = Stack.new
+            @trait_eval = TraitEval.new(@globals)
+            @retp       = nil
+            @rcvr       = nil
+            @tramp      = nil
+            @marks      = {}
         end
 
         def pretty_print_instance_variables
@@ -172,6 +173,10 @@ module Onyx
             push_k(PromptFrame, tag, abort_handler)
         end
 
+        def trait_eval(expr)
+            @trait_eval.eval(expr)
+        end
+
         def build_mdict(meths)
             mdict = {}
             meths.each do | m |
@@ -186,9 +191,21 @@ module Onyx
             name = cls_node.name
             mdict  = build_mdict(cls_node.meths)
             cmdict = build_mdict(cls_node.meta.meths)
+            traits = trait_eval(cls_node.trait_expr)
             cls = OClass.new(name, super_cls, cls_node.ivars,
-                cls_node.meta.ivars, mdict, cmdict)
+                cls_node.meta.ivars, traits, mdict, cmdict)
             @globals.add_binding(name, cls)
+            done(nil)
+        end
+
+        def visit_trait(trait_node)
+            name = trait_node.name
+            traits = trait_eval(trait_node.trait_expr)
+            mdict = build_mdict(trait_node.meths)
+            cmdict = build_mdict(trait_node.meta.meths)
+            tr = Trait.new(name, traits, mdict, cmdict)
+            tr.validate
+            @globals.add_binding(name, tr)
             done(nil)
         end
 
@@ -258,9 +275,9 @@ module Onyx
             if rcvr.class == Super then
                 rcvr = rcvr.rcvr
             end
+
             cls, meth = rcls.lookup_method(self, selector, rcvr.onyx_class?)
             if cls.nil? then
-                # raise "DNU: #{rcvr} #{selector} [#{args.join(', ')}]"
                 cls, meth = rcls.lookup_method(self, :'doesNotUnderstand:', rcvr.onyx_class?)
                 if cls.nil? then
                     raise "DNU: #{rcvr} #{selector} [#{args.join(', ')}]"

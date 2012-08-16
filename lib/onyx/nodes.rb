@@ -222,7 +222,7 @@ module Onyx
         def initialize(name, ivars)
             @name       = name
             @ivars      = ivars
-            @trait_expr = nil
+            @trait_expr = NullTrait.new
             @meta       = MetaNode.new
             @meths      = []
         end

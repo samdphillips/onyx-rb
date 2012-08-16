@@ -191,7 +191,7 @@ module Onyx
         def parse_tprime
             if cur_tok.id? then
                 if cur_tok.value == :nil then
-                    node = ConstNode.new(nil)
+                    node = NullTrait.new
                 else
                     node = RefNode.new(cur_tok.value)
                 end
@@ -206,7 +206,7 @@ module Onyx
         end
 
         def parse_texpr_list
-            trait_node = nil
+            trait_node = NullTrait.new
 
             if cur_tok.id? then
                 trait_node = parse_trait_expr
