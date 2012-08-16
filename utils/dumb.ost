@@ -1,0 +1,9 @@
+
+Object subclass: Foo [
+    foo [ 'foo' ]
+    bar [ 'bar' ]
+]
+
+foo := Foo new.
+foo foo, foo bar
+
