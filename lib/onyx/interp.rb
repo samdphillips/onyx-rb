@@ -48,6 +48,71 @@ module Onyx
             end
         end
 
+        class MethodLookup
+            attr_reader :rcvr, :method
+
+            def self.lookup(terp, selector, rcvr, args)
+                self.new(terp, selector, rcvr, args).lookup
+            end
+
+            def initialize(terp, selector, rcvr, args)
+                @terp = terp
+                @rcvr = rcvr
+                @rcvr_class = rcvr.onyx_class(terp)
+                @current_class = @rcvr_class
+                @selector = selector
+                @args = args
+
+                if rcvr.class == Super then
+                    @rcvr = @rcvr.rcvr
+                end
+                @class_lookup = @rcvr.onyx_class?
+                @rcvr_class_lookup = @class_lookup
+
+                @found = false
+            end
+
+            def lookup
+                until @found do
+                    if @class_lookup then
+                        d = @current_class.cmdict
+                    else
+                        d = @current_class.mdict
+                    end
+
+                    if d.include? @selector then
+                        @found = true
+                        @method = d[@selector]
+                    elsif @current_class.super.nil? then
+                        if @class_lookup then
+                            @current_class = @terp.globals.lookup(:Class).value
+                            @class_lookup = false
+                        else
+                            # puts "lookup failed for #{@selector}"
+                            @current_class = @rcvr_class
+                            @class_lookup = @rcvr_class_lookup
+                            @args = make_dnu_args
+                            @selector = :'doesNotUnderstand:' 
+                        end
+                    else
+                        @current_class = @current_class.super
+                    end
+                end
+                self
+            end
+
+            def env
+                Env.from_method(@method, @args, @rcvr, @current_class)
+            end
+
+            def make_dnu_args
+                msg = OObject.new(@terp.globals.lookup(:Message).value, 2)
+                msg.lookup(:selector).assign(@selector)
+                msg.lookup(:arguments).assign(@args)
+                [msg]
+            end
+        end
+
         def self.boot
             terp = self.new
             node = Parser.parse_file('system.ost')
@@ -253,33 +318,16 @@ module Onyx
             doing(casc_node.rcvr)
         end
 
-        def do_send(selector, rcvr, args)
-            rcls = rcvr.onyx_class(self)
-            if rcvr.class == Super then
-                rcvr = rcvr.rcvr
-            end
-            cls, meth = rcls.lookup_method(self, selector, rcvr.onyx_class?)
-            if cls.nil? then
-                # raise "DNU: #{rcvr} #{selector} [#{args.join(', ')}]"
-                cls, meth = rcls.lookup_method(self, :'doesNotUnderstand:', rcvr.onyx_class?)
-                if cls.nil? then
-                    raise "DNU: #{rcvr} #{selector} [#{args.join(', ')}]"
-                end
-
-                args = make_dnu_args(selector, args)
-            end
-
-            @env  = Env.from_method(meth, args, rcvr, cls)
-            @rcvr = rcvr
-            @retp = @stack.top
-            doing(meth.stmts)
+        def method_lookup(selector, rcvr, args)
+            MethodLookup.lookup(self, selector, rcvr, args)
         end
 
-        def make_dnu_args(selector, args)
-            msg = OObject.new(@globals.lookup(:Message).value, 2)
-            msg.lookup(:selector).assign(selector)
-            msg.lookup(:arguments).assign(args)
-            [msg]
+        def do_send(selector, rcvr, args)
+            lookup_result = method_lookup(selector, rcvr, args)
+            @env  = lookup_result.env
+            @rcvr = lookup_result.rcvr
+            @retp = @stack.top
+            doing(lookup_result.method.stmts)
         end
 
         def do_block(blk, args=[])
