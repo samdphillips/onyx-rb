@@ -96,6 +96,12 @@ module Onyx
             frame.continue(value)
         end
 
+        def reset
+            @marks = {}
+            @env   = Env.new
+            @rcvr  = nil
+        end
+
         def eval(node, stepping=false)
             self.doing(node)
             unless stepping then
@@ -103,9 +109,7 @@ module Onyx
 
                 # reset @env and @rcvr if we're returning to the top level
                 if @stack.empty? and @tramp.done? then
-                    @marks = {}
-                    @env   = Env.new
-                    @rcvr  = nil
+                    reset
                 end
 
                 @tramp.value
