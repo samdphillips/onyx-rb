@@ -72,17 +72,19 @@ module Onyx
                 @found = false
             end
 
+            def mdict
+                if @class_lookup then
+                    @current_class.cmdict
+                else
+                    @current_class.mdict
+                end
+            end
+
             def lookup
                 until @found do
-                    if @class_lookup then
-                        d = @current_class.cmdict
-                    else
-                        d = @current_class.mdict
-                    end
-
-                    if d.include? @selector then
+                    if mdict.include? @selector then
                         @found = true
-                        @method = d[@selector]
+                        @method = mdict[@selector]
                     elsif @current_class.super.nil? then
                         if @class_lookup then
                             @current_class = @terp.globals.lookup(:Class).value
