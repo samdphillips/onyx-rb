@@ -43,38 +43,6 @@ module Onyx
         def ivar_index(var)
             all_ivars.index(var)
         end
-
-        def instance_lookup_method(terp, selector)
-            if mdict.include? selector then
-                [self, mdict[selector]]
-            elsif @trait.include? selector then
-                [self, @trait[selector]]
-            elsif @super.nil? then
-                nil
-            else
-                @super.instance_lookup_method(terp, selector)
-            end
-        end
-
-        def class_lookup_method(terp, selector)
-            if cmdict.include? selector then
-                [self, cmdict[selector]]
-            elsif @trait.cls.include? selector then
-                [self, @trait.cls[selector]]
-            elsif @super.nil? then
-                terp.globals[:Class].instance_lookup_method(terp, selector)
-            else
-                @super.class_lookup_method(terp, selector)
-            end
-        end
-
-        def lookup_method(terp, selector, cls)
-            if cls then
-                class_lookup_method(terp, selector)
-            else
-                instance_lookup_method(terp, selector)
-            end
-        end
     end
 end
 
