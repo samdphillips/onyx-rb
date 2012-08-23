@@ -1,16 +1,33 @@
 
 module Onyx
+    class MethodDict
+        def initialize(*d)
+            @dicts = d
+        end
+
+        def include?(selector)
+            @dicts.any? { |d| d.include? selector }
+        end
+
+        def [](selector)
+            @dicts.each do |d|
+                if d.include? selector then
+                    return d[selector]
+                end
+            end
+        end
+    end
+
     class OClass
-        attr_reader :name, :super, :ivars, :cvars, :trait, :mdict, :cmdict
+        attr_reader :name, :super, :ivars, :cvars, :mdict, :cmdict
 
         def initialize(name, super_cls, ivars, cvars, trait, mdict, cmdict)
             @name   = name
             @super  = super_cls
             @ivars  = ivars
             @cvars  = cvars
-            @trait  = trait
-            @mdict  = mdict
-            @cmdict = cmdict
+            @mdict  = MethodDict.new(mdict, trait)
+            @cmdict = MethodDict.new(cmdict, trait.cls)
         end
 
         def pretty_print_instance_variables
