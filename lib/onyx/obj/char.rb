@@ -14,7 +14,7 @@ module Onyx
         end
 
         def self.init_char_table
-            @char_table = Array.new(255)
+            @char_table = Hash.new
         end
 
         attr_reader :code_point
