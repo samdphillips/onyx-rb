@@ -5,11 +5,13 @@ class Object
     end
 
     def onyx_immutable?
-        not @onyx_immutable.nil? and @onyx_immutable
+        frozen? or (not @onyx_immutable.nil? and @onyx_immutable)
     end
 
     def onyx_immutable!
-        @onyx_immutable = true
+        unless frozen? then
+            @onyx_immutable = true
+        end
     end
 
     def include_ivar?(var)
