@@ -54,12 +54,13 @@ module Onyx
         end
 
         def self.init_char_table
-            @char_table = Array.new(256, :error)
+            # XXX: replace with classifier
+            @char_table = Hash.new
             (?0 .. ?9).each {|i| @char_table[i] = :digit }
             (?a .. ?z).each {|i| @char_table[i] = :id }
             (?A .. ?Z).each {|i| @char_table[i] = :id }
-            " \t\n\r".each_byte {|i| @char_table[i] = :space }
-            "`~!@%&*+=|\\?/<>,".each_byte {|i| @char_table[i] = :binsel }
+            " \t\n\r".each_char {|i| @char_table[i] = :space }
+            "`~!@%&*+=|\\?/<>,".each_char {|i| @char_table[i] = :binsel }
             @char_table[?_] = :id
             @char_table[?:] = :colon
             @char_table[?-] = :dash
@@ -109,7 +110,7 @@ module Onyx
                 return :eof
             end
 
-            char_table[cur_char]
+            char_table.fetch(cur_char, :error)
         end
 
         def next
