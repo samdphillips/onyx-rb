@@ -55,7 +55,7 @@ module Onyx
             terp
         end
 
-        attr_reader   :globals, :env, :rcvr, :retk, :tramp, :stack
+        attr_reader   :globals, :env, :rcvr, :retk, :state, :stack
 
         def initialize
             @globals = GEnv.new
@@ -63,7 +63,7 @@ module Onyx
             @stack   = Stack.new
             @retp    = nil
             @rcvr    = nil
-            @tramp   = nil
+            @state   = nil
             @marks   = {}
         end
 
@@ -77,14 +77,14 @@ module Onyx
             raise 'writeme'
         end
 
-        # Installs a Done state into @tramp.
+        # Installs a Done state into @state.
         def done(value)
-            @tramp = Done.new(self, value)
+            @state = Done.new(self, value)
         end
 
-        # Installs a Doing state into @tramp.
+        # Installs a Doing state into @state.
         def doing(node)
-            @tramp = Doing.new(self, node)
+            @state = Doing.new(self, node)
         end
 
         def continue(value)
@@ -108,11 +108,11 @@ module Onyx
                 run
 
                 # reset @env and @rcvr if we're returning to the top level
-                if @stack.empty? and @tramp.done? then
+                if @stack.empty? and @state.done? then
                     reset
                 end
 
-                @tramp.value
+                @state.value
             end
         end
 
@@ -123,7 +123,7 @@ module Onyx
         end
 
         def halted?
-            @halt or (@stack.empty? and @tramp.done?)
+            @halt or (@stack.empty? and @state.done?)
         end
 
         def run
@@ -134,7 +134,7 @@ module Onyx
         end
 
         def step
-            @tramp.step
+            @state.step
         end
 
         def make_continuation(tag)
