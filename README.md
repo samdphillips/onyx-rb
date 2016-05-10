@@ -11,7 +11,7 @@ with [delimited continuations][delim] and a form of [continuation
 marks][cmarks].  There is a small "standard library."
 
 Eventually onyx will have exceptions, [traits][traits],
-[contracts][contracts], and a [classbox based][cbox] module system.
+and [contracts][contracts].
 Additionally some other pragmatics things like FFI, JIT, and all those
 other expected bits of runtime infrastructure.
 
@@ -40,5 +40,4 @@ won't be added:
 [cmarks]:    http://www.ccs.neu.edu/racket/pubs/dissertation-clements.pdf
 [contracts]: http://www.ccs.neu.edu/racket/pubs/thesis-robby.pdf
 [traits]:    http://scg.unibe.ch/archive/papers/Scha03aTraits.pdf
-[cbox]:      http://scg.unibe.ch/archive/papers/Berg03aClassboxes.pdf
 
