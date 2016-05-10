@@ -1,5 +1,5 @@
 
-require 'rspec'
+require 'rspec/expectations'
 require 'stringio'
 require 'onyx'
 
@@ -43,12 +43,14 @@ module OnyxRSpecMatchers
             end
         end
 
-        def failure_message_for_should
+        def failure_message
             "expected lexer to complete got: #{@result}"
         end
     end
 
     class MatchTokens
+        include RSpec::Matchers
+
         def initialize(str, toks)
             @str = str
             @toks = toks.collect { |tok| tok.to_token }
@@ -59,13 +61,13 @@ module OnyxRSpecMatchers
 
             @toks.each do | tok |
                 ltok = lexer.next
-                ltok.type.should == tok.type
+                expect(ltok.type).to eq(tok.type)
                 unless tok.value.nil? then
-                    ltok.value.should == tok.value
+                    expect(ltok.value).to eq(tok.value)
                 end
             end
 
-            lexer.next.type.should == :eof
+            expect(lexer.next.type).to eq(:eof)
         end
     end
 
