@@ -19,24 +19,6 @@ class TestInterp < Test::Unit::TestCase
         assert_equal(result, @terp.eval_string(s))
     end
 
-    def test_sends
-        assert_interp("3 + 4", 7)
-        assert_interp("3 + 4 * 2", 14)
-        assert_interp("3 isNumber", true)
-        assert_interp("3 = 3", true)
-        assert_interp("3 = 4", false)
-
-        assert_interp("1 isOdd", true)
-        assert_interp("2 isOdd", false)
-        assert_interp("3 isOdd", true)
-        assert_interp("4 isOdd", false)
-
-        assert_interp("3 // 4", 0)
-        assert_interp("8 // 4", 2)
-        assert_interp("9 // 4", 2)
-        assert_interp("6 // 4", 1)
-    end
-
     def test_compare
         [:<, :>, :<=, :>=].each do | s |
             (1..3).each do | i |
@@ -47,22 +29,12 @@ class TestInterp < Test::Unit::TestCase
         end
     end
 
-    def test_assign
-        assert_interp("a := 3. a", 3)
-    end
-
     def test_instance_creation
         @terp.eval_string("a := 3 -> 4")
         assert_interp("k := a key", 3)
         assert_interp("v := a value", 4)
         assert_interp("key", nil)
         assert_interp("value", nil)
-    end
-
-    def test_blocks
-        assert_interp("[ 3 ] value", 3)
-        assert_interp("[:a | a ] value: 10", 10)
-        assert_interp("a := 0. [:a | a ] value: 10", 10)
     end
 
     def test_conditional
