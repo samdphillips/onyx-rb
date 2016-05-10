@@ -89,22 +89,7 @@ RSpec::Matchers.define(:interpret_script) do | file_name, val |
     end
 end
 
-# RSpec::Matchers.define(:lex) do | input |
-#     match do | lexer |
-#         lexer.io = StringIO.new(input)
-#         toks = []
-# 
-#         tok = nil
-#         while tok.nil? or tok.type != :eof do
-#             tok = lexer.next
-#             toks << tok
-#         end
-# 
-#         toks.size should == @tok_types.size
-#     end
-# 
-#     chain(:to_types) do | ttypes |
-#         @tok_types = ttypes
-#     end
-#     
-# end
+RSpec::configure do |config|
+    config.include(OnyxRSpecMatchers)
+end
+

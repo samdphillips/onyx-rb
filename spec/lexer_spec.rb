@@ -1,11 +1,5 @@
 
-require 'onyx'
-require 'spec_helper'
-
-RSpec::configure do |config|
-    config.include(OnyxRSpecMatchers)
-end
-
+# XXX: docs
 describe Onyx::Lexer do
     it { should lex(' ').to_token(:eof) }
     it { should_not lex('"') }

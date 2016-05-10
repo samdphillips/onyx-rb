@@ -1,11 +1,4 @@
 
-require 'onyx'
-require 'spec_helper'
-
-RSpec::configure do |config|
-    config.include(OnyxRSpecMatchers)
-end
-
 describe Onyx::Interpreter do
     subject { Onyx::Interpreter.boot }
 
