@@ -49,8 +49,20 @@ module Onyx
         end
 
         def self.boot
+            base = 'src/boot'
+            sources = []
+            sources << 'core'
+            sources << 'exception'
+            sources << 'number'
+            sources << 'collection'
+            sources << 'string'
+
+            node = SeqNode.new
+            sources.each do |src|
+                node.nodes << Parser.parse_file("#{base}/#{src}.ost")
+            end
+
             terp = self.new
-            node = Parser.parse_file('system.ost')
             terp.eval(node)
             terp
         end
