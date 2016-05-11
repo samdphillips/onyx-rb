@@ -495,7 +495,7 @@ module Onyx
                 step
                 ConstNode.new(v)
             elsif cur_tok.character? then
-                v = Char.code_point(cur_tok.value)
+                v = Char.code_point(cur_tok.value.codepoints[0])
                 step
                 ConstNode.new(v)
             elsif cur_tok.id? then
