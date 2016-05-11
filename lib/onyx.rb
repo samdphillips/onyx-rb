@@ -14,4 +14,9 @@ require 'onyx/parser'
 require 'onyx/frame'
 require 'onyx/prim'
 require 'onyx/interp'
+require 'onyx/runner'
+
+def main
+    Onyx::Runner.run(ARGV)
+end
 
