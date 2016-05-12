@@ -53,7 +53,7 @@ class TestParser < Test::Unit::TestCase
         assert_equal(t.value.size, 4)
         assert_equal(t.value[0], 1)
         assert_instance_of(Char, t.value[1])
-        assert_equal(t.value[1].code_point, ?c)
+        assert_equal(t.value[1].code_point, 99)
         assert_equal(t.value[2], 'string')
         assert_equal(t.value[3], :symbol)
     end

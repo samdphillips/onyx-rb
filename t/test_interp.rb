@@ -92,7 +92,7 @@ class TestInterp < Test::Unit::TestCase
 
     def test_string
         assert_interp("'abc', '123'", "abc123")
-        assert_interp("('abc' at: 0) codePoint", ?a)
+        assert_interp("('abc' at: 0) codePoint", 97)
 
         @terp.eval_string("foo := 'abc'")
         assert_interp("(foo at: 0) == (foo at: 0)", true)
@@ -104,6 +104,8 @@ class TestInterp < Test::Unit::TestCase
         assert_interp("a1 == a2", true)
 
         assert_interp("$a == (Character codePoint: 97)", true)
+        assert_interp("('a' at: 0) == (Character codePoint: 97)", true)
+        assert_interp("(#($a) at: 0) == (Character codePoint: 97)", true)
         assert_interp("$a == $b", false)
         assert_interp("$  codePoint", 32)
     end

@@ -528,7 +528,7 @@ module Onyx
                 v = cur_tok.value
 
                 if cur_tok.type == :character then
-                    v = Char.code_point(v)
+                    v = Char.code_point(v.codepoints[0])
                 end
 
                 arr << v

@@ -169,7 +169,7 @@ module Onyx
         end
 
         def prim_stringAt_(rcvr, i)
-            done(Char.code_point(rcvr[i]))
+            done(Char.code_point(rcvr.codepoints[i]))
         end
 
         def prim_stringAt_put_(rcvr, i, j)
