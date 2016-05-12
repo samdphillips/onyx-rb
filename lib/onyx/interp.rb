@@ -219,8 +219,10 @@ module Onyx
         end
 
         def visit_seq(seq_node)
-            if seq_node.nodes.size == 1 then
-                doing(seq_node.nodes[0])
+            if seq_node.nodes.size == 0 then
+                done(nil)
+            elsif seq_node.nodes.size == 1 then
+                doing(seq_node.nodes.first)
             else
                 a = seq_node.nodes.first
                 rest = seq_node.nodes[1..-1]
