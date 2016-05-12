@@ -34,6 +34,14 @@ won't be added:
 - no image file
 - probably something that I've forgotten besides the obvious ...
 
+## Running Tests ##
+
+A few different test systems are set up.
+
+    $ rpsec
+    $ ruby -Ilib -I. t/tests.rb
+
+
 
 [tramp]:     http://www.cs.indiana.edu/hyplan/sganz/publications/icfp99/paper.pdf
 [delim]:     http://www.ccs.neu.edu/racket/pubs/icfp07-fyff.pdf
