@@ -26,5 +26,10 @@ module Onyx
         def onyx_class(terp)
             terp.globals[:Character]
         end
+
+        def as_lowercase
+            lower_cp = ('' << @code_point).downcase.codepoints[0]
+            Char.code_point(lower_cp)
+        end
     end
 end

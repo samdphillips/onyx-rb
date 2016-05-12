@@ -108,6 +108,9 @@ class TestInterp < Test::Unit::TestCase
         assert_interp("(#($a) at: 0) == (Character codePoint: 97)", true)
         assert_interp("$a == $b", false)
         assert_interp("$  codePoint", 32)
+        assert_interp("$a asLowercase == $a", true)
+        assert_interp("$A asLowercase == $a", true)
+        assert_interp("$  asLowercase == $ ", true)
     end
 
     def test_symbol

@@ -192,5 +192,9 @@ module Onyx
         def prim_symbolAsString(symbol)
             done(symbol.to_s)
         end
+
+        def prim_characterAsLowercase(char)
+            done(char.as_lowercase)
+        end
     end
 end
