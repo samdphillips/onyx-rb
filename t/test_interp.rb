@@ -96,6 +96,9 @@ class TestInterp < Test::Unit::TestCase
 
         @terp.eval_string("foo := 'abc'")
         assert_interp("(foo at: 0) == (foo at: 0)", true)
+
+        assert_interp("(String new: 1) size", 1)
+        assert_interp("(((String new: 1) at: 0 put: $a; yourself) at: 0) codePoint", 97)
     end
 
     def test_character
@@ -111,6 +114,7 @@ class TestInterp < Test::Unit::TestCase
         assert_interp("$a asLowercase == $a", true)
         assert_interp("$A asLowercase == $a", true)
         assert_interp("$  asLowercase == $ ", true)
+        assert_interp("$A asString", 'A')
     end
 
     def test_symbol

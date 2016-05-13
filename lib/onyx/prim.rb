@@ -164,6 +164,10 @@ module Onyx
             done(rcvr.onyx_class(self))
         end
 
+        def prim_stringNew_(cls, size)
+            done("\0" * size)
+        end
+
         def prim_stringSize(rcvr)
             done(rcvr.size)
         end
@@ -176,7 +180,7 @@ module Onyx
             if rcvr.onyx_immutable? then
                 do_send(:immutableError, rcvr, [])
             else
-                rcvr[i] = j.code_point
+                rcvr[i] = '' << j.code_point
                 done(j)
             end
         end
