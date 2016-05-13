@@ -46,6 +46,39 @@ describe Onyx::Interpreter do
             c inject: 0 into: [:a :b | a + b ]', 15)
     end
 
+    it "collections: Interval>>size step 1" do
+        should interpret('(0 to: 5) size', 6)
+    end
+
+    it "collections: Interval>>size step 2" do
+        should interpret('(0 to: 5 by: 2) size', 3)
+    end
+
+    it "collections: Interval>>size step 3" do
+        should interpret('(1 to: 10 by: 3) size', 4)
+    end
+
+    it "collections: Interval>>size step -3" do
+        should interpret('(10 to: 1 by: -3) size', 4)
+    end
+
+    it "collections: Interval>>size step -1" do
+        should interpret('(10 to: 1 by: -1) size', 10)
+    end
+
+    it "collections: Interval asArray should include start and end items" do
+        should interpret('(0 to: 5) asArray', [0, 1, 2, 3, 4, 5])
+        should interpret('(6 to: 8) asArray', [6, 7, 8])
+    end
+
+    it "collections: Interval>>asArray step -1" do
+        should interpret('(10 to: 1 by: -1) asArray', [10, 9, 8, 7, 6, 5, 4, 3, 2, 1])
+    end
+
+    it "collections: Interval>>asArray step 3" do
+        should interpret('(1 to: 10 by: 3) asArray', [1, 4, 7, 10])
+    end
+
     it "litarray: literal arrays are immutable" do
         should interpret_script('spec/ost/litarray.ost', true)
     end
