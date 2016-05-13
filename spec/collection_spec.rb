@@ -66,6 +66,11 @@ describe Onyx::Interpreter do
         should interpret('(10 to: 1 by: -1) size', 10)
     end
 
+    # XXX: negative steps
+    # XXX: Float step/start/stop
+    # XXX: Rational step/start/stop
+    # XXX: empty intervals
+
     it "collections: Interval asArray should include start and end items" do
         should interpret('(0 to: 5) asArray', [0, 1, 2, 3, 4, 5])
         should interpret('(6 to: 8) asArray', [6, 7, 8])

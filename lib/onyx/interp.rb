@@ -134,6 +134,8 @@ module Onyx
             eval(node, stepping)
         end
 
+        # XXX: eval_file ?
+
         def halted?
             @halt or (@stack.empty? and @state.done?)
         end
