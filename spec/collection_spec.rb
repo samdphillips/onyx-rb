@@ -79,14 +79,25 @@ describe Onyx::Interpreter do
         should interpret('(1 to: 10 by: 3) asArray', [1, 4, 7, 10])
     end
 
+    it "collections: Interval>>select:" do
+        should interpret('(1 to: 10) select: [:i | i isOdd ]', [1, 3, 5, 7, 9])
+    end
+
     it "collections: copyFrom: 0 to: 3 method should return a copy of array" do
         should interpret('#(1 2 3 4) copyFrom: 0 to: 3', [1, 2, 3, 4])
     end
 
-    it "collections: #select: [:x | x isOdd ] method should return a collection of odd numbers" do
+    it "collections: #select: [:x | x isOdd ] returns a collection of odd numbers" do
         should interpret('
             c := #(1 2 3 4 5 6 7).
             c select: [:x | x isOdd ]', [1, 3, 5, 7])
+    end
+
+    it "collections: OrderedCollection>>select: [:x | x isOdd ] should return collection of odds" do
+        should interpret('
+            c := OrderedCollection new.
+            1 to: 10 do: [:i | c add: i ].
+            (c select: [:x | x isOdd ]) asArray', [1, 3, 5, 7, 9])
     end
 
     it "litarray: literal arrays are immutable" do
