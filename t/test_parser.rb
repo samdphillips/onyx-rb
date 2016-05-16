@@ -47,15 +47,16 @@ class TestParser < Test::Unit::TestCase
     end
 
     def test_parse_literal_array
-        p = parser_string("#(1 $c 'string' #symbol)")
+        p = parser_string("#(1 $c 'string' symbol #symbol)")
         t = p.parse_expr
         assert_instance_of(ConstNode, t)
-        assert_equal(t.value.size, 4)
+        assert_equal(t.value.size, 5)
         assert_equal(t.value[0], 1)
         assert_instance_of(Char, t.value[1])
         assert_equal(t.value[1].code_point, 99)
         assert_equal(t.value[2], 'string')
         assert_equal(t.value[3], :symbol)
+        assert_equal(t.value[4], :symbol)
     end
 
     def test_parse_nested

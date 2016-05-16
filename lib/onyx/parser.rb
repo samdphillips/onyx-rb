@@ -524,7 +524,7 @@ module Onyx
         def parse_litarray
             expect(:lparray)
             arr = []
-            while cur_tok.one_of([:string, :int, :symbol, :character]) do
+            while cur_tok.one_of([:id, :string, :int, :symbol, :character]) do
                 v = cur_tok.value
 
                 if cur_tok.type == :character then
