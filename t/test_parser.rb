@@ -59,6 +59,13 @@ class TestParser < Test::Unit::TestCase
         assert_equal(t.value[4], :symbol)
     end
 
+    def test_parse_expr_array
+        p = parser_string("{ 3 + 4. #foo }")
+        t = p.parse_expr
+        assert_instance_of(CascadeNode, t)
+        assert_equal(t.messages.size, 3)
+    end
+
     def test_parse_nested
         p = parser_string('(x + y)')
         t = p.parse_expr

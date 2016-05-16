@@ -113,5 +113,9 @@ describe Onyx::Interpreter do
         should interpret_script('spec/ost/litstring.ost', true)
     end
 
+    it "collections: expression arrays evaluate their contents" do
+        should interpret("{3 + 4. 41 + 1}", [7, 42])
+    end
+
 end
 

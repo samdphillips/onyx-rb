@@ -151,6 +151,42 @@ module Onyx
         end
     end
 
+    class ExprArrayNode < ExprNode
+        attr_accessor :stmts
+
+        def initialize
+            @stmts = nil
+        end
+
+        def contents
+            @stmts.nodes
+        end
+
+        def build_receiver
+            msg = MessageNode.new(:'new:', [ConstNode.new(contents.size)])
+            SendNode.new(RefNode.new(:Array), msg)
+        end
+
+        def build_message(i, node)
+            MessageNode.new(:'at:put:', [ConstNode.new(i), node])
+        end
+
+        def build_messages
+            msgs = []
+            contents.each_index do |i|
+                msgs << build_message(i, contents[i])
+            end
+            msgs << MessageNode.new(:yourself, [])
+            msgs
+        end
+
+        def expand
+            rcvr = build_receiver
+            messages = build_messages
+            CascadeNode.new(rcvr, messages)
+        end
+    end
+
     class BlockNode < ExprNode
         attr_reader :args, :temps
         attr_accessor :stmts

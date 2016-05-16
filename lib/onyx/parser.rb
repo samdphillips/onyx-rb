@@ -387,7 +387,7 @@ module Onyx
         def parse_statements(node)
             seq = SeqNode.new
             while true do
-                if cur_tok.one_of [:caret, :int, :string, :symbol, :id, :lpar, :lparray, :lsq] then
+                if cur_tok.one_of [:caret, :int, :string, :symbol, :id, :lpar, :lcurl, :lparray, :lsq] then
                     seq.nodes << parse_statement
                 else
                     node.stmts = seq
@@ -407,7 +407,7 @@ module Onyx
             if cur_tok.caret? then
                 parse_return
             # FIXME: we sure check this a lot
-            elsif cur_tok.one_of [:string, :int, :symbol, :id, :lpar, :lparray, :lsq] then
+            elsif cur_tok.one_of [:string, :int, :symbol, :id, :lpar, :lcurl, :lparray, :lsq] then
                 parse_expr
             else
                 parse_error
@@ -428,7 +428,7 @@ module Onyx
         end
 
         def parse_expr
-            if cur_tok.one_of [:lpar, :lparray, :string, :int, :symbol, :character, :lsq] then
+            if cur_tok.one_of [:lcurl, :lpar, :lparray, :string, :int, :symbol, :character, :lsq] then
                 parse_message
             elsif cur_tok.id? then
                 parse_maybe_assign
@@ -512,6 +512,8 @@ module Onyx
                 parse_literal_array
             elsif cur_tok.lsq? then
                 parse_block
+            elsif cur_tok.lcurl? then
+                parse_expr_array
             else
                 parse_error
             end
@@ -536,6 +538,14 @@ module Onyx
             end
             expect(:rpar)
             ConstNode.new(arr)
+        end
+
+        def parse_expr_array
+            expect(:lcurl)
+            a = ExprArrayNode.new
+            parse_statements(a)
+            expect(:rcurl)
+            a.expand
         end
 
         def parse_block
