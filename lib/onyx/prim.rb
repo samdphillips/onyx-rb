@@ -189,6 +189,11 @@ module Onyx
             done(rcvr + string)
         end
 
+        def prim_stringPrint(string)
+            print string
+            done(string)
+        end
+
         def prim_stringAsSymbol(string)
             done(string.to_sym)
         end
