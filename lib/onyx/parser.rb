@@ -509,7 +509,7 @@ module Onyx
             elsif cur_tok.lpar? then
                 parse_nested_expr
             elsif cur_tok.lparray? then
-                parse_litarray
+                parse_literal_array
             elsif cur_tok.lsq? then
                 parse_block
             else
@@ -521,7 +521,7 @@ module Onyx
             { :true => true, :false => false, :nil => nil }
         end
 
-        def parse_litarray
+        def parse_literal_array
             expect(:lparray)
             arr = []
             while cur_tok.one_of([:id, :string, :int, :symbol, :character]) do
