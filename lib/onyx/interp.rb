@@ -134,7 +134,10 @@ module Onyx
             eval(node, stepping)
         end
 
-        # XXX: eval_file ?
+        def eval_file(filename)
+            p = Parser.parse_file(filename)
+            eval(p)
+        end
 
         def halted?
             @halt or (@stack.empty? and @state.done?)
