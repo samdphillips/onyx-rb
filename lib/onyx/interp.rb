@@ -193,6 +193,14 @@ module Onyx
             push_k(PromptFrame, tag, abort_handler)
         end
 
+        def push_kcls(name, super_cls, ivars, cvars, mdict, cmdict)
+            push_k(ClassFrame, name, super_cls, ivars, cvars, mdict, cmdict)
+        end
+
+        def push_ktrait(name, mdict, cmdict)
+            push_k(TraitFrame, name, mdict, cmdict)
+        end
+
         def build_mdict(meths)
             mdict = {}
             meths.each do | m |
@@ -207,10 +215,28 @@ module Onyx
             name = cls_node.name
             mdict  = build_mdict(cls_node.meths)
             cmdict = build_mdict(cls_node.meta.meths)
-            cls = OClass.new(name, super_cls, cls_node.ivars,
-                cls_node.meta.ivars, mdict, cmdict)
-            @globals.add_binding(name, cls)
-            done(nil)
+            if cls_node.trait_expr.nil? then
+                install_class(name, super_cls, cls_node.ivars,
+                              cls_node.meta.ivars, mdict, cmdict, nil)
+                done(nil)
+            else
+                push_kcls(name, super_cls, cls_node.ivars,
+                          cls_node.meta.ivars, mdict, cmdict)
+                doing(cls_node.trait_expr)
+            end
+        end
+
+        def visit_trait(trait_node)
+            name = trait_node.name
+            mdict = build_mdict(trait_node.meths)
+            cmdict = build_mdict(trait_node.meta.meths)
+            if trait_node.trait_expr.nil? then
+                install_trait(name, mdict, cmdict, nil)
+                done(nil)
+            else
+                push_ktrait(name, mdict, cmdict)
+                doing(trait_node.trait_expr)
+            end
         end
 
         def visit_const(const_node)
@@ -276,6 +302,16 @@ module Onyx
             doing(casc_node.rcvr)
         end
 
+        def install_class(name, super_cls, ivars, cvars, mdict, cmdict, trait)
+            cls = OClass.new(name, super_cls, ivars, cvars, mdict, cmdict, trait)
+            @globals.add_binding(name, cls)
+        end
+
+        def install_trait(name, mdict, cmdict, subtrait)
+            trait = Trait.new(name, mdict, cmdict, subtrait)
+            @globals.add_binding(name, trait)
+        end
+
         def do_send(selector, rcvr, args)
             rcls = rcvr.onyx_class(self)
             if rcvr.class == Super then
@@ -283,7 +319,6 @@ module Onyx
             end
             cls, meth = rcls.lookup_method(self, selector, rcvr.onyx_class?)
             if cls.nil? then
-                # raise "DNU: #{rcvr} #{selector} [#{args.join(', ')}]"
                 cls, meth = rcls.lookup_method(self, :'doesNotUnderstand:', rcvr.onyx_class?)
                 if cls.nil? then
                     raise "DNU: #{rcvr} #{selector} [#{args.join(', ')}]"

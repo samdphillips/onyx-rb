@@ -273,6 +273,51 @@ module Onyx
             end
         end
 
+        class ClassFrame < Frame
+            def initialize_k(name, super_cls, ivars, cvars, mdict, cmdict)
+                @name      = name
+                @super_cls = super_cls
+                @ivars     = ivars
+                @cvars     = cvars
+                @mdict     = mdict
+                @cmdict    = cmdict
+            end
+
+            def pretty_print_instance_variables
+                super + [:@name]
+            end
+
+            def kargs
+                [@name, @super_cls, @ivars, @cvars, @mdict, @cmdict]
+            end
+
+            def continue(trait)
+                @terp.install_class(@name, @super_cls, @ivars, @cvars, @mdict, @cmdict, trait)
+            end
+        end
+
+        class TraitFrame < Frame
+            def initialize_k(name, mdict, cmdict)
+                @name      = name
+                @mdict     = mdict
+                @cmdict    = cmdict
+            end
+
+            def pretty_print_instance_variables
+                super + [:@name]
+            end
+
+            def kargs
+                [@name, @mdict, @cmdict]
+            end
+
+            def continue(trait)
+                t = Trait.new(@name, @mdict, @cmdict)
+                t.merge(trait)
+                @terp.globals.add_binding(@name, t)
+            end
+        end
+
         class MsgFrame < Frame
             def initialize_k(selector, rcvr_v, args, vals=[])
                 @selector = selector

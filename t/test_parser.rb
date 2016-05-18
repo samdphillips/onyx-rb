@@ -175,7 +175,7 @@ class TestParser < Test::Unit::TestCase
         assert_equal(t.name, :Object)
         assert_instance_of(SendNode, t.trait_expr)
         assert_instance_of(RefNode, t.trait_expr.rcvr)
-        assert_equal(:TA, t.trait_expr.rcvr.var)
+        assert_equal(:Trait, t.trait_expr.rcvr.var)
 
         assert_equal(2, t.meths.size)
         assert_instance_of(MethodNode, t.meths[0])

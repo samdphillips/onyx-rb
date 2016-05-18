@@ -1,0 +1,38 @@
+
+
+Trait named: Foo [
+    Foo class [
+        test [
+            self new test
+        ]
+    ]
+
+    test [
+        'foo ', self foo
+    ]
+]
+
+Object subclass: Bar [
+    Bar uses: Foo.
+
+    foo [ 'barfoo' ]
+]
+
+Object subclass: Baz [
+    Baz uses: Foo.
+
+    foo [ 'bazfoo' ]
+]
+
+Trait named: TABC [
+    a [ 1 ]
+    b [ 2 ]
+    c [ 3 ]
+]
+
+Trait named: TDEF [
+    d [ 4 ]
+    e [ 5 ]
+    f [ 6 ]
+]
+

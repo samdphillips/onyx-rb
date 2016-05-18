@@ -184,7 +184,7 @@ module Onyx
                         parse_error("Trait clause name doesn't match")
                     end
                     step
-                    decl_node.add_traits(parse_trait_clause)
+                    decl_node.add_trait_expr(parse_trait_clause)
                 elsif cur_tok.id? and cur_tok.value == :class then
                     if tok.value != decl_node.name then
                         parse_error("Meta trait name doesn't match")

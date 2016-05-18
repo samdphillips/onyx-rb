@@ -269,8 +269,13 @@ module Onyx
             @meths      = []
         end
 
-        def add_traits(trait_expr)
-            @trait_expr = trait_expr
+        def add_trait_expr(trait_expr)
+            @trait_expr = trait_message(trait_expr)
+        end
+
+        def trait_message(expr)
+            msg = MessageNode.new(:'build:', [expr])
+            SendNode.new(trait_receiver, msg)
         end
 
         def add_meta(meta_node)
@@ -289,9 +294,16 @@ module Onyx
             super(name, ivars)
             @supername = supername
         end
+
+        def trait_receiver
+            RefNode.new(:Trait)
+        end
     end
 
     class TraitNode < DeclNode
+        def trait_receiver
+            RefNode.new(:Trait)
+        end
     end
 
     class MetaNode < ParseNode
