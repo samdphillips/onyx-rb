@@ -316,13 +316,6 @@ class TestParser < Test::Unit::TestCase
         assert_equal(t.removes.size, 2)
     end
 
-    def test_parse_extension
-        p = parser_for_file('test_extension.ost')
-        t = p.parse_extension
-
-        assert_instance_of(ClassExtNode, t)
-    end
-
     def test_parse_import
         p = parser_string("import: 'system'")
         t = p.parse_import
@@ -335,15 +328,14 @@ class TestParser < Test::Unit::TestCase
         t = p.parse_module
 
         assert_instance_of(SeqNode, t)
-        assert_equal(8, t.nodes.size)
+        assert_equal(7, t.nodes.size)
         assert_instance_of(ImportNode,   t.nodes[0])
         assert_instance_of(ImportNode,   t.nodes[1])
         assert_instance_of(ClassNode,    t.nodes[2])
         assert_instance_of(TraitNode,    t.nodes[3])
-        assert_instance_of(ClassExtNode, t.nodes[4])
-        assert_instance_of(AssignNode,   t.nodes[5])
+        assert_instance_of(AssignNode,   t.nodes[4])
+        assert_instance_of(SendNode,     t.nodes[5])
         assert_instance_of(SendNode,     t.nodes[6])
-        assert_instance_of(SendNode,     t.nodes[7])
     end
 
 end

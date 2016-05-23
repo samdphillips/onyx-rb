@@ -289,9 +289,6 @@ module Onyx
     class TraitNode < DeclNode
     end
 
-    class ClassExtNode < DeclNode
-    end
-
     class MetaNode < ParseNode
         attr_reader :ivars, :meths
 

@@ -90,9 +90,6 @@ module Onyx
                 if cur_tok.kw? and cur_tok.value == :'subclass:' then
                     push_token(id)
                     parse_class
-                elsif cur_tok.id? and cur_tok.value == :extend then
-                    push_token(id)
-                    parse_extension
                 else
                     push_token(id)
                     parse_module_expr
@@ -132,13 +129,6 @@ module Onyx
             name = cur_tok.value
             step
             parse_decl_body(ClassNode, name, supername)
-        end
-
-        def parse_extension
-            name = cur_tok.value
-            step
-            expect(:id, :extend)
-            parse_decl_body(ClassExtNode, name)
         end
 
         def parse_meta

@@ -35,31 +35,6 @@ Trait named: Hello [
     ]
 ]
 
-Object extend [
-    | oid |
-
-    Object uses: Hello.
-
-    Object class [
-        | oidCount |
-
-        incrOid [ oidCount := oidCount + 1 ]
-
-        new [
-            ^ super new oid: self incrOid
-        ]
-    ]
-
-    oid [
-        oid ifNil: [ self oid: self class incrOid ].
-        ^ oid
-    ]
-
-    oid: anInteger [ 
-        oid := anInteger
-    ]
-]
-
 
 foo := Object new.
 
