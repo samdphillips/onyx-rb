@@ -7,3 +7,120 @@
  - test: signal, pass, resume, signal
  - test: signal, outer
 
+* interfaces and delegates
+* contracts
+
+This should probably parse:
+Object subclass: ABCDEF [ ABCDEF uses: TABCDEF ]
+
+Bits extracted from the codebase
+
+lib/onyx/lexer.rb:57:            # XXX: replace with classifier
+lib/onyx/lexer.rb-58-            @char_table = Hash.new
+lib/onyx/lexer.rb-59-            (?0 .. ?9).each {|i| @char_table[i] = :digit }
+lib/onyx/lexer.rb-60-            (?a .. ?z).each {|i| @char_table[i] = :id }
+lib/onyx/lexer.rb-61-            (?A .. ?Z).each {|i| @char_table[i] = :id }
+lib/onyx/lexer.rb-62-            " \t\n\r".each_char {|i| @char_table[i] = :space }
+lib/onyx/lexer.rb-63-            "`~!@%&*+=|\\?/<>,".each_char {|i| @char_table[i] = :binsel }
+lib/onyx/lexer.rb-64-            @char_table[?_] = :id
+lib/onyx/lexer.rb-65-            @char_table[?:] = :colon
+lib/onyx/lexer.rb-66-            @char_table[?-] = :dash
+lib/onyx/lexer.rb-67-            @char_table[?^] = :caret
+--
+lib/onyx/nodes.rb:6:            # XXX
+lib/onyx/nodes.rb-7-            ("visit_" + self.class.name.split('::').last[0...-4].downcase).to_sym
+lib/onyx/nodes.rb-8-        end
+lib/onyx/nodes.rb-9-
+lib/onyx/nodes.rb-10-        def visit(visitor, *args)
+lib/onyx/nodes.rb-11-            visitor.send(visit_name, self, *args)
+lib/onyx/nodes.rb-12-        end
+lib/onyx/nodes.rb-13-    end
+lib/onyx/nodes.rb-14-
+lib/onyx/nodes.rb-15-    class ExprNode < ParseNode
+lib/onyx/nodes.rb-16-    end
+--
+lib/onyx/runner.rb:9:                    # XXX: eval_file
+lib/onyx/runner.rb-10-                    terp.eval(node)
+lib/onyx/runner.rb-11-                end
+lib/onyx/runner.rb-12-            rescue OnyxError => e
+lib/onyx/runner.rb-13-                puts 'Exception!'
+lib/onyx/runner.rb-14-                puts e
+lib/onyx/runner.rb-15-            end
+lib/onyx/runner.rb-16-        end
+lib/onyx/runner.rb-17-    end
+lib/onyx/runner.rb-18-end
+lib/onyx/runner.rb-19-
+--
+src/boot/collection.ost:219:        "XXX: checkBounds needs to be special for Interval"
+src/boot/collection.ost-220-        self checkBounds: i.
+src/boot/collection.ost-221-        (step * i) + start
+src/boot/collection.ost-222-    ]
+src/boot/collection.ost-223-
+src/boot/collection.ost-224-    species [
+src/boot/collection.ost-225-        Array
+src/boot/collection.ost-226-    ]
+src/boot/collection.ost-227-
+src/boot/collection.ost-228-]
+src/boot/collection.ost-229-
+--
+src/boot/number.ost:75:    "XXX: move Interval creation to Number (per ANSI)"
+src/boot/number.ost-76-    to: stop [
+src/boot/number.ost-77-        Interval from: self to: stop
+src/boot/number.ost-78-    ]
+src/boot/number.ost-79-
+src/boot/number.ost-80-    to: stop do: aBlock [
+src/boot/number.ost-81-        (self to: stop) do: aBlock
+src/boot/number.ost-82-    ]
+src/boot/number.ost-83-
+src/boot/number.ost-84-    to: stop by: step [
+src/boot/number.ost-85-        Interval from: self to: stop by: step
+--
+src/boot/number.ost:92:    "XXX: ANSI names don't include /is/ (but /is/ reads better)"
+src/boot/number.ost-93-    isOdd [
+src/boot/number.ost-94-        self _smallIntIsOdd
+src/boot/number.ost-95-    ]
+src/boot/number.ost-96-
+src/boot/number.ost-97-    isEven [
+src/boot/number.ost-98-        self isOdd not
+src/boot/number.ost-99-    ]
+src/boot/number.ost-100-]
+src/boot/number.ost-101-
+--
+src/boot/string.ost:2:    "XXX: Characters should be immutable?"
+src/boot/string.ost-3-    Character class [
+src/boot/string.ost-4-        codePoint: anInteger [
+src/boot/string.ost-5-            self _characterClassCodePoint: anInteger
+src/boot/string.ost-6-        ]
+src/boot/string.ost-7-
+src/boot/string.ost-8-        vowels [
+src/boot/string.ost-9-            #($a $e $i $o $u)
+src/boot/string.ost-10-        ]
+src/boot/string.ost-11-
+src/boot/string.ost-12-        newline [
+--
+spec/collection_spec.rb:69:    # XXX: negative steps
+spec/collection_spec.rb:70:    # XXX: Float step/start/stop
+spec/collection_spec.rb:71:    # XXX: Rational step/start/stop
+spec/collection_spec.rb:72:    # XXX: empty intervals
+spec/collection_spec.rb-73-
+spec/collection_spec.rb-74-    it "collections: Interval asArray should include start and end items" do
+spec/collection_spec.rb-75-        should interpret('(0 to: 5) asArray', [0, 1, 2, 3, 4, 5])
+spec/collection_spec.rb-76-        should interpret('(6 to: 8) asArray', [6, 7, 8])
+spec/collection_spec.rb-77-    end
+spec/collection_spec.rb-78-
+spec/collection_spec.rb-79-    it "collections: Interval>>asArray step -1" do
+spec/collection_spec.rb-80-        should interpret('(10 to: 1 by: -1) asArray', [10, 9, 8, 7, 6, 5, 4, 3, 2, 1])
+spec/collection_spec.rb-81-    end
+spec/collection_spec.rb-82-
+--
+spec/lexer_spec.rb:2:# XXX: docs
+spec/lexer_spec.rb-3-describe Onyx::Lexer do
+spec/lexer_spec.rb-4-    it { should lex(' ').to_token(:eof) }
+spec/lexer_spec.rb-5-    it { should_not lex('"') }
+spec/lexer_spec.rb-6-
+spec/lexer_spec.rb-7-    it { should lex('1234').to_token(:int, 1234) }
+spec/lexer_spec.rb-8-    it { should lex('    1234').to_token(:int, 1234) }
+spec/lexer_spec.rb-9-    it { should lex('"comment"    1234').to_token(:int, 1234) }
+spec/lexer_spec.rb-10-    it { should lex('-1').to_token(:int, -1) }
+spec/lexer_spec.rb-11-
+spec/lexer_spec.rb-12-    it { should lex('+').to_token(:binsel, :+) }
