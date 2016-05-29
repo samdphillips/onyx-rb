@@ -3,13 +3,10 @@ module Onyx
     class Trait
         attr_reader :mdict
 
-        def initialize(name, mdict, cmdict, subtrait)
+        def initialize(name, mdict, cmdict)
             @name = name
             @mdict = mdict
             @cmdict = cmdict
-            unless subtrait.nil? then
-                merge(subtrait)
-            end
         end
 
         def onyx_class(terp)
@@ -26,6 +23,10 @@ module Onyx
 
         def [](name)
             @mdict[name]
+        end
+
+        def add_trait(trait)
+            merge(trait)
         end
 
         def merge(trait)

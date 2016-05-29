@@ -3,7 +3,7 @@ module Onyx
     class OClass
         attr_reader :name, :super, :ivars, :cvars, :trait, :mdict, :cmdict
 
-        def initialize(name, super_cls, ivars, cvars, mdict, cmdict, trait)
+        def initialize(name, super_cls, ivars, cvars, mdict, cmdict)
             @name   = name
             @super  = super_cls
             @ivars  = ivars

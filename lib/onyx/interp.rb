@@ -193,12 +193,8 @@ module Onyx
             push_k(PromptFrame, tag, abort_handler)
         end
 
-        def push_kcls(name, super_cls, ivars, cvars, mdict, cmdict)
-            push_k(ClassFrame, name, super_cls, ivars, cvars, mdict, cmdict)
-        end
-
-        def push_ktrait(name, mdict, cmdict)
-            push_k(TraitFrame, name, mdict, cmdict)
+        def push_ktrait(decl)
+            push_k(TraitFrame, decl)
         end
 
         def build_mdict(meths)
@@ -211,30 +207,31 @@ module Onyx
         end
 
         def visit_class(cls_node)
-            super_cls = @globals.lookup(cls_node.supername).value
             name = cls_node.name
+            push_kassign(name)
+            super_cls = lookup_var(cls_node.supername).value
             mdict  = build_mdict(cls_node.meths)
             cmdict = build_mdict(cls_node.meta.meths)
+            cls = OClass.new(name, super_cls, cls_node.ivars,
+                             cls_node.meta.ivars, mdict, cmdict)
             if cls_node.trait_expr.nil? then
-                install_class(name, super_cls, cls_node.ivars,
-                              cls_node.meta.ivars, mdict, cmdict, nil)
-                done(nil)
+                done(cls)
             else
-                push_kcls(name, super_cls, cls_node.ivars,
-                          cls_node.meta.ivars, mdict, cmdict)
+                push_ktrait(cls)
                 doing(cls_node.trait_expr)
             end
         end
 
         def visit_trait(trait_node)
             name = trait_node.name
+            push_kassign(name)
             mdict = build_mdict(trait_node.meths)
             cmdict = build_mdict(trait_node.meta.meths)
+            trait = Trait.new(name, mdict, cmdict)
             if trait_node.trait_expr.nil? then
-                install_trait(name, mdict, cmdict, nil)
-                done(nil)
+                done(trait)
             else
-                push_ktrait(name, mdict, cmdict)
+                push_ktrait(trait)
                 doing(trait_node.trait_expr)
             end
         end
@@ -300,16 +297,6 @@ module Onyx
         def visit_cascade(casc_node)
             push_krcvr(casc_node)
             doing(casc_node.rcvr)
-        end
-
-        def install_class(name, super_cls, ivars, cvars, mdict, cmdict, trait)
-            cls = OClass.new(name, super_cls, ivars, cvars, mdict, cmdict, trait)
-            @globals.add_binding(name, cls)
-        end
-
-        def install_trait(name, mdict, cmdict, subtrait)
-            trait = Trait.new(name, mdict, cmdict, subtrait)
-            @globals.add_binding(name, trait)
         end
 
         def do_send(selector, rcvr, args)
