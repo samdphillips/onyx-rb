@@ -53,6 +53,14 @@ module Onyx
             done(cls.name)
         end
 
+        def prim_traitNew(cls)
+            done(Trait.new(nil, {}, {}))
+        end
+
+        def prim_traitMerge_(trait1, trait2)
+            trait1.merge(trait2)
+        end
+
         def prim_blockValue(rcvr)
             do_block(rcvr)
         end
