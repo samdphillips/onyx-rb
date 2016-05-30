@@ -112,5 +112,8 @@ describe Onyx::Interpreter do
         should interpret("{3 + 4. 41 + 1}", [7, 42])
     end
 
+    it "collections: empty expression array is empty array" do
+        should interpret("{ }", [])
+    end
 end
 

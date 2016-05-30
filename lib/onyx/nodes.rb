@@ -69,6 +69,8 @@ module Onyx
         def initialize(rcvr, messages)
             @rcvr     = rcvr
             @messages = messages
+            raise 'more than one message needed' \
+                unless messages.size > 1
         end
     end
 
@@ -181,8 +183,12 @@ module Onyx
 
         def expand
             rcvr = build_receiver
-            messages = build_messages
-            CascadeNode.new(rcvr, messages)
+            if @stmts.nil? or contents.empty? then
+                rcvr
+            else
+                messages = build_messages
+                CascadeNode.new(rcvr, messages)
+            end
         end
     end
 

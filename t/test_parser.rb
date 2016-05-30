@@ -66,6 +66,15 @@ class TestParser < Test::Unit::TestCase
         assert_equal(t.messages.size, 3)
     end
 
+    def test_parse_empty_expr_array
+        p = parser_string("{ }")
+        t = p.parse_expr
+        assert_instance_of(SendNode, t)
+        assert_equal(:Array, t.rcvr.var)
+        assert_equal(:'new:', t.message.selector)
+        assert_equal(0, t.message.args[0].value)
+    end
+
     def test_parse_nested
         p = parser_string('(x + y)')
         t = p.parse_expr
