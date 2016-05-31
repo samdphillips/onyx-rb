@@ -61,6 +61,10 @@ module Onyx
             trait1.merge(trait2)
         end
 
+        def prim_traitRename_to_(trait, src, dest)
+            trait.rename(src, dest)
+        end
+
         def prim_blockValue(rcvr)
             do_block(rcvr)
         end

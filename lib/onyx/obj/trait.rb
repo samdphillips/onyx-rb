@@ -42,6 +42,10 @@ module Onyx
                 end
             end
         end
+
+        def rename(src, dest)
+            @mdict[dest] = @mdict.delete(src)
+        end
     end
 end
 
