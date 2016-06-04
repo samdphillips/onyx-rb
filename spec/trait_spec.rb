@@ -65,5 +65,17 @@ describe Onyx::Interpreter do
         should interpret('DEF new e', 2)
         should interpret('DEF new f', 3)
     end
+
+    it "traits: trait remove empty" do
+        terp.eval_string("Object subclass: ABC [ ABC uses: TABC - {}. ]")
+        should interpret('ABC new a', 1)
+        should interpret('ABC new b', 2)
+        should interpret('ABC new c', 3)
+    end
+
+    it "traits: trait remove methods" do
+        terp.eval_string("Object subclass: ABC [ ABC uses: TABC - {#a. #c }. ]")
+        should interpret('ABC new b', 2)
+    end
 end
 

@@ -65,6 +65,10 @@ module Onyx
             trait.rename(src, dest)
         end
 
+        def prim_traitRemove_(trait, mname)
+            trait.remove(mname)
+        end
+
         def prim_blockValue(rcvr)
             do_block(rcvr)
         end
