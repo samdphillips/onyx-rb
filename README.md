@@ -38,7 +38,7 @@ won't be added:
 
 A few different test systems are set up.
 
-    $ rpsec
+    $ rspec
     $ ruby -Ilib -I. t/tests.rb
 
 
