@@ -1,5 +1,15 @@
 
 module Onyx
+    class OnyxBindingError < Exception
+        attr_reader :var_name
+
+        def initialize(var_name)
+            m = "Unknown binding #{var_name}"
+            super(m)
+            @var_name = var_name
+        end
+    end
+
     module Binding
         attr_reader :name, :value
 
@@ -126,7 +136,11 @@ module Onyx
         end
 
         def [](name)
-            @binds[name].value
+            begin
+                @binds[name].value
+            rescue
+                raise OnyxBindingError.new(name)
+            end
         end
     end
 end
