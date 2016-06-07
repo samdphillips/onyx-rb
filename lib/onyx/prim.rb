@@ -12,6 +12,10 @@ module Onyx
     end
 
     module Primitives
+        def prim_numberAsString(i)
+            done("#{i}")
+        end
+
         def prim_addSmallInt_(a, b)
             done(a + b)
         end
