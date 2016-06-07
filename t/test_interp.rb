@@ -10,23 +10,47 @@ class TestInterp < Test::Unit::TestCase
         @terp = Interpreter.boot
     end
 
-    def test_boot
-        assert(@terp.globals.include?(:Object))
-        assert(@terp.globals.include?(:Interval))
-    end
-
     def assert_interp(s, result)
         assert_equal(result, @terp.eval_string(s))
     end
 
     def test_compare
-        [:<, :>, :<=, :>=].each do | s |
-            (1..3).each do | i |
-                (1..3).each do | j |
-                    assert_interp("#{i} #{s} #{j}", i.send(s, j))
-                end
-            end
-        end
+        assert_interp("1 < 1", false)
+        assert_interp("1 < 2", true)
+        assert_interp("1 < 3", true)
+        assert_interp("2 < 1", false)
+        assert_interp("2 < 2", false)
+        assert_interp("2 < 3", true)
+        assert_interp("3 < 1", false)
+        assert_interp("3 < 2", false)
+        assert_interp("3 < 3", false)
+        assert_interp("1 > 1", false)
+        assert_interp("1 > 2", false)
+        assert_interp("1 > 3", false)
+        assert_interp("2 > 1", true)
+        assert_interp("2 > 2", false)
+        assert_interp("2 > 3", false)
+        assert_interp("3 > 1", true)
+        assert_interp("3 > 2", true)
+        assert_interp("3 > 3", false)
+        assert_interp("1 <= 1", true)
+        assert_interp("1 <= 2", true)
+        assert_interp("1 <= 3", true)
+        assert_interp("2 <= 1", false)
+        assert_interp("2 <= 2", true)
+        assert_interp("2 <= 3", true)
+        assert_interp("3 <= 1", false)
+        assert_interp("3 <= 2", false)
+        assert_interp("3 <= 3", true)
+        assert_interp("1 >= 1", true)
+        assert_interp("1 >= 2", false)
+        assert_interp("1 >= 3", false)
+        assert_interp("2 >= 1", true)
+        assert_interp("2 >= 2", true)
+        assert_interp("2 >= 3", false)
+        assert_interp("3 >= 1", true)
+        assert_interp("3 >= 2", true)
+        assert_interp("3 >= 3", true)
     end
 
     def test_instance_creation
