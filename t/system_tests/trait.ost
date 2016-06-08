@@ -1,0 +1,13 @@
+
+Trait named: TMissing [
+    a [ self b ]
+]
+
+Object subclass: Missing [ ]
+
+missingRaised := false.
+[ TMissing validateUse: Missing ]
+    on: IncompleteTrait
+    do: [ missingRaised := true ].
+
+

@@ -48,6 +48,7 @@ module Onyx
             all_ivars.index(var)
         end
 
+        # XXX: terp unneeded
         def instance_lookup_method(terp, selector)
             if mdict.include? selector then
                 [self, mdict[selector]]

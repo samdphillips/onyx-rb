@@ -337,6 +337,17 @@ module Onyx
         def do_primitive(selector, rcvr, args)
             send("prim#{selector.to_s.gsub(':','_')}".to_sym, rcvr, *args)
         end
+
+        def do_trait_validation_error(missing)
+            rcvr = RefNode.new(:IncompleteTrait)
+            arg = ConstNode.new(missing)
+            msg = MessageNode.new(:'missingSelectors:', [arg])
+            send = SendNode.new(rcvr, msg)
+
+            signal_msg = MessageNode.new(:signal, [])
+            signal_send = SendNode.new(send, signal_msg)
+            doing(signal_send)
+        end
     end
 end
 

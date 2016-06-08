@@ -73,6 +73,15 @@ module Onyx
             trait.remove(mname)
         end
 
+        def prim_traitValidateUse_(trait, cls)
+            missing = trait.validate(cls)
+            if missing == [] then
+                done(trait)
+            else
+                do_trait_validation_error(missing)
+            end
+        end
+
         def prim_blockValue(rcvr)
             do_block(rcvr)
         end
@@ -96,6 +105,7 @@ module Onyx
         end
 
         def prim_objectStackTrace(r)
+            puts
             @stack.trace
             puts
             done(r)

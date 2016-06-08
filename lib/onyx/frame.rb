@@ -87,7 +87,7 @@ module Onyx
 
         def trace
             (0..@top).each do | i |
-                puts "[#{i}] #{self[i]}"
+                puts "[#{i}] #{self[i].pretty_inspect}"
                 n = self[i].trace_info
                 if n.size > 0 then
                     puts n
