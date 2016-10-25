@@ -258,7 +258,7 @@ module Onyx
                 doing(a)
             end
         end
-    
+
         def lookup_var(var)
             if @env.include?(var) then
                 @env.lookup(var)
@@ -350,4 +350,3 @@ module Onyx
         end
     end
 end
-
