@@ -20,8 +20,7 @@ other expected bits of runtime infrastructure.
 Here are some of the difference from other Smalltalks that are planned
 on being added:
 
-- currently no exceptions
-- currently no IO system 
+- currently no IO system
 - currently not vm based, no bytecode
 - currently no browser or other development tools
 
@@ -29,6 +28,7 @@ on being added:
 Here are some of the differences from other Smalltalks that most like
 won't be added:
 
+- Sequenced Collections are indexed starting at zero and not one.
 - methods do not implicitly return self.  Methods return the last
   expression evaluated similar to Scheme and Ruby.
 - no image file
@@ -40,7 +40,9 @@ A few different test systems are set up.
 
     $ rspec
     $ ruby -Ilib -I. t/tests.rb
-
+    $ ruby -Ilib -r onyx -e main src/tests/tester.ost \
+        src/tests/ordered_collection.ost \
+        src/tests/stream.ost
 
 
 [tramp]:     http://www.cs.indiana.edu/hyplan/sganz/publications/icfp99/paper.pdf
@@ -48,4 +50,3 @@ A few different test systems are set up.
 [cmarks]:    http://www.ccs.neu.edu/racket/pubs/dissertation-clements.pdf
 [contracts]: http://www.ccs.neu.edu/racket/pubs/thesis-robby.pdf
 [traits]:    http://scg.unibe.ch/archive/papers/Scha03aTraits.pdf
-
