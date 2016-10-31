@@ -79,18 +79,23 @@ module Onyx
             @seen = Set.new
         end
 
-        def visit_seq(seq)
-            seq.nodes.each do |node|
-                node.visit(self)
-            end
-        end
-
         def is_self?(node)
             node.class == RefNode and node.var == :self
         end
 
         def not_seen?(selector)
             not @seen.include?(selector)
+        end
+
+        def visit_assign(assign)
+            assign.expr.visit(self)
+        end
+
+        def visit_block(blk)
+            blk.stmts.visit(self)
+        end
+
+        def visit_const(const)
         end
 
         def visit_send(send)
@@ -107,6 +112,18 @@ module Onyx
                 arg.visit(self)
             end
         end
+
+        def visit_seq(seq)
+            seq.nodes.each do |node|
+                node.visit(self)
+            end
+        end
+
+        def visit_ref(ref)
+        end
+
+        def visit_return(ret)
+            ret.expr.visit(self)
+        end
     end
 end
-
