@@ -1,7 +1,8 @@
 
 module Onyx
     class BlockClosure
-        attr_reader :env, :rcvr, :retk, :args, :temps, :stmts
+        attr_reader :env, :rcvr, :args, :temps, :stmts
+        attr_accessor :retk
 
         def initialize(env, rcvr, retk, node)
             @env   = env
@@ -17,4 +18,3 @@ module Onyx
         end
     end
 end
-

@@ -82,6 +82,11 @@ module Onyx
             end
         end
 
+        def prim_blockReturnTo(rcvr)
+            rcvr.retk = @stack.top
+            do_block(rcvr)
+        end
+
         def prim_blockValue(rcvr)
             do_block(rcvr)
         end
