@@ -1,5 +1,9 @@
 
 module Onyx
+
+    class TopReturnError < Exception
+    end
+
     class Interpreter
         include Primitives
         include Frames
@@ -285,6 +289,9 @@ module Onyx
         end
 
         def visit_return(ret_node)
+            if @retp.nil? then
+                raise TopReturnError.new
+            end
             @stack.top = @retp
             doing(ret_node.expr)
         end
