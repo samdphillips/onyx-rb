@@ -3,7 +3,7 @@ require 'set'
 
 module Onyx
     class Trait
-        attr_reader :mdict
+        attr_reader :name, :mdict
 
         def initialize(name, mdict, cmdict)
             @name = name

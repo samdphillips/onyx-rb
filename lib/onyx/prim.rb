@@ -75,7 +75,7 @@ module Onyx
 
         def prim_traitValidateUse_(trait, cls)
             missing = trait.validate(cls)
-            if missing == [] then
+            if missing.empty? then
                 done(trait)
             else
                 do_trait_validation_error(missing)
