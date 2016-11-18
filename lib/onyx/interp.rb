@@ -60,6 +60,7 @@ module Onyx
             sources << 'number'
             sources << 'collection'
             sources << 'string'
+            sources << 'stream'
 
             node = SeqNode.new
             sources.each do |src|
