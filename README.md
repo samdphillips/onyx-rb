@@ -1,6 +1,7 @@
-
-
 # onyx #
+
+**Latest iteration of this is at https://github.com/samdphillips/onyx**
+
 
 onyx has been the name for various Smalltalk implementations that I have
 worked on.  This version is written in Ruby, and someday will be written
